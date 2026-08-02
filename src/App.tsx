@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   Activity,
@@ -309,7 +309,7 @@ function Brand() {
   );
 }
 
-function IconButton({ label, children, onClick }: { label: string; children: ReactNode; onClick: () => void }) {
+function IconButton({ label, children, onClick }: { label: string; children: ReactNode; onClick: (event: ReactMouseEvent<HTMLButtonElement>) => void }) {
   return (
     <button className="icon-button" type="button" onClick={onClick} aria-label={label} title={label}>
       {children}
@@ -317,7 +317,7 @@ function IconButton({ label, children, onClick }: { label: string; children: Rea
   );
 }
 
-function Header({ theme, onThemeToggle }: { theme: Theme; onThemeToggle: () => void }) {
+function Header({ theme, onThemeToggle }: { theme: Theme; onThemeToggle: (event: ReactMouseEvent<HTMLButtonElement>) => void }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
 
@@ -771,22 +771,9 @@ export default function App() {
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#0a0f1c" : "#f6f7fb");
   }, [theme]);
 
-  const toggleTheme = () => {
+  const toggleTheme = (event: ReactMouseEvent<HTMLButtonElement>) => {
     const next: Theme = theme === "dark" ? "light" : "dark";
-    const doc = document as Document & {
-      startViewTransition?: (callback: () => void) => { finished: Promise<void> };
-    };
-    if (doc.startViewTransition) {
-      doc.startViewTransition(() => {
-        document.documentElement.dataset.theme = next;
-        document.documentElement.style.colorScheme = next;
-        window.localStorage.setItem("p2wlan-site-theme", next);
-        document.querySelector('meta[name="theme-color"]')?.setAttribute(
-          "content",
-          next === "dark" ? "#0a0f1c" : "#f6f7fb",
-        );
-      });
-    } else {
+    const apply = () => {
       document.documentElement.dataset.theme = next;
       document.documentElement.style.colorScheme = next;
       window.localStorage.setItem("p2wlan-site-theme", next);
@@ -794,6 +781,22 @@ export default function App() {
         "content",
         next === "dark" ? "#0a0f1c" : "#f6f7fb",
       );
+    };
+    const doc = document as Document & {
+      startViewTransition?: (callback: () => void) => { finished: Promise<void> };
+    };
+    document.documentElement.style.setProperty(
+      "--vt-origin-x",
+      `${Math.round(event.clientX)}px`,
+    );
+    document.documentElement.style.setProperty(
+      "--vt-origin-y",
+      `${Math.round(event.clientY)}px`,
+    );
+    if (doc.startViewTransition) {
+      doc.startViewTransition(apply);
+    } else {
+      apply();
     }
     setTheme(next);
   };
