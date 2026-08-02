@@ -393,6 +393,31 @@ small {
   animation: topology-drift 26s linear infinite;
 }
 
+.hero-backdrop-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: 66% 50%;
+  filter: saturate(0.94) contrast(1.02);
+  transition: opacity 260ms ease, filter 260ms ease;
+}
+
+.hero-backdrop-image-light {
+  opacity: 0;
+  filter: saturate(0.86) contrast(0.96) brightness(1.03);
+}
+
+:root[data-theme="light"] .hero-backdrop-image-dark {
+  opacity: 0;
+}
+
+:root[data-theme="light"] .hero-backdrop-image-light {
+  opacity: 1;
+}
+
 @keyframes topology-drift {
   to {
     background-position: 220px 220px, 0 0, 0 0;
@@ -1550,6 +1575,24 @@ small {
 
   .hero-topology {
     opacity: 0.32;
+  }
+
+  .hero-backdrop-image {
+    object-position: 74% 50%;
+    opacity: 0.74;
+  }
+
+  .hero-backdrop-image-light {
+    opacity: 0;
+  }
+
+  :root[data-theme="light"] .hero-backdrop-image-dark {
+    opacity: 0;
+  }
+
+  :root[data-theme="light"] .hero-backdrop-image-light {
+    object-position: 74% 50%;
+    opacity: 0.72;
   }
 
   .hero h1 {

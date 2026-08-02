@@ -451,6 +451,22 @@ function HeroPathConsole() {
   );
 }
 
+function HeroBackdropImage({ src, className }: { src: string; className: string }) {
+  return (
+    <img
+      className={className}
+      src={src}
+      alt=""
+      loading="eager"
+      decoding="async"
+      fetchPriority="high"
+      onError={(event) => {
+        (event.currentTarget as HTMLImageElement).style.display = "none";
+      }}
+    />
+  );
+}
+
 function Hero() {
   const reduceMotion = useReducedMotion();
 
@@ -458,6 +474,14 @@ function Hero() {
     <section className="hero" id="top">
       <div className="hero-backdrop" aria-hidden="true">
         <div className="hero-topology" />
+        <HeroBackdropImage
+          className="hero-backdrop-image hero-backdrop-image-dark"
+          src="./images/hero-workspace-dark.jpg"
+        />
+        <HeroBackdropImage
+          className="hero-backdrop-image hero-backdrop-image-light"
+          src="./images/hero-workspace-light.jpg"
+        />
       </div>
       <div className="hero-grid" aria-hidden="true" />
       <div className="hero-inner">
