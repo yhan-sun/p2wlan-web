@@ -1454,6 +1454,33 @@ small {
     0 0 0 4px color-mix(in srgb, var(--text) 8%, transparent);
 }
 
+::view-transition-old(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+  mix-blend-mode: normal;
+  animation: theme-wipe-in 0.55s cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes theme-wipe-in {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+
 @media (max-width: 980px) {
   .desktop-nav {
     display: none;

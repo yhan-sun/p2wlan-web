@@ -771,10 +771,37 @@ export default function App() {
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#0a0f1c" : "#f6f7fb");
   }, [theme]);
 
+  const toggleTheme = () => {
+    const next: Theme = theme === "dark" ? "light" : "dark";
+    const doc = document as Document & {
+      startViewTransition?: (callback: () => void) => { finished: Promise<void> };
+    };
+    if (doc.startViewTransition) {
+      doc.startViewTransition(() => {
+        document.documentElement.dataset.theme = next;
+        document.documentElement.style.colorScheme = next;
+        window.localStorage.setItem("p2wlan-site-theme", next);
+        document.querySelector('meta[name="theme-color"]')?.setAttribute(
+          "content",
+          next === "dark" ? "#0a0f1c" : "#f6f7fb",
+        );
+      });
+    } else {
+      document.documentElement.dataset.theme = next;
+      document.documentElement.style.colorScheme = next;
+      window.localStorage.setItem("p2wlan-site-theme", next);
+      document.querySelector('meta[name="theme-color"]')?.setAttribute(
+        "content",
+        next === "dark" ? "#0a0f1c" : "#f6f7fb",
+      );
+    }
+    setTheme(next);
+  };
+
   return (
     <>
       <AmbientEffects />
-      <Header theme={theme} onThemeToggle={() => setTheme((current) => current === "dark" ? "light" : "dark")} />
+      <Header theme={theme} onThemeToggle={toggleTheme} />
       <main>
         <Hero />
         <TrustSection />
