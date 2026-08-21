@@ -1005,24 +1005,24 @@ function Docs({ section }: { section: string }) {
         )}
       </aside>
 
-      <div className="docs-mobile-nav">
-        <BookOpen aria-hidden="true" />
-        <label htmlFor="mobile-doc-section">当前章节</label>
-        <select
-          id="mobile-doc-section"
-          value={active}
-          onChange={(event) => navigate(event.target.value)}
-        >
-          {pages.map((page) => (
-            <option value={page.id} key={page.id}>
-              {page.label}
-            </option>
-          ))}
-        </select>
-        <ChevronRight aria-hidden="true" />
-      </div>
-
       <article ref={articleRef}>
+        <div className="docs-mobile-nav">
+          <BookOpen aria-hidden="true" />
+          <label htmlFor="mobile-doc-section">当前章节</label>
+          <select
+            id="mobile-doc-section"
+            value={active}
+            onChange={(event) => navigate(event.target.value)}
+          >
+            {pages.map((page) => (
+              <option value={page.id} key={page.id}>
+                {page.label}
+              </option>
+            ))}
+          </select>
+          <ChevronRight aria-hidden="true" />
+        </div>
+
         <div className="doc-progress" aria-hidden="true">
           <span style={{ transform: `scaleX(${readingProgress})` }} />
         </div>

@@ -1810,7 +1810,7 @@ small {
 
 .docs {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: 260px minmax(0, 1fr) 220px;
   gap: 0;
   max-width: 1180px;
   margin: 0 auto;
