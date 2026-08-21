@@ -4,11 +4,19 @@ import {
   Activity,
   ArrowDown,
   ArrowRight,
+  BookOpen,
   Check,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  CircleDot,
+  Clock3,
   Download,
+  ExternalLink,
   Eye,
   Github,
   Globe,
+  Info,
   Laptop,
   LockKeyhole,
   Menu,
@@ -17,6 +25,7 @@ import {
   MousePointer2,
   Network,
   Radar,
+  Search,
   Server,
   ShieldCheck,
   Smartphone,
@@ -24,9 +33,20 @@ import {
   Sun,
   WandSparkles,
   X,
+  Zap,
 } from "lucide-react";
+import {
+  DOC_CONTENT as content,
+  DOC_PAGES as pages,
+  DOCS_VERIFIED_DATE,
+  DOCS_VERSION,
+  RELEASES,
+  REPO,
+} from "./docs";
+import { IssuesLink, ReleaseLink } from "./docs-components";
 
 type Theme = "dark" | "light";
+type Page = "home" | "docs";
 
 const EASE: [number, number, number, number] = [0.2, 0, 0, 1];
 
@@ -128,7 +148,7 @@ const pathRows = [
     name: "加密中继",
     code: "RELAY",
     signal: "兜底可用",
-    description: "直连未确认，流量通过 DERP-like 中继转发密文。",
+    description: "直连未确认，流量通过 channel 中继转发密文。",
     env: "CGNAT、UDP 被阻断、云安全组未放行",
   },
   {
@@ -192,11 +212,10 @@ $ p2wlan doctor
       <pre className="terminal-block">{`$ go build -o p2wlan-control .
 $ go build -o p2wlan-relay ./relay
 
-JWT_SECRET="long-random-secret" \\
-DB_PATH="./data/p2wlan.db" \\
-PORT=18080 \\
-RELAY_SERVERS="default@relay.example.com:18081" \\
-./p2wlan-control`}</pre>
+RELAY_BIND=":443" \\
+RELAY_TLS_CERT="/run/secrets/p2wlan/relay/fullchain.pem" \\
+RELAY_TLS_KEY="/run/secrets/p2wlan/relay/privkey.pem" \\
+./p2wlan-relay`}</pre>
     ),
   },
 ];
@@ -243,6 +262,18 @@ function readInitialTheme(): Theme {
   const saved = window.localStorage.getItem("p2wlan-site-theme");
   if (saved === "dark" || saved === "light") return saved;
   return "dark";
+}
+
+function readRoute(): { page: Page; section: string } {
+  const value = window.location.hash.replace(/^#\/?/, "");
+  return value.startsWith("docs")
+    ? { page: "docs", section: value.split("/")[1] || "intro" }
+    : { page: "home", section: "" };
+}
+
+function go(path: string) {
+  window.location.hash = path;
+  window.scrollTo({ top: 0, behavior: "instant" });
 }
 
 function AmbientEffects() {
@@ -313,12 +344,12 @@ function AmbientEffects() {
 
 function Brand() {
   return (
-    <a className="brand" href="#top" aria-label="P2WLAN 首页">
-      <span className="brand-mark">
+    <button type="button" className="brand" onClick={() => go("/")} aria-label="P2WLAN，返回首页">
+      <span className="brand-mark" aria-hidden="true">
         <img src="./images/p2wlan-icon.svg" alt="" />
       </span>
-      <span>P2WLAN</span>
-    </a>
+      <b>P2WLAN</b>
+    </button>
   );
 }
 
@@ -330,7 +361,7 @@ function IconButton({ label, children, onClick }: { label: string; children: Rea
   );
 }
 
-function Header({ theme, onThemeToggle }: { theme: Theme; onThemeToggle: () => void }) {
+function Header({ page, theme, onThemeToggle }: { page: Page; theme: Theme; onThemeToggle: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const closeMenu = () => setMenuOpen(false);
@@ -358,10 +389,12 @@ function Header({ theme, onThemeToggle }: { theme: Theme; onThemeToggle: () => v
     <header className="site-header" ref={headerRef}>
       <Brand />
       <nav className="desktop-nav" aria-label="主导航">
-        <a href="#core">核心能力</a>
-        <a href="#paths">连接路径</a>
-        <a href="#experience">体验</a>
-        <a href="#download">下载</a>
+        <button type="button" className={page === "home" ? "active" : ""} aria-current={page === "home" ? "page" : undefined} onClick={() => { go("/"); closeMenu(); }}>
+          产品
+        </button>
+        <button type="button" className={page === "docs" ? "active" : ""} aria-current={page === "docs" ? "page" : undefined} onClick={() => { go("/docs/intro"); closeMenu(); }}>
+          文档
+        </button>
         <a className="nav-github" href={links.repo} target="_blank" rel="noreferrer">
           <Github aria-hidden="true" />
           GitHub
@@ -374,6 +407,10 @@ function Header({ theme, onThemeToggle }: { theme: Theme; onThemeToggle: () => v
             <Moon className={theme === "light" ? "theme-icon-active" : ""} />
           </span>
         </IconButton>
+        <a className="top-download" href={links.releases} target="_blank" rel="noreferrer">
+          <Download aria-hidden="true" />
+          下载
+        </a>
         <button
           className="icon-button mobile-menu-button"
           type="button"
@@ -394,11 +431,9 @@ function Header({ theme, onThemeToggle }: { theme: Theme; onThemeToggle: () => v
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2, ease: EASE }}
           >
-            <a href="#core" onClick={closeMenu}>核心能力</a>
-            <a href="#paths" onClick={closeMenu}>连接路径</a>
-            <a href="#experience" onClick={closeMenu}>体验</a>
-            <a href="#download" onClick={closeMenu}>下载</a>
-            <a href={links.repo} target="_blank" rel="noreferrer">GitHub</a>
+            <button type="button" onClick={() => { go("/"); closeMenu(); }}>产品</button>
+            <button type="button" onClick={() => { go("/docs/intro"); closeMenu(); }}>文档</button>
+            <a href={links.repo} target="_blank" rel="noreferrer" onClick={closeMenu}>GitHub</a>
           </motion.nav>
         ) : null}
       </AnimatePresence>
@@ -564,9 +599,9 @@ function Hero({ theme }: { theme: Theme }) {
               下载客户端
               <ArrowDown aria-hidden="true" />
             </ActionLink>
-            <ActionLink href={links.docs}>
+            <ActionLink href="/docs/intro">
               阅读文档
-              <ArrowRight aria-hidden="true" />
+              <BookOpen aria-hidden="true" />
             </ActionLink>
           </div>
           <HeroPathConsole />
@@ -802,11 +837,303 @@ function Footer() {
       <Brand />
       <p>Peer-first. Encrypted. Self-hosted.</p>
       <div>
-        <a href={links.docs} target="_blank" rel="noreferrer">文档</a>
+        <button type="button" onClick={() => go("/docs/intro")}>文档</button>
         <a href={links.releases} target="_blank" rel="noreferrer">Releases</a>
         <a href={links.repo} target="_blank" rel="noreferrer">GitHub</a>
       </div>
     </footer>
+  );
+}
+
+interface TocHeading {
+  id: string;
+  label: string;
+}
+
+function Docs({ section }: { section: string }) {
+  const [query, setQuery] = useState("");
+  const [headings, setHeadings] = useState<TocHeading[]>([]);
+  const [activeHeading, setActiveHeading] = useState("");
+  const [readingProgress, setReadingProgress] = useState(0);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const articleRef = useRef<HTMLElement>(null);
+  const active = content[section] ? section : "intro";
+  const data = content[active];
+  const index = pages.findIndex((page) => page.id === active);
+  const pageMeta = pages[index];
+  const normalizedQuery = query.trim().toLocaleLowerCase("zh-CN");
+  const filtered = pages.filter((page) => {
+    if (!normalizedQuery) return true;
+    const haystack = [
+      page.label,
+      page.group,
+      page.summary,
+      page.goal,
+      page.prerequisite,
+      page.outcome,
+      ...page.keywords,
+    ]
+      .join(" ")
+      .toLocaleLowerCase("zh-CN");
+    return haystack.includes(normalizedQuery);
+  });
+  const groups = [...new Set(filtered.map((page) => page.group))];
+
+  useEffect(() => {
+    const shortcut = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", shortcut);
+    return () => window.removeEventListener("keydown", shortcut);
+  }, []);
+
+  useEffect(() => {
+    const elements = Array.from(
+      articleRef.current?.querySelectorAll<HTMLHeadingElement>(
+        ".doc-body h2",
+      ) ?? [],
+    );
+    const next = elements.map((element, headingIndex) => {
+      const id = `${active}-section-${headingIndex + 1}`;
+      element.id = id;
+      return {
+        id,
+        label: element.textContent?.trim() || `第 ${headingIndex + 1} 节`,
+      };
+    });
+    setHeadings(next);
+    setActiveHeading(next[0]?.id ?? "");
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]?.target.id) setActiveHeading(visible[0].target.id);
+      },
+      { rootMargin: "-110px 0px -68% 0px", threshold: [0, 1] },
+    );
+    elements.forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, [active]);
+
+  useEffect(() => {
+    const updateProgress = () => {
+      const article = articleRef.current;
+      if (!article) return;
+      const start = article.offsetTop;
+      const distance = Math.max(article.scrollHeight - window.innerHeight, 1);
+      const progress = Math.min(
+        Math.max((window.scrollY - start) / distance, 0),
+        1,
+      );
+      setReadingProgress(progress);
+    };
+    updateProgress();
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    window.addEventListener("resize", updateProgress);
+    return () => {
+      window.removeEventListener("scroll", updateProgress);
+      window.removeEventListener("resize", updateProgress);
+    };
+  }, [active]);
+
+  const navigate = (id: string) => {
+    setQuery("");
+    go(`/docs/${id}`);
+  };
+
+  return (
+    <main className="docs">
+      <aside className="sidebar" aria-label="文档目录">
+        <div className="docs-identity">
+          <span>PRODUCT MANUAL</span>
+          <b>使用文档</b>
+          <small>
+            <Info aria-hidden="true" /> 已核对 {DOCS_VERSION}
+          </small>
+        </div>
+        <div className="search">
+          <Search aria-hidden="true" />
+          <input
+            ref={searchRef}
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="搜索文档"
+            aria-label="搜索文档章节"
+          />
+          <kbd>⌘K</kbd>
+        </div>
+        {normalizedQuery && (
+          <div className="search-count" aria-live="polite">
+            找到 {filtered.length} 个章节
+          </div>
+        )}
+        {groups.map((group) => (
+          <div className="side-group" key={group}>
+            <b>{group}</b>
+            {filtered
+              .filter((page) => page.group === group)
+              .map((page) => (
+                <button
+                  type="button"
+                  key={page.id}
+                  data-doc-section={page.id}
+                  className={page.id === active ? "active" : ""}
+                  aria-current={page.id === active ? "page" : undefined}
+                  title={page.summary}
+                  onClick={() => navigate(page.id)}
+                >
+                  {page.label}
+                </button>
+              ))}
+          </div>
+        ))}
+        {filtered.length === 0 && (
+          <div className="no-results">
+            <Search aria-hidden="true" />
+            <b>没有匹配章节</b>
+            <span>尝试“安装”“直连”或“自托管”。</span>
+          </div>
+        )}
+      </aside>
+
+      <div className="docs-mobile-nav">
+        <BookOpen aria-hidden="true" />
+        <label htmlFor="mobile-doc-section">当前章节</label>
+        <select
+          id="mobile-doc-section"
+          value={active}
+          onChange={(event) => navigate(event.target.value)}
+        >
+          {pages.map((page) => (
+            <option value={page.id} key={page.id}>
+              {page.label}
+            </option>
+          ))}
+        </select>
+        <ChevronRight aria-hidden="true" />
+      </div>
+
+      <article ref={articleRef}>
+        <div className="doc-progress" aria-hidden="true">
+          <span style={{ transform: `scaleX(${readingProgress})` }} />
+        </div>
+        <div className="crumb">
+          <BookOpen aria-hidden="true" />
+          <span>文档</span>
+          <ChevronRight aria-hidden="true" />
+          <span>{pageMeta.group}</span>
+          <ChevronRight aria-hidden="true" />
+          <span>{data.title}</span>
+        </div>
+        <motion.div
+          className="doc-head"
+          key={active}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.42, ease: EASE }}
+        >
+          <div className="doc-kicker">
+            <span className="section-label">{data.over}</span>
+            <span>{DOCS_VERSION}</span>
+          </div>
+          <h1>{data.title}</h1>
+          <p>{data.desc}</p>
+          <div className="doc-meta" aria-label="章节信息">
+            <span>
+              <Clock3 aria-hidden="true" />约 {pageMeta.reading}
+            </span>
+            <span>
+              <CircleDot aria-hidden="true" />
+              {pageMeta.level}
+            </span>
+            <span>
+              <CheckCircle2 aria-hidden="true" />
+              核对日期 {DOCS_VERIFIED_DATE}
+            </span>
+          </div>
+        </motion.div>
+        <section className="guide-brief" aria-label="本页阅读说明">
+          <div>
+            <Info aria-hidden="true" />
+            <span>
+              <small>本页目标</small>
+              <b>{pageMeta.goal}</b>
+            </span>
+          </div>
+          <div>
+            <CircleDot aria-hidden="true" />
+            <span>
+              <small>开始前</small>
+              <b>{pageMeta.prerequisite}</b>
+            </span>
+          </div>
+          <div>
+            <ShieldCheck aria-hidden="true" />
+            <span>
+              <small>完成标志</small>
+              <b>{pageMeta.outcome}</b>
+            </span>
+          </div>
+        </section>
+        <div className="doc-body">{data.body}</div>
+        <div className="doc-source-note">
+          <CheckCircle2 aria-hidden="true" />
+          <span>
+            本页已按 {DOCS_VERSION} 的公开 README、发行文件与当前界面配置核对。
+            功能和平台支持仍以最新 Release 为准。
+          </span>
+        </div>
+        <nav className="pager" aria-label="文档翻页">
+          {index > 0 ? (
+            <button type="button" onClick={() => navigate(pages[index - 1].id)}>
+              <small>上一篇</small>
+              <b>
+                <ChevronLeft aria-hidden="true" /> {pages[index - 1].label}
+              </b>
+            </button>
+          ) : (
+            <span />
+          )}
+          {index < pages.length - 1 && (
+            <button type="button" onClick={() => navigate(pages[index + 1].id)}>
+              <small>下一篇</small>
+              <b>
+                {pages[index + 1].label} <ChevronRight aria-hidden="true" />
+              </b>
+            </button>
+          )}
+        </nav>
+      </article>
+
+      <aside className="toc" aria-label="本页内容">
+        <div className="toc-heading">
+          <b>本页内容</b>
+          <span>{Math.round(readingProgress * 100)}%</span>
+        </div>
+        {headings.map((heading) => (
+          <button
+            type="button"
+            key={heading.id}
+            className={heading.id === activeHeading ? "active" : ""}
+            aria-current={heading.id === activeHeading ? "location" : undefined}
+            onClick={() =>
+              document.getElementById(heading.id)?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              })
+            }
+          >
+            {heading.label}
+          </button>
+        ))}
+        <IssuesLink />
+      </aside>
+    </main>
   );
 }
 
@@ -834,6 +1161,7 @@ const MemoDownloadSection = memo(DownloadSection);
 const MemoFooter = memo(Footer);
 
 export default function App() {
+  const [location, setLocation] = useState(readRoute);
   const [theme, setTheme] = useState<Theme>(readInitialTheme);
   const flashRef = useRef<HTMLDivElement>(null);
   const flashingRef = useRef(false);
@@ -841,6 +1169,23 @@ export default function App() {
   useEffect(() => {
     applyTheme(theme);
   }, [theme]);
+
+  useEffect(() => {
+    const update = () => {
+      setLocation(readRoute());
+      window.scrollTo({ top: 0, behavior: "instant" });
+    };
+    window.addEventListener("hashchange", update);
+    return () => window.removeEventListener("hashchange", update);
+  }, []);
+
+  useEffect(() => {
+    const title =
+      location.page === "docs"
+        ? content[location.section]?.title || "文档"
+        : "P2WLAN - 开源的 P2P 加密虚拟局域网";
+    document.title = `${title} · P2WLAN`;
+  }, [location]);
 
   const toggleTheme = useCallback(() => {
     const next: Theme = theme === "dark" ? "light" : "dark";
@@ -880,15 +1225,21 @@ export default function App() {
     <>
       <div className="theme-flash" ref={flashRef} aria-hidden="true" />
       <MemoAmbientEffects />
-      <MemoHeader theme={theme} onThemeToggle={toggleTheme} />
+      <MemoHeader page={location.page} theme={theme} onThemeToggle={toggleTheme} />
       <main>
-        <MemoHero theme={theme} />
-        <MemoTrustSection />
-        <MemoCoreSection />
-        <MemoPathsSection />
-        <MemoExperienceSection />
-        <MemoManifestoSection />
-        <MemoDownloadSection />
+        {location.page === "home" ? (
+          <>
+            <MemoHero theme={theme} />
+            <MemoTrustSection />
+            <MemoCoreSection />
+            <MemoPathsSection />
+            <MemoExperienceSection />
+            <MemoManifestoSection />
+            <MemoDownloadSection />
+          </>
+        ) : (
+          <Docs section={location.section} />
+        )}
       </main>
       <MemoFooter />
     </>
