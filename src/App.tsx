@@ -599,10 +599,14 @@ function Hero({ theme }: { theme: Theme }) {
               下载客户端
               <ArrowDown aria-hidden="true" />
             </ActionLink>
-            <ActionLink href="/docs/intro">
+            <button
+              type="button"
+              className="button button-secondary hero-doc-link"
+              onClick={() => go("/docs/intro")}
+            >
               阅读文档
               <BookOpen aria-hidden="true" />
-            </ActionLink>
+            </button>
           </div>
           <HeroPathConsole />
           <div className="hero-console">
