@@ -3,7 +3,6 @@ import {
   ArrowRight,
   CheckCircle2,
   Download,
-  FileCheck2,
   KeyRound,
   ListChecks,
   MonitorDown,
@@ -11,48 +10,19 @@ import {
   Network,
   PanelLeft,
   Play,
-  Search,
   Settings2,
   ShieldCheck,
-  SlidersHorizontal,
   TerminalSquare,
 } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
 import {
   Callout,
   CodeBlock,
-  DocImage,
   IssuesLink,
   Kbd,
   ReleaseLink,
   Steps,
 } from "./docs-components";
-
-const EASE: [number, number, number, number] = [0.2, 0, 0, 1];
-const revealInitial = { opacity: 0, y: 22 };
-const revealInView = { opacity: 1, y: 0 };
-const revealTransition = { duration: 0.56, ease: EASE };
-
-function Reveal({
-  children,
-  className = "",
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  const reduceMotion = useReducedMotion();
-  return (
-    <motion.div
-      className={className}
-      initial={reduceMotion ? false : revealInitial}
-      whileInView={reduceMotion ? undefined : revealInView}
-      viewport={{ once: true, amount: 0.12 }}
-      transition={revealTransition}
-    >
-      {children}
-    </motion.div>
-  );
-}
+import { Reveal } from "./Reveal";
 
 export const REPO = "https://github.com/yhan-sun/p2wlan";
 export const RELEASES = `${REPO}/releases`;

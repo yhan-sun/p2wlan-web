@@ -3,7 +3,6 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   Activity,
   ArrowDown,
-  ArrowRight,
   BookOpen,
   Check,
   CheckCircle2,
@@ -12,7 +11,6 @@ import {
   CircleDot,
   Clock3,
   Download,
-  ExternalLink,
   Eye,
   Github,
   Globe,
@@ -33,26 +31,26 @@ import {
   Sun,
   WandSparkles,
   X,
-  Zap,
 } from "lucide-react";
 import {
   DOC_CONTENT as content,
   DOC_PAGES as pages,
   DOCS_VERIFIED_DATE,
   DOCS_VERSION,
-  RELEASES,
-  REPO,
 } from "./docs";
-import { IssuesLink, ReleaseLink } from "./docs-components";
+import { IssuesLink } from "./docs-components";
 
 type Theme = "dark" | "light";
 type Page = "home" | "docs";
 
 const EASE: [number, number, number, number] = [0.2, 0, 0, 1];
 
-const revealInitial = { opacity: 0, y: 22 };
+const revealInitial = { opacity: 0, y: 24 };
 const revealInView = { opacity: 1, y: 0 };
-const revealTransition = { duration: 0.56, ease: EASE };
+const revealTransition = {
+  duration: 0.65,
+  ease: [0.16, 1, 0.3, 1] as const,
+};
 
 const links = {
   releases: "https://github.com/yhan-sun/p2wlan/releases",
@@ -367,6 +365,14 @@ function Header({ page, theme, onThemeToggle }: { page: Page; theme: Theme; onTh
   const closeMenu = () => setMenuOpen(false);
 
   useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeMenu();
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, []);
+
+  useEffect(() => {
     const header = headerRef.current;
     if (!header) return;
     let frame = 0;
@@ -443,7 +449,12 @@ function Header({ page, theme, onThemeToggle }: { page: Page; theme: Theme; onTh
 
 function ActionLink({ href, children, primary = false }: { href: string; children: ReactNode; primary?: boolean }) {
   return (
-    <a className={primary ? "button button-primary" : "button button-secondary"} href={href}>
+    <a
+      className={primary ? "button button-primary" : "button button-secondary"}
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+    >
       {children}
     </a>
   );
@@ -456,7 +467,7 @@ function Reveal({ children, className = "" }: { children: ReactNode; className?:
       className={className}
       initial={reduceMotion ? false : revealInitial}
       whileInView={reduceMotion ? undefined : revealInView}
-      viewport={{ once: true, amount: 0.12 }}
+      viewport={{ once: true, margin: "-80px" }}
       transition={revealTransition}
     >
       {children}
@@ -583,13 +594,6 @@ function Hero({ theme }: { theme: Theme }) {
             <span>P2W</span>
             <span className="spectral-text">LAN.</span>
           </h1>
-        </motion.div>
-        <motion.div
-          className="hero-side"
-          initial={reduceMotion ? false : { opacity: 0, y: 22 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.68, delay: 0.1, ease: EASE }}
-        >
           <p className="hero-tagline">
             <strong>把分散在不同网络里的设备，连成一张真正可用的加密虚拟局域网。</strong>
             <span>Mac、Windows、Linux、云服务器、NAS、家庭设备，都可以拥有稳定的私有虚拟 IP。直连优先，中继兜底，连接状态一目了然。</span>
@@ -608,6 +612,14 @@ function Hero({ theme }: { theme: Theme }) {
               <BookOpen aria-hidden="true" />
             </button>
           </div>
+          <p className="hero-proof-note">请从 GitHub Releases 下载官方发行版。当前为 Preview 阶段，尚未完成独立安全审计，用于高敏感流量前请先完成自己的安全审查。</p>
+        </motion.div>
+        <motion.div
+          className="hero-side"
+          initial={reduceMotion ? false : { opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.68, delay: 0.1, ease: EASE }}
+        >
           <HeroPathConsole />
           <div className="hero-console">
             {heroSignals.map((signal) => (
@@ -617,10 +629,26 @@ function Hero({ theme }: { theme: Theme }) {
               </span>
             ))}
           </div>
-          <p className="hero-proof-note">请从 GitHub Releases 下载官方发行版。当前为 Preview 阶段，尚未完成独立安全审计，用于高敏感流量前请先完成自己的安全审查。</p>
         </motion.div>
       </div>
     </section>
+  );
+}
+
+function HomeSignals() {
+  return (
+    <div className="home-signals" aria-label="项目状态">
+      <span>开源免费</span>
+      <b>MIT License</b>
+      <i aria-hidden="true" />
+      <span>连接方式</span>
+      <b>P2P 优先</b>
+      <i aria-hidden="true" />
+      <a href={links.repo} target="_blank" rel="noreferrer">
+        查看主仓库
+        <Github aria-hidden="true" />
+      </a>
+    </div>
   );
 }
 
@@ -845,6 +873,7 @@ function Footer() {
         <a href={links.releases} target="_blank" rel="noreferrer">Releases</a>
         <a href={links.repo} target="_blank" rel="noreferrer">GitHub</a>
       </div>
+      <small>© {new Date().getFullYear()} P2WLAN · 仅供学习、研究和非商业使用</small>
     </footer>
   );
 }
@@ -882,6 +911,7 @@ function Docs({ section }: { section: string }) {
     return haystack.includes(normalizedQuery);
   });
   const groups = [...new Set(filtered.map((page) => page.group))];
+  const allGroups = [...new Set(pages.map((page) => page.group))];
 
   useEffect(() => {
     const shortcut = (event: KeyboardEvent) => {
@@ -1014,10 +1044,16 @@ function Docs({ section }: { section: string }) {
             value={active}
             onChange={(event) => navigate(event.target.value)}
           >
-            {pages.map((page) => (
-              <option value={page.id} key={page.id}>
-                {page.label}
-              </option>
+            {allGroups.map((group) => (
+              <optgroup label={group} key={group}>
+                {pages
+                  .filter((page) => page.group === group)
+                  .map((page) => (
+                    <option value={page.id} key={page.id}>
+                      {page.label}
+                    </option>
+                  ))}
+              </optgroup>
             ))}
           </select>
           <ChevronRight aria-hidden="true" />
@@ -1156,6 +1192,7 @@ function applyTheme(next: Theme) {
 const MemoAmbientEffects = memo(AmbientEffects);
 const MemoHeader = memo(Header);
 const MemoHero = memo(Hero);
+const MemoHomeSignals = memo(HomeSignals);
 const MemoTrustSection = memo(TrustSection);
 const MemoCoreSection = memo(CoreSection);
 const MemoPathsSection = memo(PathsSection);
@@ -1169,6 +1206,11 @@ export default function App() {
   const [theme, setTheme] = useState<Theme>(readInitialTheme);
   const flashRef = useRef<HTMLDivElement>(null);
   const flashingRef = useRef(false);
+
+  useEffect(() => {
+    window.history.scrollRestoration = "manual";
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
 
   useEffect(() => {
     applyTheme(theme);
@@ -1234,6 +1276,7 @@ export default function App() {
         {location.page === "home" ? (
           <>
             <MemoHero theme={theme} />
+            <MemoHomeSignals />
             <MemoTrustSection />
             <MemoCoreSection />
             <MemoPathsSection />

@@ -6,6 +6,17 @@
     <meta name="theme-color" content="#0a0f1c" />
     <meta name="description" content="P2WLAN 是一个开源、P2P 优先、可自托管的加密虚拟局域网。把分散在不同网络里的设备，连成一张真正可用的加密虚拟局域网。请从 GitHub 官方 Releases 下载。" />
     <link rel="icon" type="image/svg+xml" href="/images/p2wlan-icon.svg" />
+    <script>
+      (() => {
+        try {
+          const storedTheme = window.localStorage.getItem("p2wlan-site-theme");
+          document.documentElement.dataset.theme =
+            storedTheme === "light" ? "light" : "dark";
+        } catch {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
     <title>P2WLAN - 开源的 P2P 加密虚拟局域网</title>
   </head>
   <body>
