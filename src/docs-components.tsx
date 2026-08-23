@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   AlertTriangle,
   ArrowRight,
@@ -45,12 +45,50 @@ export function CodeBlock({
   children: string;
   label?: string;
 }) {
-  const [copied, setCopied] = useState(false);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "error">("idle");
+  const resetTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current !== null) window.clearTimeout(resetTimerRef.current);
+    };
+  }, []);
 
   const copy = async () => {
-    await navigator.clipboard?.writeText(children);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1500);
+    const fallbackCopy = () => {
+      const textarea = document.createElement("textarea");
+      textarea.value = children;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        if (!document.execCommand("copy")) throw new Error("copy failed");
+      } finally {
+        textarea.remove();
+      }
+    };
+
+    try {
+      if (typeof navigator.clipboard?.writeText === "function") {
+        try {
+          await navigator.clipboard.writeText(children);
+        } catch {
+          fallbackCopy();
+        }
+      } else {
+        fallbackCopy();
+      }
+      setCopyState("copied");
+    } catch {
+      setCopyState("error");
+    }
+    if (resetTimerRef.current !== null) window.clearTimeout(resetTimerRef.current);
+    resetTimerRef.current = window.setTimeout(() => {
+      setCopyState("idle");
+      resetTimerRef.current = null;
+    }, 1500);
   };
 
   return (
@@ -59,16 +97,24 @@ export function CodeBlock({
         <span className="code-label">{label}</span>
         <button
           type="button"
-          className={copied ? "copied" : ""}
+          className={copyState === "copied" ? "copied" : copyState === "error" ? "copy-error" : ""}
           onClick={() => void copy()}
-          aria-label={`复制${label}`}
+          aria-label={
+            copyState === "copied"
+              ? `已复制${label}`
+              : copyState === "error"
+                ? `复制${label}失败，请重试`
+                : `复制${label}`
+          }
         >
-          {copied ? (
+          {copyState === "copied" ? (
             <Check aria-hidden="true" />
+          ) : copyState === "error" ? (
+            <AlertTriangle aria-hidden="true" />
           ) : (
             <Clipboard aria-hidden="true" />
           )}
-          {copied ? "已复制" : "复制"}
+          {copyState === "copied" ? "已复制" : copyState === "error" ? "复制失败" : "复制"}
         </button>
       </div>
       <pre tabIndex={0} aria-label={`${label}代码`}>

@@ -283,7 +283,11 @@ export const DOC_CONTENT: Record<string, DocEntry> = {
         />
         <Callout title="唯一官方来源">
           <p>
-            后续发行包以 <a href={REPO}>yhan-sun/p2wlan</a> 为准。
+            后续发行包以{" "}
+            <a href={REPO} target="_blank" rel="noreferrer">
+              yhan-sun/p2wlan
+            </a>{" "}
+            为准。
           </p>
         </Callout>
       </>

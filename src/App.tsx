@@ -257,21 +257,29 @@ const platforms = [
 ];
 
 function readInitialTheme(): Theme {
-  const saved = window.localStorage.getItem("p2wlan-site-theme");
-  if (saved === "dark" || saved === "light") return saved;
+  try {
+    const saved = window.localStorage.getItem("p2wlan-site-theme");
+    if (saved === "dark" || saved === "light") return saved;
+  } catch {
+    // Storage can be unavailable in private browsing or restricted webviews.
+  }
   return "dark";
 }
 
 function readRoute(): { page: Page; section: string } {
   const value = window.location.hash.replace(/^#\/?/, "");
-  return value.startsWith("docs")
-    ? { page: "docs", section: value.split("/")[1] || "intro" }
-    : { page: "home", section: "" };
+  if (value !== "docs" && !value.startsWith("docs/")) {
+    return { page: "home", section: "" };
+  }
+
+  const candidate = value.split("/")[1] || "intro";
+  const section = pages.some((page) => page.id === candidate) ? candidate : "intro";
+  return { page: "docs", section };
 }
 
 function go(path: string) {
   window.location.hash = path;
-  window.scrollTo({ top: 0, behavior: "instant" });
+  window.scrollTo({ top: 0, behavior: "auto" });
 }
 
 function AmbientEffects() {
@@ -340,9 +348,17 @@ function AmbientEffects() {
   );
 }
 
-function Brand() {
+function Brand({ onClick }: { onClick?: () => void } = {}) {
   return (
-    <button type="button" className="brand" onClick={() => go("/")} aria-label="P2WLAN，返回首页">
+    <button
+      type="button"
+      className="brand"
+      onClick={() => {
+        go("/");
+        onClick?.();
+      }}
+      aria-label="P2WLAN，返回首页"
+    >
       <span className="brand-mark" aria-hidden="true">
         <img src="./images/p2wlan-icon.svg" alt="" />
       </span>
@@ -393,7 +409,7 @@ function Header({ page, theme, onThemeToggle }: { page: Page; theme: Theme; onTh
 
   return (
     <header className="site-header" ref={headerRef}>
-      <Brand />
+      <Brand onClick={closeMenu} />
       <nav className="desktop-nav" aria-label="主导航">
         <button type="button" className={page === "home" ? "active" : ""} aria-current={page === "home" ? "page" : undefined} onClick={() => { go("/"); closeMenu(); }}>
           产品
@@ -437,8 +453,8 @@ function Header({ page, theme, onThemeToggle }: { page: Page; theme: Theme; onTh
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2, ease: EASE }}
           >
-            <button type="button" onClick={() => { go("/"); closeMenu(); }}>产品</button>
-            <button type="button" onClick={() => { go("/docs/intro"); closeMenu(); }}>文档</button>
+            <button type="button" className={page === "home" ? "active" : ""} aria-current={page === "home" ? "page" : undefined} onClick={() => { go("/"); closeMenu(); }}>产品</button>
+            <button type="button" className={page === "docs" ? "active" : ""} aria-current={page === "docs" ? "page" : undefined} onClick={() => { go("/docs/intro"); closeMenu(); }}>文档</button>
             <a href={links.repo} target="_blank" rel="noreferrer" onClick={closeMenu}>GitHub</a>
           </motion.nav>
         ) : null}
@@ -531,14 +547,16 @@ function HeroPathConsole() {
 }
 
 function HeroBackdropImage({ src, className, active }: { src: string; className: string; active: boolean }) {
+  if (!active) return null;
+
   return (
     <img
       className={className}
-      src={active ? src : undefined}
+      src={src}
       alt=""
       loading="eager"
       decoding="async"
-      fetchPriority={active ? "high" : "low"}
+      fetchPriority="high"
       onError={(event) => {
         (event.currentTarget as HTMLImageElement).style.display = "none";
       }}
@@ -587,8 +605,8 @@ function Hero({ theme }: { theme: Theme }) {
           transition={{ duration: 0.68, ease: EASE }}
         >
           <span className="hero-eyebrow">
-            <Radar aria-hidden="true" />
-            Peer-first encrypted virtual LAN
+            <span className="hero-eyebrow-dot" aria-hidden="true" />
+            P2P 优先 · 加密虚拟局域网
           </span>
           <h1 aria-label="P2WLAN">
             <span>P2W</span>
@@ -638,11 +656,20 @@ function Hero({ theme }: { theme: Theme }) {
 function HomeSignals() {
   return (
     <div className="home-signals" aria-label="项目状态">
-      <span>开源免费</span>
-      <b>MIT License</b>
+      <div className="home-signal-group">
+        <span>开源协议</span>
+        <b>MIT License</b>
+      </div>
       <i aria-hidden="true" />
-      <span>连接方式</span>
-      <b>P2P 优先</b>
+      <div className="home-signal-group">
+        <span>连接方式</span>
+        <b>P2P 优先</b>
+      </div>
+      <i aria-hidden="true" />
+      <div className="home-signal-group">
+        <span>部署方式</span>
+        <b>可自托管</b>
+      </div>
       <i aria-hidden="true" />
       <a href={links.repo} target="_blank" rel="noreferrer">
         查看主仓库
@@ -1185,7 +1212,11 @@ const themeBackgrounds: Record<Theme, string> = {
 function applyTheme(next: Theme) {
   document.documentElement.dataset.theme = next;
   document.documentElement.style.colorScheme = next;
-  window.localStorage.setItem("p2wlan-site-theme", next);
+  try {
+    window.localStorage.setItem("p2wlan-site-theme", next);
+  } catch {
+    // The visual theme still applies even when persistence is unavailable.
+  }
   document.querySelector('meta[name="theme-color"]')?.setAttribute("content", themeBackgrounds[next]);
 }
 
@@ -1209,7 +1240,7 @@ export default function App() {
 
   useEffect(() => {
     window.history.scrollRestoration = "manual";
-    window.scrollTo({ top: 0, behavior: "instant" });
+    window.scrollTo({ top: 0, behavior: "auto" });
   }, []);
 
   useEffect(() => {
@@ -1219,11 +1250,19 @@ export default function App() {
   useEffect(() => {
     const update = () => {
       setLocation(readRoute());
-      window.scrollTo({ top: 0, behavior: "instant" });
+      window.scrollTo({ top: 0, behavior: "auto" });
     };
     window.addEventListener("hashchange", update);
     return () => window.removeEventListener("hashchange", update);
   }, []);
+
+  useEffect(() => {
+    if (location.page !== "docs") return;
+    const expectedHash = `#/docs/${location.section}`;
+    if (window.location.hash !== expectedHash) {
+      window.history.replaceState(null, "", expectedHash);
+    }
+  }, [location]);
 
   useEffect(() => {
     const title =
@@ -1272,9 +1311,9 @@ export default function App() {
       <div className="theme-flash" ref={flashRef} aria-hidden="true" />
       <MemoAmbientEffects />
       <MemoHeader page={location.page} theme={theme} onThemeToggle={toggleTheme} />
-      <main>
-        {location.page === "home" ? (
-          <>
+      {location.page === "home" ? (
+        <>
+          <main>
             <MemoHero theme={theme} />
             <MemoHomeSignals />
             <MemoTrustSection />
@@ -1283,12 +1322,12 @@ export default function App() {
             <MemoExperienceSection />
             <MemoManifestoSection />
             <MemoDownloadSection />
-          </>
-        ) : (
-          <Docs section={location.section} />
-        )}
-      </main>
-      <MemoFooter />
+          </main>
+          <MemoFooter />
+        </>
+      ) : (
+        <Docs section={location.section} />
+      )}
     </>
   );
 }

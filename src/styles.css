@@ -1526,6 +1526,11 @@ small {
     color: var(--text);
   }
 
+  .mobile-nav button.active {
+    background: var(--surface-soft);
+    color: var(--text);
+  }
+
   .hero {
     min-height: 680px;
     height: 88svh;
@@ -2672,6 +2677,11 @@ small {
 .code button.copied {
   border-color: color-mix(in srgb, var(--success) 52%, var(--border));
   color: var(--success);
+}
+
+.code button.copy-error {
+  border-color: color-mix(in srgb, #f87171 52%, var(--border));
+  color: #f87171;
 }
 
 .code button svg {
@@ -4226,6 +4236,281 @@ small {
   .brand-mark img {
     animation: none;
   }
+}
+
+/* ---------- Interface update: luminous glass surfaces ---------- */
+.site-header {
+  border-color: color-mix(in oklab, var(--accent) 16%, var(--border));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--text) 22%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, var(--text) 8%, transparent),
+    0 16px 48px color-mix(in oklab, var(--background) 24%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--accent) 5%, transparent);
+}
+
+.site-header::after {
+  content: "";
+  position: absolute;
+  right: 13%;
+  bottom: -1px;
+  left: 13%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--cyan), transparent);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.site-header.is-scrolled {
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--text) 18%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, var(--text) 8%, transparent),
+    0 14px 42px color-mix(in oklab, var(--background) 28%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--accent) 7%, transparent);
+}
+
+.desktop-nav button[aria-current="page"] {
+  color: var(--text);
+  background:
+    linear-gradient(145deg, color-mix(in oklab, var(--text) 8%, transparent), transparent 70%),
+    color-mix(in oklab, var(--accent) 8%, var(--surface));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--text) 20%, transparent),
+    inset 0 0 0 1px color-mix(in oklab, var(--accent) 18%, var(--border-soft));
+}
+
+.header-actions .icon-button:hover,
+.header-actions .icon-button:focus-visible {
+  box-shadow:
+    0 0 0 1px var(--border),
+    0 0 0 4px color-mix(in oklab, var(--accent) 12%, transparent),
+    0 8px 22px color-mix(in oklab, var(--accent) 12%, transparent);
+}
+
+.brand-mark img {
+  filter: drop-shadow(0 4px 12px color-mix(in oklab, var(--cyan) 22%, transparent));
+}
+
+.hero::before {
+  background:
+    linear-gradient(
+      90deg,
+      var(--background) 0%,
+      color-mix(in oklab, var(--background) 84%, transparent) 30%,
+      color-mix(in oklab, var(--background) 31%, transparent) 58%,
+      color-mix(in oklab, var(--background) 5%, transparent) 100%
+    ),
+    linear-gradient(0deg, var(--background), transparent 42%),
+    linear-gradient(180deg, color-mix(in oklab, var(--accent) 13%, transparent), transparent 34%);
+}
+
+:root[data-theme="light"] .hero::before {
+  background:
+    linear-gradient(
+      90deg,
+      var(--background) 0%,
+      color-mix(in oklab, var(--background) 84%, transparent) 30%,
+      color-mix(in oklab, var(--background) 26%, transparent) 58%,
+      color-mix(in oklab, var(--background) 4%, transparent) 100%
+    ),
+    linear-gradient(0deg, var(--background), transparent 44%),
+    linear-gradient(180deg, color-mix(in oklab, var(--gold) 16%, transparent), transparent 34%);
+}
+
+.hero-backdrop-image-dark {
+  filter: saturate(1.02) contrast(1.05) brightness(1.08);
+}
+
+.hero-backdrop-image-light {
+  filter: saturate(0.9) contrast(0.98) brightness(1.02);
+}
+
+.hero-eyebrow {
+  color: var(--text-secondary);
+  letter-spacing: 0.12em;
+}
+
+.hero-eyebrow-dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--success) 12%, transparent), 0 0 14px var(--success);
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+
+.hero h1 {
+  text-shadow: 0 12px 34px color-mix(in oklab, var(--background) 26%, transparent);
+}
+
+.hero-path-console {
+  border-color: color-mix(in oklab, var(--accent) 19%, var(--border-soft));
+  border-radius: 16px;
+  background:
+    radial-gradient(120% 160% at 100% 0, color-mix(in oklab, var(--cyan) 13%, transparent), transparent 64%),
+    linear-gradient(135deg, color-mix(in oklab, var(--surface) 74%, transparent), color-mix(in oklab, var(--background) 38%, transparent));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--text) 24%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, var(--text) 8%, transparent),
+    0 24px 64px color-mix(in oklab, var(--background) 28%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--accent) 6%, transparent);
+}
+
+.console-bar {
+  background: color-mix(in oklab, var(--surface) 56%, transparent);
+  backdrop-filter: blur(14px) saturate(135%);
+  -webkit-backdrop-filter: blur(14px) saturate(135%);
+}
+
+.home-signals {
+  position: relative;
+  min-height: 70px;
+  background:
+    linear-gradient(90deg, color-mix(in oklab, var(--accent) 4%, transparent), transparent 24%, transparent 76%, color-mix(in oklab, var(--cyan) 5%, transparent)),
+    var(--surface);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--text) 7%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, var(--text) 5%, transparent);
+}
+
+.home-signal-group {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.home-signal-group span {
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  font-weight: 640;
+}
+
+.home-signal-group b {
+  color: var(--text);
+  font-size: 0.72rem;
+  font-weight: 780;
+}
+
+.home-signals > i {
+  opacity: 0.8;
+}
+
+.home-signals a {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: 9px;
+  background: color-mix(in oklab, var(--surface-raised) 58%, transparent);
+  transition: background-color 180ms cubic-bezier(0.16, 1, 0.3, 1), border-color 180ms cubic-bezier(0.16, 1, 0.3, 1), transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.home-signals a:hover {
+  border-color: color-mix(in oklab, var(--accent) 30%, var(--border));
+  background: color-mix(in oklab, var(--accent) 9%, var(--surface-raised));
+  transform: translateY(-1px);
+}
+
+.trust-card,
+.intelligence-card,
+.platform-card,
+.feature-matrix,
+.doc-lead,
+.guide-brief,
+.doc-source-note {
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--text) 8%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--accent) 3%, transparent);
+}
+
+.trust-card:hover,
+.intelligence-card:hover,
+.platform-card:hover,
+.feature-matrix:hover {
+  border-color: color-mix(in oklab, var(--accent) 30%, var(--border-soft));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--text) 13%, transparent),
+    0 20px 54px color-mix(in oklab, var(--background) 26%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--accent) 8%, transparent);
+}
+
+.doc-grid > a:focus-visible,
+.pager button:focus-visible,
+.toc button[aria-current="location"] {
+  border-color: color-mix(in oklab, var(--accent) 38%, var(--border));
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.toc button[aria-current="location"] {
+  color: var(--text);
+  background: linear-gradient(90deg, color-mix(in oklab, var(--accent) 13%, transparent), transparent);
+}
+
+.toc .doc-link {
+  padding: 12px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--surface) 62%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--text) 8%, transparent);
+}
+
+.docs-mobile-nav {
+  border: 1px solid color-mix(in oklab, var(--accent) 18%, var(--border-soft));
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--surface) 72%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--text) 12%, transparent),
+    0 14px 32px color-mix(in oklab, var(--background) 14%, transparent);
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+}
+
+.mobile-nav {
+  border: 1px solid color-mix(in oklab, var(--accent) 18%, var(--border-soft));
+  background:
+    radial-gradient(120% 100% at 100% 0, color-mix(in oklab, var(--cyan) 10%, transparent), transparent 48%),
+    color-mix(in oklab, var(--surface) 94%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--text) 14%, transparent),
+    0 18px 48px color-mix(in oklab, var(--background) 28%, transparent);
+  backdrop-filter: blur(24px) saturate(155%);
+  -webkit-backdrop-filter: blur(24px) saturate(155%);
+}
+
+@media (max-width: 640px) {
+  .home-signal-group {
+    gap: 8px;
+  }
+
+  .home-signal-group span {
+    font-size: 0.61rem;
+  }
+
+  .home-signal-group b {
+    font-size: 0.68rem;
+  }
+
+  .hero-path-console {
+    border-radius: 14px;
+  }
+
+  .console-line {
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-eyebrow-dot {
+    animation: none;
+  }
+}
+
+/* The app icon already contains its own frame; avoid adding decorative rails around it. */
+.site-header .brand-mark::before,
+.site-header .brand-mark::after,
+.site-footer .brand-mark::before,
+.site-footer .brand-mark::after {
+  display: none;
 }
 
 /* ---------- Reference refinement: document component surfaces ---------- */
