@@ -68,3 +68,5 @@ jobs:
             .refine-chunks
           git commit -m "refactor: give the website a restrained editorial voice"
           git push origin HEAD:${GITHUB_REF_NAME}
+
+# Archive complete; this comment intentionally triggers the materializer.
