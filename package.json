@@ -1,28 +1,18 @@
 {
-  "name": "p2wlan-site",
+  "name": "p2wlan-web",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "lint": "oxlint src"
-  },
-  "dependencies": {
-    "@fontsource-variable/manrope": "^5.2.6",
-    "@fontsource-variable/noto-sans-sc": "^5.2.8",
-    "framer-motion": "^12.23.9",
-    "lucide-react": "^0.525.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
-  },
-  "devDependencies": {
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6",
-    "@vitejs/plugin-react": "^4.6.0",
-    "oxlint": "^1.7.0",
-    "typescript": "~5.8.3",
-    "vite": "^7.0.5"
+    "sync-release": "node scripts/sync-release.mjs",
+    "validate:content": "node scripts/validate.mjs",
+    "build": "node scripts/build.mjs",
+    "validate:dist": "node scripts/validate-dist.mjs",
+    "check": "npm run validate:content && npm run build && npm run validate:dist",
+    "dev": "npm run build && node scripts/serve.mjs",
+    "preview": "node scripts/serve.mjs"
   }
 }
