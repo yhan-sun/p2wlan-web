@@ -35,18 +35,30 @@ jobs:
 
           path = Path('.refine-chunks/part-01')
           target = 'ec18027182d6dbbde1e0624d8ce4f9f826766b6f56eb7892836b183b1b434b0c'
+          expected_length = 15_000
           data = path.read_bytes()
+          digest = sha256(data).hexdigest()
+          print(f'part-01 received length={len(data)}, sha256={digest}')
 
-          if sha256(data).hexdigest() != target:
+          if digest != target:
+              extra = len(data) - expected_length
+              if extra <= 0:
+                  raise SystemExit(
+                      f'part-01 is not a recoverable insertion: length={len(data)}, expected={expected_length}'
+                  )
+
               repaired = None
-              for offset in range(len(data) - 11):
-                  candidate = data[:offset] + data[offset + 12:]
+              for offset in range(expected_length + 1):
+                  candidate = data[:offset] + data[offset + extra:]
                   if sha256(candidate).hexdigest() == target:
                       repaired = candidate
-                      print(f'Removed the 12-byte transfer insertion at offset {offset}.')
+                      print(f'Removed a {extra}-byte duplicated transfer segment at offset {offset}.')
                       break
+
               if repaired is None:
-                  raise SystemExit('Unable to repair part-01 to its expected digest.')
+                  raise SystemExit(
+                      f'Unable to recover part-01 by removing one contiguous {extra}-byte insertion.'
+                  )
               path.write_bytes(repaired)
           PY
 
