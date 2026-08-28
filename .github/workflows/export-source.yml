@@ -1,4 +1,4 @@
-name: Export source for visual refinement
+name: Materialize editorial refinement
 
 on:
   push:
@@ -9,27 +9,62 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: materialize-editorial-refinement
+  cancel-in-progress: false
 
 jobs:
-  export:
+  materialize:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Archive repository source
+        with:
+          fetch-depth: 0
+
+      - name: Restore refined source
         shell: bash
         run: |
           set -euo pipefail
-          tar \
-            --exclude=.git \
-            --exclude=node_modules \
-            --exclude=dist \
-            --exclude=.cache \
-            -czf /tmp/p2wlan-web-source.tar.gz .
-      - uses: actions/upload-artifact@v4
-        with:
-          name: p2wlan-web-source
-          path: /tmp/p2wlan-web-source.tar.gz
-          if-no-files-found: error
-          retention-days: 1
+
+          cat <<'CHECKSUMS' | sha256sum --check
+          7881084c67e0f0d2f9eb8569d21e869d20054f15100a582bc3855abe55737463  .refine-chunks/part-00
+          ec18027182d6dbbde1e0624d8ce4f9f826766b6f56eb7892836b183b1b434b0c  .refine-chunks/part-01
+          5d3c31db7f6649b9bdeb8e3b9a6688c896183f75cb867a3978967b61bf93abb6  .refine-chunks/part-02
+          31a4786f87acb47b10b4f4a120076cffec76acbbe0c2f733b8f51f33962d769c  .refine-chunks/part-03
+          ed50f362d8f9b60e05266c7826b9b31dc46a70fc1c0613f45c4af48d159e8394  .refine-chunks/part-04
+          CHECKSUMS
+
+          cat .refine-chunks/part-* > /tmp/p2wlan-refinement.tar.gz.b64
+          base64 --decode /tmp/p2wlan-refinement.tar.gz.b64 > /tmp/p2wlan-refinement.tar.gz
+          echo "d1a60869993f47556632e14b76043d53382fede593605d14038469590215e130  /tmp/p2wlan-refinement.tar.gz" | sha256sum --check
+          tar -xzf /tmp/p2wlan-refinement.tar.gz -C .
+          rm -rf .refine-chunks
+
+      - name: Validate refined website
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_SYNC_REQUIRED: "true"
+        run: |
+          npm ci --ignore-scripts
+          npm run sync-release
+          npm run check
+
+      - name: Commit refined source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- \
+            public/favicon.svg \
+            public/images/p2wlan-icon.svg \
+            scripts/build.mjs \
+            src/client.js \
+            src/content.mjs \
+            src/styles.css \
+            .refine-chunks
+          git commit -m "refactor: give the website a restrained editorial voice"
+          git push origin HEAD:${GITHUB_REF_NAME}
