@@ -5,7 +5,7 @@ export const SITE = {
   webRepository: "https://github.com/yhan-sun/p2wlan-web",
   releases: "https://github.com/yhan-sun/p2wlan/releases",
   description:
-    "P2WLAN 是一个开源、P2P 优先、可自托管的加密虚拟局域网，支持跨网络设备直连与 Relay 自动回退。",
+    "P2WLAN 是一个可自托管的 P2P 虚拟局域网。设备优先直连，必要时使用加密 Relay。",
 };
 
 export const releaseFallback = {
@@ -241,48 +241,48 @@ export const docs = [
     path: "/docs/",
     group: "开始使用",
     title: "P2WLAN 文档",
-    description: "从安装、第一次组网到 NAT 穿透、自托管和安全边界，系统了解 P2WLAN。",
+    description: "安装、组网、网络原理、自托管与安全边界。",
     keywords: ["P2WLAN", "文档", "虚拟局域网", "P2P", "自托管"],
     body: ({ release }) => `
-      <p class="doc-lead">P2WLAN 是一个开源、P2P 优先、可自托管的加密虚拟局域网。每台设备获得一个私有虚拟 IP，普通应用可以继续使用 ping、SSH、RDP、数据库或 Web 管理面板，不需要为每个服务分别暴露公网端口。</p>
+      <p class="doc-lead">P2WLAN 为设备分配私有虚拟 IP，并在设备之间优先建立局域网或公网 UDP 直连。直连不可用时，连接会回退到加密 Relay。SSH、RDP、数据库客户端和 Web 管理界面都可以继续使用原来的协议。</p>
 
       ${callout(
         "warning",
-        "Preview 状态",
-        "项目适合真实网络测试、自托管与开发验证，但尚未完成独立安全审计。高敏感生产环境应先完成自己的安全评估。"
+        "当前为 Preview",
+        "项目已经可以用于真实网络测试和自托管验证，但尚未完成独立安全审计。高敏感生产环境应先完成自己的安全评估。"
       )}
 
-      <h2 id="recommended-route">推荐阅读路径</h2>
-      <div class="step-list">
-        <a class="step-card" href="/docs/getting-started/"><span>01</span><div><strong>跑通两台设备</strong><p>下载、登录、启动网络，并通过虚拟 IP 访问对端。</p></div></a>
-        <a class="step-card" href="/docs/networking/"><span>02</span><div><strong>理解连接路径</strong><p>区分 Control Plane、Direct、Relay 和虚拟网卡。</p></div></a>
-        <a class="step-card" href="/docs/troubleshooting/"><span>03</span><div><strong>学会诊断</strong><p>使用 status、doctor 和 logs 判断问题位于哪一层。</p></div></a>
-        <a class="step-card" href="/docs/self-hosting/"><span>04</span><div><strong>部署自己的服务</strong><p>构建 Control Plane 与 Relay，并在前置代理上启用 TLS。</p></div></a>
-      </div>
+      <h2 id="recommended-route">从这里开始</h2>
+      <nav class="doc-path-list" aria-label="推荐阅读顺序">
+        <a href="/docs/getting-started/"><span>01</span><div><strong>第一次组网</strong><p>在两台设备上安装、登录并验证虚拟 IP。</p></div><b aria-hidden="true">→</b></a>
+        <a href="/docs/networking/"><span>02</span><div><strong>连接与路径</strong><p>理解 Control Plane、Direct、Relay 和虚拟网卡。</p></div><b aria-hidden="true">→</b></a>
+        <a href="/docs/troubleshooting/"><span>03</span><div><strong>诊断问题</strong><p>用 status、doctor 和 logs 确定故障所在层次。</p></div><b aria-hidden="true">→</b></a>
+        <a href="/docs/self-hosting/"><span>04</span><div><strong>自托管</strong><p>部署 Control Plane、Relay 与 HTTPS/WSS。</p></div><b aria-hidden="true">→</b></a>
+      </nav>
 
-      <h2 id="architecture">架构一览</h2>
-      <div class="architecture-grid">
-        <article><span class="eyebrow">GUI</span><h3>Flutter 客户端</h3><p>负责登录、设备管理、连接状态和诊断入口。</p></article>
-        <article><span class="eyebrow">Data Plane</span><h3>Rust daemon</h3><p>负责 TUN、加密会话、路径选择、NAT 穿透与 Relay 回退。</p></article>
-        <article><span class="eyebrow">Coordination</span><h3>Go Control Plane</h3><p>负责认证、设备注册、虚拟 IP、信令和 Relay ticket。</p></article>
-        <article><span class="eyebrow">Fallback</span><h3>Go Relay</h3><p>在 Direct 不可用时转发加密数据帧，不负责解密业务载荷。</p></article>
+      <h2 id="architecture">组成部分</h2>
+      <div class="architecture-list">
+        <div><span>客户端</span><strong>Flutter</strong><p>登录、设备列表、连接状态与诊断入口。</p></div>
+        <div><span>数据面</span><strong>Rust daemon</strong><p>TUN、加密会话、NAT 穿透、路径选择与 Relay 回退。</p></div>
+        <div><span>控制面</span><strong>Go Control Plane</strong><p>认证、设备注册、虚拟 IP、信令与 Relay ticket。</p></div>
+        <div><span>中继</span><strong>Go Relay</strong><p>在 Direct 不可用时转发加密数据帧。</p></div>
       </div>
 
       <h2 id="path-order">连接路径</h2>
-      <p>默认策略可以概括为：<strong>LAN Direct → Public UDP Direct → Encrypted Relay</strong>。Direct 是否成功取决于两端 NAT、防火墙、CGNAT、热点和运营商网络；复杂环境下不保证一定打洞成功。</p>
+      <p>默认顺序是 <strong>LAN Direct → Public UDP Direct → Encrypted Relay</strong>。能否直连取决于两端 NAT、防火墙、CGNAT、热点和运营商网络；复杂环境下不保证一定打洞成功。</p>
 
-      <h2 id="documentation-version">文档版本</h2>
-      <p>当前页面在构建时同步 GitHub 最新正式 Release。此次构建对应 <strong>${escapeHtml(
-        release.tag
-      )}</strong>，发布时间为 ${formatDate(release.publishedAt)}。下载资产、文件大小和 SHA-256 均来自 Release API；源码行为仍应以对应 tag、测试和 CI 为最终依据。</p>
+      <h2 id="documentation-version">文档对应版本</h2>
+      <p>本次构建对应 <strong>${escapeHtml(release.tag)}</strong>，发布时间为 ${formatDate(
+        release.publishedAt
+      )}。下载文件、大小和 SHA-256 来自 GitHub Release API。实现细节仍以对应 tag、测试与 CI 为准。</p>
 
-      <h2 id="important-boundaries">开始前必须知道</h2>
-      <ul class="check-list">
+      <h2 id="important-boundaries">使用前请注意</h2>
+      <ul>
         <li>P2WLAN 使用 WireGuard-like Noise 数据面，但不是官方 WireGuard 实现，也不声明互操作兼容。</li>
-        <li>业务数据端到端加密不等于控制面登录链路一定使用 HTTPS；请阅读安全边界。</li>
-        <li>Relay 看不到业务明文，但仍可能看到节点标识、连接时间、方向和数据包大小等元数据。</li>
-        <li>iOS Release 是未签名 IPA，需要自行签名；Android APK 属于 Preview。</li>
-        <li>MIT License 允许使用、修改、分发与商业使用，软件按“现状”提供。</li>
+        <li>业务数据面加密不代表控制面登录链路天然使用 HTTPS；公开部署前请阅读安全边界。</li>
+        <li>Relay 不解密业务载荷，但仍可能看到节点标识、连接时间、方向和数据包大小等元数据。</li>
+        <li>iOS Release 是未签名 IPA，需要自行签名；Android APK 仍处于 Preview。</li>
+        <li>项目采用 MIT License，允许使用、修改、分发与商业使用，软件按“现状”提供。</li>
       </ul>`,
   },
   {
@@ -397,7 +397,7 @@ sudo sh /tmp/p2wlan-install.sh`)}
       )}
 
       <h2 id="android">Android</h2>
-      <p>当前提供 arm64 APK，需要启用允许该来源安装应用。首次启动虚拟网络时，Android 会显示 VPN 权限对话框。部分系统的省电策略会限制后台网络，请为 P2WLAN关闭不必要的后台冻结，而不是关闭整个系统安全能力。</p>
+      <p>当前提供 arm64 APK，需要启用允许该来源安装应用。首次启动虚拟网络时，Android 会显示 VPN 权限对话框。部分系统的省电策略会限制后台网络，请为 P2WLAN 关闭不必要的后台冻结，而不是关闭整个系统安全能力。</p>
 
       <h2 id="ios">iOS</h2>
       <p>Release 中的 IPA 是<strong>未签名实验构建</strong>，不能像 App Store 应用一样直接安装。需要使用自己的开发者签名和受支持的安装流程。普通用户应将 iOS 支持视为实验性能力。</p>
@@ -1143,9 +1143,9 @@ flutter test`)}
 ];
 
 function releaseBadge(release) {
-  return `<span class="release-pill"><span class="release-pill__dot"></span>${escapeHtml(
-    release.tag
-  )}<small>${formatDate(release.publishedAt)}</small></span>`;
+  return `<span class="release-line"><strong>${escapeHtml(release.tag)}</strong><span>${formatDate(
+    release.publishedAt
+  )}</span></span>`;
 }
 
 function findAsset(release, key) {
@@ -1157,98 +1157,132 @@ function downloadLink(asset, label, className = "button button--primary") {
   return `<a class="${className}" href="${escapeHtml(asset.url)}" data-download-key="${asset.key}">${label}</a>`;
 }
 
+function assetTextLink(asset, label) {
+  if (!asset) return `<a class="platform-link" href="${SITE.releases}">${label}</a>`;
+  return `<a class="platform-link" href="${escapeHtml(asset.url)}" data-download-key="${asset.key}">${label}</a>`;
+}
+
 export function renderHome({ release }) {
   const windows = findAsset(release, "windows-x64");
+  const macArm = findAsset(release, "macos-arm64");
+  const macX64 = findAsset(release, "macos-x64");
+  const linuxGui = findAsset(release, "linux-gui-x64");
+  const linuxCliX64 = findAsset(release, "linux-cli-x64");
+  const linuxCliArm64 = findAsset(release, "linux-cli-arm64");
+  const android = findAsset(release, "android-arm64");
+  const ios = findAsset(release, "ios-arm64");
+
   return `
     <main>
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero__mesh" aria-hidden="true"></div>
         <div class="container hero__grid">
-          <div class="hero__copy reveal">
-            <div class="hero__meta">${releaseBadge(release)}<span class="status-chip">Open source · MIT</span></div>
-            <p class="eyebrow">Encrypted virtual LAN · P2P first</p>
-            <h1 id="hero-title">让分散在不同网络的设备，<span>像在同一个局域网。</span></h1>
-            <p class="hero__lead">P2WLAN 优先建立局域网或公网 UDP 直连；复杂网络下自动回退到加密 Relay。桌面、移动、Linux CLI 和服务端都可以自托管。</p>
+          <div class="hero__copy">
+            <p class="hero__version"><span>P2WLAN ${escapeHtml(release.tag)}</span><span>Preview</span></p>
+            <h1 id="hero-title">不同网络，<br />同一个局域网。</h1>
+            <p class="hero__lead">P2WLAN 为设备分配私有虚拟 IP，并优先建立直连。直连不可用时，通过加密 Relay 保持连通。客户端、Control Plane 与 Relay 均可自行部署。</p>
             <div class="hero__actions">
               <a class="button button--primary button--large" href="/download/" data-smart-download>下载 ${escapeHtml(
                 release.tag
               )}</a>
-              <a class="button button--secondary button--large" href="/docs/getting-started/">五分钟开始</a>
+              <a class="button button--secondary button--large" href="/docs/getting-started/">查看快速开始</a>
             </div>
-            <div class="hero__trust"><span>✓ P2P 优先</span><span>✓ 端到端加密数据面</span><span>✓ Relay 自动回退</span><span>✓ 可自托管</span></div>
+            <p class="hero__platforms">Windows · macOS · Linux · Android · iOS</p>
           </div>
 
-          <div class="network-demo reveal" data-network-demo aria-label="P2WLAN 连接路径交互演示">
-            <div class="network-demo__header"><div><span class="eyebrow">Live path model</span><h2>连接路径会自己选择</h2></div><span class="path-badge" data-path-badge>Direct</span></div>
+          <div class="network-demo" data-network-demo aria-label="P2WLAN 连接路径演示">
+            <div class="network-demo__header">
+              <div><span>当前路径</span><strong data-scenario-title>公网 UDP 直连</strong></div>
+              <span class="path-badge" data-path-badge>Direct</span>
+            </div>
             <div class="network-stage" data-stage="home">
               <div class="stage-grid" aria-hidden="true"></div>
-              <div class="device-node device-node--a"><span class="device-node__icon">A</span><strong>MacBook</strong><small>10.20.0.2</small></div>
-              <div class="device-node device-node--b"><span class="device-node__icon">B</span><strong>Home Server</strong><small>10.20.0.5</small></div>
-              <div class="control-node"><span>Control</span><small>identity · signaling</small></div>
-              <div class="relay-node"><span>Relay</span><small>encrypted frames</small></div>
-              <svg class="network-lines" viewBox="0 0 720 350" role="img" aria-label="设备、控制面和 Relay 连接图">
+              <div class="device-node device-node--a"><span class="device-node__icon">A</span><strong>设备 A</strong><small>10.20.0.2</small></div>
+              <div class="device-node device-node--b"><span class="device-node__icon">B</span><strong>设备 B</strong><small>10.20.0.5</small></div>
+              <div class="control-node"><span>控制面</span><small>身份与信令</small></div>
+              <div class="relay-node"><span>Relay</span><small>加密帧转发</small></div>
+              <svg class="network-lines" viewBox="0 0 720 350" role="img" aria-label="设备、控制面和 Relay 的连接关系">
                 <path class="line line--control line--control-a" d="M152 92 C265 38 330 54 360 94" />
                 <path class="line line--control line--control-b" d="M568 92 C455 38 390 54 360 94" />
                 <path class="line line--direct" data-direct-line d="M166 174 C280 126 440 126 554 174" />
                 <path class="line line--relay-a" data-relay-line d="M166 190 C260 278 310 286 360 278" />
                 <path class="line line--relay-b" data-relay-line d="M554 190 C460 278 410 286 360 278" />
               </svg>
-              <div class="packet packet--one" aria-hidden="true"></div><div class="packet packet--two" aria-hidden="true"></div>
             </div>
             <div class="scenario-tabs" role="tablist" aria-label="网络场景">
-              <button type="button" class="is-active" data-scenario="home">普通家庭 NAT</button>
+              <button type="button" class="is-active" data-scenario="home">家庭网络</button>
               <button type="button" data-scenario="lan">同一局域网</button>
-              <button type="button" data-scenario="hard">双端 Hard NAT</button>
-              <button type="button" data-scenario="blocked">UDP 被阻断</button>
+              <button type="button" data-scenario="hard">Hard NAT</button>
+              <button type="button" data-scenario="blocked">UDP 受限</button>
             </div>
-            <div class="scenario-result"><strong data-scenario-title>Public UDP Direct</strong><p data-scenario-copy>通过 STUN 候选和双向探测建立公网 UDP 直连，Relay 保持后备。</p></div>
+            <p class="scenario-copy" data-scenario-copy>两端交换候选后直接传输；Relay 保持可用，但不承载业务数据。</p>
           </div>
         </div>
       </section>
 
-      <section class="signal-bar" aria-label="项目状态"><div class="container signal-bar__inner"><span>Latest <strong>${escapeHtml(
-        release.tag
-      )}</strong></span><span>${normalizeAssets(release).length} 个平台资产</span><span>Flutter + Rust + Go</span><span>Preview · 未独立安全审计</span></div></section>
+      <section class="signal-bar" aria-label="核心能力"><div class="container signal-bar__inner">
+        <div><strong>直连优先</strong><span>LAN 与公网 UDP</span></div>
+        <div><strong>加密数据面</strong><span>端点间保护业务载荷</span></div>
+        <div><strong>Relay 回退</strong><span>直连不可用时保持连通</span></div>
+        <div><strong>可自托管</strong><span>Control Plane 与 Relay</span></div>
+      </div></section>
 
-      <section class="section" id="use-cases"><div class="container"><div class="section-heading reveal"><p class="eyebrow">Use cases</p><h2>不是再造一个聊天工具，而是把普通网络应用直接连起来</h2><p>建立虚拟 IP 后，现有工具不需要理解 NAT、候选或 Relay。</p></div>
-        <div class="feature-grid feature-grid--three">
-          <article class="feature-card reveal"><div class="feature-card__number">01</div><h3>远程开发与运维</h3><p>通过虚拟 IP 使用 SSH、RDP、数据库、Web 管理面板，不为每个服务维护公网端口。</p><span>SSH · RDP · DB</span></article>
-          <article class="feature-card reveal"><div class="feature-card__number">02</div><h3>HomeLab 与 NAS</h3><p>连接家中服务器、NAS、软路由和云主机；Direct 不通时保留 Relay 可用性。</p><span>NAS · Media · Admin</span></article>
-          <article class="feature-card reveal"><div class="feature-card__number">03</div><h3>跨地域测试网络</h3><p>在家庭宽带、校园网、移动热点和不同云厂商间验证真实 NAT 与路径行为。</p><span>CGNAT · Mobile · Cloud</span></article>
+      <section class="section" id="use-cases"><div class="container editorial-grid">
+        <div class="section-heading"><p class="section-label">使用方式</p><h2>现有工具照常工作。</h2><p>设备获得虚拟 IP 后，应用不需要理解 NAT、候选或中继。</p></div>
+        <div class="use-list">
+          <article><div><h3>远程开发</h3><p>通过虚拟 IP 使用 SSH、RDP、数据库和内部 Web 服务，不必逐个暴露公网端口。</p></div><small>SSH · RDP · Database</small></article>
+          <article><div><h3>HomeLab 与 NAS</h3><p>连接家中服务器、NAS、软路由和云主机；网络变化时仍由同一个虚拟地址访问。</p></div><small>NAS · Admin · Media</small></article>
+          <article><div><h3>跨网络测试</h3><p>在家庭宽带、校园网、移动热点和不同云厂商之间验证真实 NAT 与路径行为。</p></div><small>CGNAT · Mobile · Cloud</small></article>
         </div>
       </div></section>
 
-      <section class="section section--tinted" id="product"><div class="container product-grid"><div class="section-heading reveal"><p class="eyebrow">One virtual network</p><h2>把复杂路径收敛成一个稳定的虚拟 IP</h2><p>应用只连接 <code>10.20.x.x</code>。daemon 在底层处理 TUN、加密、候选、路径提交和回退。</p><ul class="check-list"><li>路径状态清晰区分 LAN Direct、Direct 与 Relay。</li><li>Linux CLI 提供 status、doctor、logs 与完整配置入口。</li><li>Control Plane 与 Relay 均可部署在自己的 Linux 主机。</li></ul><a class="text-link" href="/docs/networking/">理解连接模型 <span>→</span></a></div>
-        <div class="app-preview reveal" aria-label="P2WLAN 客户端信息结构预览"><div class="app-preview__chrome"><span></span><span></span><span></span><b>P2WLAN</b></div><div class="app-preview__body"><aside><div class="app-mark">P</div><i class="active"></i><i></i><i></i><i></i></aside><div class="app-main"><div class="app-main__top"><div><small>Virtual network</small><strong>default</strong></div><span class="online-dot">Connected</span></div><div class="app-stat-row"><div><small>Virtual IP</small><strong>10.20.0.2</strong></div><div><small>Peers online</small><strong>3</strong></div><div><small>Current path</small><strong>Direct</strong></div></div><div class="peer-list"><div><span class="peer-avatar">H</span><div><strong>Home Server</strong><small>10.20.0.5 · 12 ms</small></div><b class="direct-label">Direct</b></div><div><span class="peer-avatar">W</span><div><strong>Windows PC</strong><small>10.20.0.8 · 28 ms</small></div><b class="relay-label">Relay</b></div><div><span class="peer-avatar">A</span><div><strong>Android</strong><small>10.20.0.11 · offline</small></div><b class="offline-label">Offline</b></div></div></div></div><p class="preview-caption">信息结构预览，不代表特定 Release 的逐像素界面。</p></div>
+      <section class="section section--tinted" id="product"><div class="container product-grid">
+        <div class="section-heading"><p class="section-label">虚拟网络</p><h2>底层路径变化，应用不必跟着变。</h2><p>应用始终连接 <code>10.20.x.x</code>。daemon 在底层处理 TUN、加密、候选、路径确认和回退。</p><ul class="plain-list"><li>状态区分 LAN Direct、Direct、Relay 与 Offline。</li><li>Linux CLI 提供 status、doctor、logs 和配置入口。</li><li>服务端可以部署在自己的 Linux 主机。</li></ul><a class="text-link" href="/docs/networking/">阅读连接模型 <span>→</span></a></div>
+        <div class="status-panel" aria-label="P2WLAN CLI 状态示意">
+          <header><span>p2wlan status</span><strong><i></i> connected</strong></header>
+          <dl class="status-summary"><div><dt>network</dt><dd>default</dd></div><div><dt>local</dt><dd>10.20.0.2</dd></div><div><dt>peers</dt><dd>3 online</dd></div></dl>
+          <div class="peer-status-list">
+            <div><span class="peer-mark">H</span><div><strong>home-server</strong><small>10.20.0.5</small></div><b>Direct · 12 ms</b></div>
+            <div><span class="peer-mark">W</span><div><strong>windows-pc</strong><small>10.20.0.8</small></div><b>Relay · 28 ms</b></div>
+            <div><span class="peer-mark">A</span><div><strong>android</strong><small>10.20.0.11</small></div><b>Offline</b></div>
+          </div>
+          <footer><code>p2wlan doctor</code><span>查看 TUN、Direct 与 Relay 状态</span></footer>
+        </div>
       </div></section>
 
-      <section class="section" id="how-it-works"><div class="container"><div class="section-heading section-heading--center reveal"><p class="eyebrow">How it works</p><h2>协调、直连与回退各司其职</h2></div><div class="process-grid"><article class="process-card reveal"><span>1</span><h3>Control Plane 协调</h3><p>认证设备、分配虚拟 IP、交换候选和信令，并签发 Relay ticket。</p></article><article class="process-card reveal"><span>2</span><h3>尝试 UDP Direct</h3><p>收集 LAN、STUN、端口映射和预测候选，执行有界双向探测。</p></article><article class="process-card reveal"><span>3</span><h3>建立加密会话</h3><p>端点使用 WireGuard-like Noise 数据面保护业务载荷。</p></article><article class="process-card reveal"><span>4</span><h3>Relay 保证可用性</h3><p>Direct 暂不可用时转发密文，后续仍可继续尝试更优路径。</p></article></div></div></section>
+      <section class="section" id="how-it-works"><div class="container"><div class="section-heading"><p class="section-label">连接过程</p><h2>控制面负责协调，数据尽量直达。</h2></div><ol class="process-list">
+        <li><span>01</span><div><h3>交换身份与候选</h3><p>Control Plane 认证设备、分配虚拟 IP，并交换 LAN、STUN 和端口映射候选。</p></div></li>
+        <li><span>02</span><div><h3>建立加密直连</h3><p>两端执行有界 UDP 探测；路径确认后，业务载荷通过端点间加密会话传输。</p></div></li>
+        <li><span>03</span><div><h3>必要时使用 Relay</h3><p>Direct 暂不可用时，Relay 转发密文；网络条件变化后仍可继续尝试更优路径。</p></div></li>
+      </ol></div></section>
 
-      <section class="section section--dark" id="security"><div class="container security-grid"><div class="section-heading reveal"><p class="eyebrow">Security boundaries</p><h2>明确说明保护了什么，也明确说明没有承诺什么</h2><p>业务数据面加密、Relay TLS、控制面 HTTPS、终端安全和发布供应链是不同层次。</p><a class="button button--ghost" href="/docs/security/">阅读安全边界</a></div><div class="boundary-list reveal"><article><span>Protected</span><h3>端点间业务载荷</h3><p>Relay 按设计不持有会话私钥，转发 opaque encrypted frames。</p></article><article><span>Visible metadata</span><h3>连接关系与流量特征</h3><p>Relay 仍可能看到节点标识、时间、方向和帧大小。</p></article><article class="boundary-list__warning"><span>Preview risk</span><h3>未完成独立安全审计</h3><p>高敏感生产环境必须自行完成评估；当前 CLI 默认公共控制面还使用 HTTP。</p></article></div></div></section>
+      <section class="section security-section" id="security"><div class="container security-grid">
+        <div class="section-heading"><p class="section-label">安全边界</p><h2>加密数据面，不等于所有链路都自动安全。</h2><p>业务载荷、控制面传输、Relay TLS、终端安全和发布供应链是不同层次。</p><a class="text-link" href="/docs/security/">查看完整安全说明 <span>→</span></a></div>
+        <dl class="boundary-list">
+          <div><dt>业务载荷</dt><dd>端点之间加密。Relay 按设计只转发密文，不持有会话私钥。</dd></div>
+          <div><dt>可见元数据</dt><dd>Relay 仍可能看到节点标识、连接时间、方向和帧大小。</dd></div>
+          <div><dt>Preview 限制</dt><dd>项目尚未完成独立安全审计；当前 CLI 的默认公共控制面仍使用 HTTP。</dd></div>
+        </dl>
+      </div></section>
 
-      <section class="section" id="platforms"><div class="container"><div class="section-heading reveal"><p class="eyebrow">Cross-platform</p><h2>从桌面到服务器，选择对应客户端</h2></div><div class="platform-grid">
-        ${normalizeAssets(release)
-          .slice(0, 8)
-          .map(
-            (asset) => `<article class="platform-card reveal"><div class="platform-card__top"><span>${asset.platform.slice(
-              0,
-              1
-            )}</span><small>${asset.status}</small></div><h3>${asset.platform}</h3><p>${asset.detail}</p><div class="platform-card__footer"><span>${formatBytes(
-              asset.size
-            )}</span><a href="${escapeHtml(asset.url)}">下载</a></div></article>`
-          )
-          .join("")}
-      </div><div class="section-cta reveal"><div><strong>不确定该下载哪个？</strong><p>下载页会根据当前系统推荐，并列出每个资产的 SHA-256。</p></div><a class="button button--primary" href="/download/">打开下载中心</a></div></div></section>
+      <section class="section" id="platforms"><div class="container"><div class="section-heading"><p class="section-label">客户端</p><h2>桌面、移动端和无界面服务器。</h2><p>首页只展示平台入口；文件名、大小和 SHA-256 在下载页中完整列出。</p></div><div class="platform-list">
+        <article data-platform-card="windows-x64"><div><h3>Windows</h3><p>Windows 10/11 · x64 安装程序</p></div><div>${assetTextLink(windows, "下载 .exe")}</div></article>
+        <article data-platform-card="macos-arm64"><div><h3>macOS</h3><p>Apple Silicon 与 Intel</p></div><div>${assetTextLink(macArm, "Apple Silicon")}${assetTextLink(macX64, "Intel")}</div></article>
+        <article data-platform-card="linux-cli-x64"><div><h3>Linux</h3><p>GUI 与 CLI / daemon</p></div><div>${assetTextLink(linuxGui, "GUI x64")}${assetTextLink(linuxCliX64, "CLI x64")}${assetTextLink(
+    linuxCliArm64,
+    "CLI arm64"
+  )}</div></article>
+        <article data-platform-card="android-arm64"><div><h3>Android</h3><p>arm64 APK · Preview</p></div><div>${assetTextLink(android, "下载 APK")}</div></article>
+        <article data-platform-card="ios-arm64"><div><h3>iOS</h3><p>未签名 IPA · 需要自行签名</p></div><div>${assetTextLink(ios, "下载 IPA")}</div></article>
+      </div><div class="platform-footer"><p>不确定该选择哪个文件？下载页会识别当前系统，并展示每个资产的完整摘要。</p><a class="button button--secondary" href="/download/">查看全部下载</a></div></div></section>
 
-      <section class="section section--docs" id="docs"><div class="container docs-promo"><div class="docs-promo__copy reveal"><p class="eyebrow">Documentation</p><h2>从“能跑”到“知道为什么”</h2><p>文档已按客户端、网络原理、部署运维和项目开发重组，每页拥有独立 URL、目录与全文搜索。</p><div class="hero__actions"><a class="button button--primary" href="/docs/">打开文档</a><button class="button button--secondary" type="button" data-open-search>搜索文档 <kbd>⌘ K</kbd></button></div></div><div class="docs-promo__links reveal"><a href="/docs/getting-started/"><span>Start</span><strong>五分钟快速开始</strong><small>安装、登录、第一次组网</small></a><a href="/docs/nat-traversal/"><span>Network</span><strong>NAT 穿透</strong><small>STUN、预测候选与 Hard NAT</small></a><a href="/docs/self-hosting/"><span>Deploy</span><strong>自托管</strong><small>Control Plane、Relay 与 TLS</small></a><a href="/docs/troubleshooting/"><span>Operate</span><strong>故障排查</strong><small>按层次收集证据</small></a></div></div></section>
+      <section class="section section--docs" id="docs"><div class="container docs-promo"><div class="docs-promo__copy"><p class="section-label">文档</p><h2>安装、组网、排障和自托管。</h2><p>每篇文档拥有独立 URL、稳定标题锚点与全文搜索。</p><div class="hero__actions"><a class="button button--primary" href="/docs/">打开文档</a><button class="button button--secondary" type="button" data-open-search>搜索文档</button></div></div><nav class="docs-promo__links" aria-label="常用文档"><a href="/docs/getting-started/"><span>01</span><div><strong>快速开始</strong><small>安装、登录、第一次组网</small></div><b>→</b></a><a href="/docs/nat-traversal/"><span>02</span><div><strong>NAT 穿透</strong><small>候选、探测与 Hard NAT</small></div><b>→</b></a><a href="/docs/self-hosting/"><span>03</span><div><strong>自托管</strong><small>Control Plane、Relay 与 TLS</small></div><b>→</b></a><a href="/docs/troubleshooting/"><span>04</span><div><strong>故障排查</strong><small>按层次收集证据</small></div><b>→</b></a></nav></div></section>
 
-      <section class="final-cta"><div class="container final-cta__inner reveal"><div><p class="eyebrow">Build your own network</p><h2>从两台设备开始，验证第一条加密路径。</h2><p>${escapeHtml(release.tag)} · ${formatDate(
-    release.publishedAt
-  )} · Preview</p></div><div class="hero__actions">${downloadLink(
+      <section class="final-cta"><div class="container final-cta__inner"><div><p class="section-label">开始使用</p><h2>先连通两台设备。</h2><p>${escapeHtml(release.tag)} · ${formatDate(release.publishedAt)} · Preview</p></div><div class="hero__actions">${downloadLink(
     windows,
     "下载最新版",
-    "button button--light button--large"
-  )}<a class="button button--outline-light button--large" href="${SITE.repository}">查看源码</a></div></div></section>
+    "button button--primary button--large"
+  )}<a class="button button--secondary button--large" href="${SITE.repository}">查看源码</a></div></div></section>
     </main>`;
 }
 
@@ -1256,42 +1290,43 @@ export function renderDownload({ release }) {
   const assets = normalizeAssets(release);
   return `
     <main class="page-main">
-      <section class="page-hero page-hero--download"><div class="container"><div class="page-hero__copy reveal"><p class="eyebrow">Download center</p><h1>下载 P2WLAN ${escapeHtml(
+      <section class="page-hero page-hero--download"><div class="container"><div class="page-hero__copy"><p class="page-kicker">Release ${escapeHtml(
         release.tag
-      )}</h1><p>根据平台选择官方 GitHub Release 资产。每个文件都展示大小与 SHA-256，安装前可直接校验。</p><div class="page-hero__meta">${releaseBadge(
-    release
-  )}<span class="status-chip">${assets.length} assets</span></div></div></div></section>
-      <section class="section section--tight"><div class="container"><div class="smart-download reveal" data-smart-panel><div><p class="eyebrow">Recommended for this device</p><h2 data-smart-title>正在识别你的系统…</h2><p data-smart-description>你仍可以从下方手动选择全部平台资产。</p></div><a class="button button--primary button--large" href="${SITE.releases}" data-smart-download>查看推荐下载</a></div>
-        <div class="download-grid">
+      )}</p><h1>下载 P2WLAN</h1><p>安装包来自 GitHub Releases。下载前可核对文件大小与 SHA-256。</p><div class="page-hero__meta"><span>发布于 ${formatDate(
+    release.publishedAt
+  )}</span><span>${assets.length} 个文件</span><a href="${escapeHtml(release.url)}">查看 Release ↗</a></div></div></div></section>
+      <section class="section section--tight"><div class="container">
+        <div class="smart-download" data-smart-panel><div><p class="section-label">当前设备</p><h2 data-smart-title>正在识别系统…</h2><p data-smart-description>也可以从下方手动选择全部平台文件。</p></div><a class="button button--primary" href="${SITE.releases}" data-smart-download>下载推荐版本</a></div>
+        <div class="download-list" role="list">
           ${assets
             .map(
-              (asset) => `<article class="download-card reveal" id="${asset.key}" data-platform-card="${asset.key}"><div class="download-card__head"><span class="download-card__icon">${asset.platform.slice(
-                0,
-                1
-              )}</span><div><small>${asset.status}</small><h2>${asset.platform}</h2><p>${asset.detail}</p></div></div><dl><div><dt>文件</dt><dd><code>${escapeHtml(
+              (asset) => `<article class="download-row" role="listitem" id="${asset.key}" data-platform-card="${asset.key}"><div class="download-row__platform"><strong>${asset.platform}</strong><span>${asset.detail}</span><small>${asset.status}</small></div><div class="download-row__file"><code>${escapeHtml(
                 asset.name
-              )}</code></dd></div><div><dt>大小</dt><dd>${formatBytes(asset.size)}</dd></div><div><dt>SHA-256</dt><dd><code class="digest">${escapeHtml(
+              )}</code><span>${formatBytes(asset.size)}</span></div><code class="download-row__digest">${escapeHtml(
                 asset.digest?.replace(/^sha256:/, "") || "GitHub 未提供"
-              )}</code></dd></div></dl><div class="download-card__actions"><a class="button button--primary" href="${escapeHtml(
-                asset.url
-              )}" data-download-key="${asset.key}">下载安装包</a><button class="button button--secondary" type="button" data-copy-text="${escapeHtml(
+              )}</code><div class="download-row__actions"><button class="hash-button" type="button" data-copy-text="${escapeHtml(
                 asset.digest?.replace(/^sha256:/, "") || ""
-              )}">复制 SHA-256</button></div></article>`
+              )}">复制 SHA-256</button><a class="button button--primary" href="${escapeHtml(
+                asset.url
+              )}" data-download-key="${asset.key}">下载</a></div></article>`
             )
             .join("")}
         </div>
-        <div class="download-notes"><article class="reveal"><h2>安装前</h2><ul><li>确认域名为 <code>github.com</code>。</li><li>核对 SHA-256 与本站展示一致。</li><li>Preview 构建触发系统提示时，不要跳过来源检查。</li></ul></article><article class="reveal"><h2>移动端说明</h2><ul><li>Android APK 需要侧载和 VPN 权限。</li><li>iOS IPA 未签名，需要自行签名。</li><li>移动后台稳定性受系统电池策略影响。</li></ul></article><article class="reveal"><h2>完整 Release</h2><p>需要历史版本、源码压缩包或查看发布记录时，前往 GitHub Releases。</p><a class="text-link" href="${escapeHtml(
+        <div class="download-notes"><article><h2>安装前检查</h2><ul><li>确认下载地址属于 <code>github.com/yhan-sun/p2wlan</code>。</li><li>核对 SHA-256 与下载页展示一致。</li><li>Preview 构建触发系统提示时，先确认文件来源。</li></ul></article><article><h2>移动端</h2><ul><li>Android APK 需要侧载与 VPN 权限。</li><li>iOS IPA 未签名，需要自行签名。</li><li>移动端后台稳定性受系统电池策略影响。</li></ul></article></div>
+        <div class="release-footer"><div><strong>需要历史版本或源码归档？</strong><p>完整发布记录保留在 GitHub Releases。</p></div><a class="text-link" href="${escapeHtml(
           release.url
-        )}">查看 ${escapeHtml(release.tag)} Release <span>→</span></a></article></div>
+        )}">打开 ${escapeHtml(release.tag)} <span>→</span></a></div>
       </div></section>
     </main>`;
 }
 
 export function renderChangelog({ release }) {
   return `
-    <main class="page-main"><section class="page-hero"><div class="container"><div class="page-hero__copy reveal"><p class="eyebrow">Release status</p><h1>版本与项目状态</h1><p>官网自动同步最新正式 Release 的版本、时间、下载资产和摘要；详细变更以 GitHub Release 与对应 tag 为准。</p></div></div></section><section class="section section--tight"><div class="container narrow"><article class="release-panel reveal"><div class="release-panel__top"><div><span class="status-chip">Latest stable preview</span><h2>${escapeHtml(
+    <main class="page-main"><section class="page-hero"><div class="container"><div class="page-hero__copy"><p class="page-kicker">Release</p><h1>版本</h1><p>官网在构建时同步最新正式 Release。详细变更以 GitHub Release 与对应 tag 为准。</p></div></div></section><section class="section section--tight"><div class="container narrow"><article class="release-panel"><div class="release-panel__top"><div><span>当前版本</span><h2>${escapeHtml(
     release.tag
-  )}</h2><p>发布于 ${formatDate(release.publishedAt)}</p></div><a class="button button--primary" href="${escapeHtml(
+  )}</h2><p>${formatDate(release.publishedAt)}</p></div><a class="button button--primary" href="${escapeHtml(
     release.url
-  )}">查看 GitHub Release</a></div><div class="release-panel__stats"><div><strong>${normalizeAssets(release).length}</strong><span>平台资产</span></div><div><strong>MIT</strong><span>开源许可</span></div><div><strong>Preview</strong><span>成熟度</span></div></div></article><section class="prose-block reveal"><h2>如何理解版本</h2><p>Release 表示已经由发布工作流生成并上传的预编译资产。主分支可能包含尚未发布的修改，文档不会把这些改动自动描述为当前 Release 已支持。</p><h2>发布安全边界</h2><p>GitHub 为资产提供 SHA-256 digest，本站会同步展示。摘要一致不是独立安全审计、代码签名或可复现构建证明。</p><h2>获取历史版本</h2><p>历史 Release、源代码归档和完整发布记录均保留在 GitHub。遇到回归时，请记录“正常的最后版本”和“首次异常版本”。</p></section></div></section></main>`;
+  )}">查看 GitHub Release</a></div><dl class="release-panel__stats"><div><dt>文件</dt><dd>${normalizeAssets(
+    release
+  ).length}</dd></div><div><dt>许可</dt><dd>MIT</dd></div><div><dt>阶段</dt><dd>Preview</dd></div></dl></article><section class="prose-block"><h2>版本与主分支</h2><p>Release 表示发布工作流已经生成并上传预编译文件。主分支可能包含尚未发布的修改，文档不会把这些改动描述为当前 Release 已支持。</p><h2>摘要的作用</h2><p>GitHub 为资产提供 SHA-256，本站同步展示。摘要一致不能替代独立安全审计、代码签名或可复现构建证明。</p><h2>历史版本</h2><p>历史 Release、源代码归档和发布记录均保留在 GitHub。排查回归时，请记录最后正常版本和首次异常版本。</p></section></div></section></main>`;
 }

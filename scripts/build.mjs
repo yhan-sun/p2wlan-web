@@ -69,15 +69,15 @@ function header(activePath, release) {
     ["/download/", "下载"],
     ["/docs/", "文档"],
     ["/docs/self-hosting/", "自托管"],
-    ["/changelog/", "版本"],
+    ["/changelog/", "更新"],
   ];
   return `
     <a class="skip-link" href="#main-content">跳到主要内容</a>
     <header class="site-header" data-site-header>
       <div class="container site-header__inner">
         <a class="brand" href="/" aria-label="P2WLAN 首页">
-          <img src="/images/p2wlan-icon.svg" width="36" height="36" alt="" />
-          <span><strong>P2WLAN</strong><small>P2P virtual LAN</small></span>
+          <img src="/images/p2wlan-icon.svg" width="32" height="32" alt="" />
+          <strong>P2WLAN</strong>
         </a>
         <nav class="desktop-nav" aria-label="主导航">
           ${nav
@@ -88,7 +88,7 @@ function header(activePath, release) {
             .join("")}
         </nav>
         <div class="header-actions">
-          <button class="icon-button search-button" type="button" data-open-search aria-label="搜索文档"><span aria-hidden="true">⌕</span><kbd>⌘ K</kbd></button>
+          <button class="icon-button search-button" type="button" data-open-search aria-label="搜索文档"><span aria-hidden="true">⌕</span><span class="search-label">搜索</span><kbd>⌘K</kbd></button>
           <button class="icon-button theme-button" type="button" data-theme-toggle aria-label="切换明暗主题"><span data-theme-icon aria-hidden="true">◐</span></button>
           <a class="github-button" href="${SITE.repository}" aria-label="在 GitHub 查看 P2WLAN">GitHub <span aria-hidden="true">↗</span></a>
           <button class="mobile-menu-button" type="button" data-mobile-menu-button aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span><span></span><b class="sr-only">打开菜单</b></button>
@@ -98,7 +98,7 @@ function header(activePath, release) {
         <div class="container">
           ${nav.map(([href, label]) => `<a href="${href}">${label}</a>`).join("")}
           <a href="${SITE.repository}">GitHub ↗</a>
-          <span>Latest ${escapeHtml(release.tag)}</span>
+          <span>${escapeHtml(release.tag)} · Preview</span>
         </div>
       </nav>
     </header>`;
@@ -107,15 +107,12 @@ function header(activePath, release) {
 function footer(release) {
   return `
     <footer class="site-footer">
-      <div class="container site-footer__grid">
-        <div class="footer-brand"><a class="brand" href="/"><img src="/images/p2wlan-icon.svg" width="34" height="34" alt="" /><span><strong>P2WLAN</strong><small>P2P first · Self-hosted</small></span></a><p>让不同网络下的设备，像连接在同一个局域网一样直接通信。</p><div class="footer-badges"><span>${escapeHtml(
-          release.tag
-        )}</span><span>Preview</span><span>MIT</span></div></div>
-        <div><h2>开始使用</h2><a href="/download/">下载</a><a href="/docs/getting-started/">快速开始</a><a href="/docs/install/">安装指南</a><a href="/docs/release-verification/">完整性校验</a></div>
-        <div><h2>深入了解</h2><a href="/docs/networking/">连接模型</a><a href="/docs/nat-traversal/">NAT 穿透</a><a href="/docs/relay/">Relay</a><a href="/docs/security/">安全边界</a></div>
-        <div><h2>项目</h2><a href="${SITE.repository}">源代码 ↗</a><a href="${SITE.releases}">Releases ↗</a><a href="/docs/development/">开发与贡献</a><a href="/changelog/">版本状态</a></div>
+      <div class="container site-footer__main">
+        <div class="footer-brand"><a class="brand" href="/"><img src="/images/p2wlan-icon.svg" width="30" height="30" alt="" /><strong>P2WLAN</strong></a><p>自托管的 P2P 虚拟局域网。</p></div>
+        <nav class="footer-nav" aria-label="页脚导航"><a href="/download/">下载</a><a href="/docs/">文档</a><a href="/docs/self-hosting/">自托管</a><a href="/docs/security/">安全</a><a href="${SITE.repository}">GitHub ↗</a></nav>
+        <div class="footer-release"><span>${escapeHtml(release.tag)}</span><span>Preview</span><span>MIT</span></div>
       </div>
-      <div class="container site-footer__bottom"><p>© ${new Date().getUTCFullYear()} P2WLAN Contributors · MIT License · 软件按“现状”提供</p><p>文档构建 ${escapeHtml(
+      <div class="container site-footer__bottom"><p>© ${new Date().getUTCFullYear()} P2WLAN Contributors · MIT License</p><p>构建 ${escapeHtml(
     buildId
   )} · ${escapeHtml(buildTime.slice(0, 10))}</p></div>
     </footer>`;
@@ -149,7 +146,7 @@ function docSidebar(currentPath) {
           )
           .join("")}
       </nav>
-      <div class="docs-sidebar__meta"><span>Docs for latest release</span><a href="/changelog/">查看版本状态 →</a></div>
+      <div class="docs-sidebar__meta"><span>适用于最新 Release</span><a href="/changelog/">查看版本 →</a></div>
     </aside>`;
 }
 
@@ -185,7 +182,7 @@ function renderDocPage(doc, body, release) {
     doc.title
   )}</h1><p>${escapeHtml(doc.description)}</p></header>
           <div class="doc-content">${body}</div>
-          <footer class="doc-footer"><div class="doc-feedback"><div><strong>发现文档问题？</strong><p>请附页面 URL、对应 Release 和可验证的源码依据。</p></div><a class="button button--secondary" href="${SITE.repository}/issues/new">提交 Issue ↗</a></div><nav class="doc-pagination" aria-label="文档翻页">${pagination}</nav></footer>
+          <footer class="doc-footer"><div class="doc-feedback"><div><strong>文档有误？</strong><p>请附上页面 URL、对应 Release 和可验证的依据。</p></div><a class="text-link" href="${SITE.repository}/issues/new">提交 Issue <span>↗</span></a></div><nav class="doc-pagination" aria-label="文档翻页">${pagination}</nav></footer>
         </article>
         <aside class="doc-toc" aria-label="本页目录"><strong>本页内容</strong><nav>${headings
           .map((heading) => `<a href="#${escapeHtml(heading.id)}">${escapeHtml(heading.title)}</a>`)
@@ -223,7 +220,7 @@ function pageSchema({ kind, title, description, canonical, release }) {
 function renderLayout({ pathName, title, description, content, kind, release, keywords = [] }) {
   const normalized = normalizePathname(pathName);
   const canonical = `${SITE.origin}${normalized}`;
-  const fullTitle = normalized === "/" ? `${SITE.name} — P2P 优先的加密虚拟局域网` : `${title} · ${SITE.name}`;
+  const fullTitle = normalized === "/" ? `${SITE.name} — 自托管的 P2P 虚拟局域网` : `${title} · ${SITE.name}`;
   const schema = pageSchema({ kind, title: fullTitle, description, canonical, release });
   return `<!doctype html>
 <html lang="zh-CN" data-theme="auto">
@@ -235,8 +232,8 @@ function renderLayout({ pathName, title, description, content, kind, release, ke
   <meta name="keywords" content="${escapeHtml(["P2WLAN", "P2P", "虚拟局域网", ...keywords].join(", "))}" />
   <meta name="author" content="P2WLAN Contributors" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
-  <meta name="theme-color" content="#09111f" media="(prefers-color-scheme: dark)" />
-  <meta name="theme-color" content="#f7f9fc" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#11151b" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)" />
   <link rel="canonical" href="${canonical}" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -254,7 +251,7 @@ function renderLayout({ pathName, title, description, content, kind, release, ke
   <meta name="twitter:title" content="${escapeHtml(fullTitle)}" />
   <meta name="twitter:description" content="${escapeHtml(description)}" />
   <meta name="twitter:image" content="${SITE.origin}/og-image.jpg" />
-  <script>try{const t=localStorage.getItem('p2wlan-theme');if(t)document.documentElement.dataset.theme=t}catch{}</script>
+  <script>document.documentElement.classList.add('has-js');try{const t=localStorage.getItem('p2wlan-theme');if(t)document.documentElement.dataset.theme=t}catch{}</script>
   <link rel="stylesheet" href="/assets/styles.css?v=${escapeHtml(buildId)}" />
   <script type="application/ld+json">${JSON.stringify(schema).replaceAll("<", "\\u003c")}</script>
 </head>
@@ -360,7 +357,7 @@ const notFound = renderLayout({
   description: "请求的 P2WLAN 页面不存在。",
   kind: "page",
   release,
-  content: `<main class="not-found"><div class="container"><span>404</span><h1>这条路径没有建立连接。</h1><p>页面可能已移动，使用全文搜索或返回文档首页。</p><div class="hero__actions"><a class="button button--primary" href="/docs/">打开文档</a><button class="button button--secondary" type="button" data-open-search>搜索站点</button></div></div></main>`,
+  content: `<main class="not-found"><div class="container"><span>404</span><h1>页面不存在。</h1><p>页面可能已经移动。可以搜索站点，或返回文档首页。</p><div class="hero__actions"><a class="button button--primary" href="/docs/">打开文档</a><button class="button button--secondary" type="button" data-open-search>搜索站点</button></div></div></main>`,
 });
 await writeFile(path.join(distDir, "404.html"), notFound, "utf8");
 
