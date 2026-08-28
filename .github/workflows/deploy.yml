@@ -18,6 +18,7 @@ concurrency:
 
 env:
   NODE_VERSION: "22"
+  SITE_URL: "https://p2wlan.yhan.fun"
 
 jobs:
   build:
@@ -70,3 +71,61 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  verify:
+    name: Verify production HTTPS site
+    runs-on: ubuntu-latest
+    needs: deploy
+    timeout-minutes: 7
+    steps:
+      - name: Verify custom domain and production content
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          fetch_with_retry() {
+            local url="$1"
+            local output="$2"
+            local attempts="${3:-12}"
+            local attempt
+
+            for attempt in $(seq 1 "$attempts"); do
+              if curl \
+                --fail \
+                --silent \
+                --show-error \
+                --location \
+                --proto '=https' \
+                --tlsv1.2 \
+                --connect-timeout 10 \
+                --max-time 30 \
+                "$url" > "$output"; then
+                return 0
+              fi
+
+              if [ "$attempt" -lt "$attempts" ]; then
+                sleep 10
+              fi
+            done
+
+            echo "Unable to fetch $url over verified HTTPS after $attempts attempts." >&2
+            return 1
+          }
+
+          fetch_with_retry "$SITE_URL/" /tmp/home.html 12
+          fetch_with_retry "$SITE_URL/docs/" /tmp/docs.html 3
+          fetch_with_retry "$SITE_URL/release-data.json" /tmp/release-data.json 3
+          fetch_with_retry "$SITE_URL/sitemap.xml" /tmp/sitemap.xml 3
+
+          grep -q '<title>P2WLAN' /tmp/home.html
+          grep -q 'P2WLAN 文档' /tmp/docs.html
+          grep -q '<loc>https://p2wlan.yhan.fun/' /tmp/sitemap.xml
+
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const release = JSON.parse(fs.readFileSync('/tmp/release-data.json', 'utf8'));
+          if (!release.tag_name || !Array.isArray(release.assets) || release.assets.length === 0) {
+            throw new Error('Production release-data.json is missing its tag or assets.');
+          }
+          console.log(`Verified production release ${release.tag_name} with ${release.assets.length} assets.`);
+          NODE
