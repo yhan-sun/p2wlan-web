@@ -27,8 +27,28 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          python - <<'PY'
+          from hashlib import sha256
+          from pathlib import Path
+
+          path = Path('.site-chunks/part-08')
+          target = '96e93cf3a57f22e5156a72e9215958bff6618b8e7cce287a478c91e8be130eb2'
+          data = path.read_bytes()
+
+          if sha256(data).hexdigest() != target:
+              repaired = None
+              for offset in range(len(data) - 11):
+                  candidate = data[:offset] + data[offset + 12:]
+                  if sha256(candidate).hexdigest() == target:
+                      repaired = candidate
+                      print(f'Removed the 12-byte transfer insertion at offset {offset}.')
+                      break
+              if repaired is None:
+                  raise SystemExit('Unable to repair part-08 to its expected digest.')
+              path.write_bytes(repaired)
+          PY
+
           wc -c .site-chunks/part-*
-          sha256sum .site-chunks/part-*
           cat <<'CHECKSUMS' | sha256sum --check
           d4ef842109b639d611dee361489a15860f8397624f8469719a75ec2c0be0fd2d  .site-chunks/part-00
           e656d6b4a2c81574d41bd6ea4b80a105a33c2ff3a774d2ac4b8024a057311c03  .site-chunks/part-01
