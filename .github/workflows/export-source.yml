@@ -29,6 +29,27 @@ jobs:
         run: |
           set -euo pipefail
 
+          python - <<'PY'
+          from hashlib import sha256
+          from pathlib import Path
+
+          path = Path('.refine-chunks/part-01')
+          target = 'ec18027182d6dbbde1e0624d8ce4f9f826766b6f56eb7892836b183b1b434b0c'
+          data = path.read_bytes()
+
+          if sha256(data).hexdigest() != target:
+              repaired = None
+              for offset in range(len(data) - 11):
+                  candidate = data[:offset] + data[offset + 12:]
+                  if sha256(candidate).hexdigest() == target:
+                      repaired = candidate
+                      print(f'Removed the 12-byte transfer insertion at offset {offset}.')
+                      break
+              if repaired is None:
+                  raise SystemExit('Unable to repair part-01 to its expected digest.')
+              path.write_bytes(repaired)
+          PY
+
           cat <<'CHECKSUMS' | sha256sum --check
           7881084c67e0f0d2f9eb8569d21e869d20054f15100a582bc3855abe55737463  .refine-chunks/part-00
           ec18027182d6dbbde1e0624d8ce4f9f826766b6f56eb7892836b183b1b434b0c  .refine-chunks/part-01
@@ -68,5 +89,3 @@ jobs:
             .refine-chunks
           git commit -m "refactor: give the website a restrained editorial voice"
           git push origin HEAD:${GITHUB_REF_NAME}
-
-# Archive complete; this comment intentionally triggers the materializer.
