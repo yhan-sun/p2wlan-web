@@ -1,26 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
   <title id="title">P2WLAN</title>
-  <desc id="desc">四个网络节点连接到中心节点的 P2P 图标</desc>
-  <defs>
-    <linearGradient id="icon-bg" x1="8" y1="6" x2="57" y2="59" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#17234a"/><stop offset=".52" stop-color="#24194f"/><stop offset="1" stop-color="#0b122a"/>
-    </linearGradient>
-    <linearGradient id="icon-line" x1="16" y1="16" x2="49" y2="48" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#38bdf8"/><stop offset=".52" stop-color="#818cf8"/><stop offset="1" stop-color="#c084fc"/>
-    </linearGradient>
-    <linearGradient id="icon-core" x1="27" y1="25" x2="38" y2="37" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#67e8f9"/><stop offset="1" stop-color="#8b5cf6"/>
-    </linearGradient>
-    <radialGradient id="icon-glass" cx="0" cy="0" r="1" gradientTransform="translate(20 13) rotate(48) scale(40 36)" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#fff" stop-opacity=".18"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-  <rect x="3" y="3" width="58" height="58" rx="18" fill="url(#icon-bg)"/>
-  <rect x="3.75" y="3.75" width="56.5" height="56.5" rx="17.25" fill="url(#icon-glass)" stroke="#a5b4fc" stroke-opacity=".32" stroke-width="1.5"/>
-  <rect x="7" y="7" width="50" height="50" rx="14.5" fill="none" stroke="#38bdf8" stroke-opacity=".13"/>
-  <circle cx="32" cy="31" r="14" fill="#818cf8" fill-opacity=".08"/>
-  <g fill="none" stroke="url(#icon-line)" stroke-linecap="round" stroke-width="2.25" stroke-opacity=".9"><path d="M18.5 20.5 32 31 45.5 20.5"/><path d="M18.5 41.5 32 31 45.5 41.5"/></g>
-  <g fill="#111936" stroke="url(#icon-line)" stroke-width="1.35"><circle cx="18.5" cy="20.5" r="3.7"/><circle cx="45.5" cy="20.5" r="3.7"/><circle cx="18.5" cy="41.5" r="3.7"/><circle cx="45.5" cy="41.5" r="3.7"/></g>
-  <circle cx="18.5" cy="20.5" r="1.45" fill="#67e8f9"/><circle cx="45.5" cy="20.5" r="1.45" fill="#a5b4fc"/><circle cx="18.5" cy="41.5" r="1.45" fill="#818cf8"/><circle cx="45.5" cy="41.5" r="1.45" fill="#c084fc"/>
-  <rect x="26.25" y="25.25" width="11.5" height="11.5" rx="4" fill="url(#icon-core)" stroke="#e0e7ff" stroke-opacity=".72"/><circle cx="32" cy="31" r="2" fill="#f8fafc" fill-opacity=".9"/>
+  <desc id="desc">四个设备节点连接到中心节点</desc>
+  <rect x="3" y="3" width="58" height="58" rx="16" fill="#151719"/>
+  <g fill="none" stroke="#7f858b" stroke-linecap="round" stroke-width="2">
+    <path d="M18 19 32 32 46 19"/>
+    <path d="M18 45 32 32 46 45"/>
+  </g>
+  <g fill="#151719" stroke="#f2f3f3" stroke-width="1.6">
+    <circle cx="18" cy="19" r="4"/>
+    <circle cx="46" cy="19" r="4"/>
+    <circle cx="18" cy="45" r="4"/>
+    <circle cx="46" cy="45" r="4"/>
+  </g>
+  <rect x="26" y="26" width="12" height="12" rx="3.5" fill="#3158bd"/>
+  <circle cx="32" cy="32" r="1.8" fill="#fff"/>
 </svg>

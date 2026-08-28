@@ -49,22 +49,6 @@ mobileButton?.addEventListener("click", () => {
 });
 $$("a", mobileMenu || document.createElement("div")).forEach((link) => link.addEventListener("click", closeMobileMenu));
 
-if (!prefersReducedMotion.matches && "IntersectionObserver" in window) {
-  const revealObserver = new IntersectionObserver(
-    (entries, observer) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        entry.target.classList.add("is-visible");
-        observer.unobserve(entry.target);
-      }
-    },
-    { rootMargin: "0px 0px -8% 0px", threshold: 0.08 }
-  );
-  $$(".reveal").forEach((element) => revealObserver.observe(element));
-} else {
-  $$(".reveal").forEach((element) => element.classList.add("is-visible"));
-}
-
 async function copyText(value, button) {
   if (!value) return;
   try {
@@ -174,26 +158,26 @@ const scenarioData = {
   home: {
     stage: "home",
     badge: "Direct",
-    title: "Public UDP Direct",
-    copy: "通过 STUN 候选和双向探测建立公网 UDP 直连，Relay 保持后备。",
+    title: "公网 UDP 直连",
+    copy: "两端交换候选后直接传输；Relay 保持可用，但不承载业务数据。",
   },
   lan: {
     stage: "lan",
-    badge: "LAN Direct",
-    title: "LAN Direct",
-    copy: "两台设备处于可达局域网，直接使用本地候选，通常拥有最低延迟。",
+    badge: "LAN",
+    title: "局域网直连",
+    copy: "设备处于可达局域网时，直接使用本地候选，通常延迟最低。",
   },
   hard: {
     stage: "hard",
-    badge: "Relay → Direct?",
-    title: "先保证可用，再尝试提升",
-    copy: "双端 Hard NAT 下预测可能失败；Relay 先承载密文，后台仍可继续尝试 Direct。",
+    badge: "Relay",
+    title: "先经 Relay，再尝试直连",
+    copy: "复杂 NAT 下先保证连接可用；后台仍会在有界范围内尝试更优路径。",
   },
   blocked: {
     stage: "blocked",
     badge: "Relay",
-    title: "Encrypted Relay",
-    copy: "UDP 被网络策略阻断时，经认证的 TLS Relay 转发端到端加密 frame。",
+    title: "加密 Relay",
+    copy: "UDP 被网络策略限制时，认证后的 TLS Relay 转发端点间密文。",
   },
 };
 
@@ -223,19 +207,19 @@ if (networkDemo) {
 function detectPlatform() {
   const ua = navigator.userAgent.toLowerCase();
   const platform = (navigator.userAgentData?.platform || navigator.platform || "").toLowerCase();
-  if (ua.includes("android")) return { key: "android-arm64", title: "Android arm64", description: "推荐 APK Preview 构建，需要侧载和 VPN 权限。" };
-  if (/iphone|ipad|ipod/.test(ua)) return { key: "ios-arm64", title: "iOS arm64（未签名）", description: "实验性 IPA，需要自己的开发者签名。" };
-  if (platform.includes("win")) return { key: "windows-x64", title: "Windows x64", description: "推荐 Windows 10/11 x64 安装程序。" };
+  if (ua.includes("android")) return { key: "android-arm64", title: "Android arm64", description: "arm64 APK，需要侧载并授予系统 VPN 权限。" };
+  if (/iphone|ipad|ipod/.test(ua)) return { key: "ios-arm64", title: "iOS arm64（未签名）", description: "未签名 IPA，需要使用自己的开发者证书签名。" };
+  if (platform.includes("win")) return { key: "windows-x64", title: "Windows x64", description: "Windows 10/11 x64 安装程序。" };
   if (platform.includes("mac")) {
-    return { key: "macos-arm64", title: "macOS", description: "默认推荐 Apple Silicon；Intel Mac 请在下方选择 x64 DMG。" };
+    return { key: "macos-arm64", title: "macOS", description: "Apple Silicon 使用 arm64 DMG；Intel Mac 请选择 x64 DMG。" };
   }
   if (platform.includes("linux") || ua.includes("linux")) {
     const arm = /aarch64|arm64/.test(ua);
     return arm
-      ? { key: "linux-cli-arm64", title: "Linux arm64", description: "推荐服务器使用 CLI + daemon。" }
-      : { key: "linux-cli-x64", title: "Linux x86_64", description: "服务器推荐 CLI；桌面用户也可选择 GUI tarball。" };
+      ? { key: "linux-cli-arm64", title: "Linux arm64", description: "arm64 服务器使用 CLI 与 daemon。" }
+      : { key: "linux-cli-x64", title: "Linux x86_64", description: "服务器使用 CLI 与 daemon；桌面环境也可选择 GUI。" };
   }
-  return { key: "", title: "请选择你的平台", description: "无法可靠识别当前系统，请从完整资产列表手动选择。" };
+  return { key: "", title: "请选择你的平台", description: "未识别当前系统，请从下方文件列表选择。" };
 }
 
 const platform = detectPlatform();
