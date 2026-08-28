@@ -11,10 +11,6 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: materialize-editorial-refinement
-  cancel-in-progress: false
-
 jobs:
   materialize:
     runs-on: ubuntu-latest
