@@ -29,48 +29,23 @@ jobs:
         run: |
           set -euo pipefail
 
-          python - <<'PY'
-          from hashlib import sha256
-          from pathlib import Path
-
-          path = Path('.refine-chunks/part-01')
-          target = 'ec18027182d6dbbde1e0624d8ce4f9f826766b6f56eb7892836b183b1b434b0c'
-          expected_length = 15_000
-          data = path.read_bytes()
-          digest = sha256(data).hexdigest()
-          print(f'part-01 received length={len(data)}, sha256={digest}')
-
-          if digest != target:
-              extra = len(data) - expected_length
-              if extra <= 0:
-                  raise SystemExit(
-                      f'part-01 is not a recoverable insertion: length={len(data)}, expected={expected_length}'
-                  )
-
-              repaired = None
-              for offset in range(expected_length + 1):
-                  candidate = data[:offset] + data[offset + extra:]
-                  if sha256(candidate).hexdigest() == target:
-                      repaired = candidate
-                      print(f'Removed a {extra}-byte duplicated transfer segment at offset {offset}.')
-                      break
-
-              if repaired is None:
-                  raise SystemExit(
-                      f'Unable to recover part-01 by removing one contiguous {extra}-byte insertion.'
-                  )
-              path.write_bytes(repaired)
-          PY
-
           cat <<'CHECKSUMS' | sha256sum --check
           7881084c67e0f0d2f9eb8569d21e869d20054f15100a582bc3855abe55737463  .refine-chunks/part-00
-          ec18027182d6dbbde1e0624d8ce4f9f826766b6f56eb7892836b183b1b434b0c  .refine-chunks/part-01
+          c368d8f465d1e834ebb42128931df48807ecb2ea5345f1e55e46a5a9b56ffc7e  .refine-chunks/part-01a
+          096e1c800ee7576111e6aea18245cc7dbff246380335bfd19edd67e5d408581a  .refine-chunks/part-01b
           5d3c31db7f6649b9bdeb8e3b9a6688c896183f75cb867a3978967b61bf93abb6  .refine-chunks/part-02
           31a4786f87acb47b10b4f4a120076cffec76acbbe0c2f733b8f51f33962d769c  .refine-chunks/part-03
           ed50f362d8f9b60e05266c7826b9b31dc46a70fc1c0613f45c4af48d159e8394  .refine-chunks/part-04
           CHECKSUMS
 
-          cat .refine-chunks/part-* > /tmp/p2wlan-refinement.tar.gz.b64
+          cat \
+            .refine-chunks/part-00 \
+            .refine-chunks/part-01a \
+            .refine-chunks/part-01b \
+            .refine-chunks/part-02 \
+            .refine-chunks/part-03 \
+            .refine-chunks/part-04 \
+            > /tmp/p2wlan-refinement.tar.gz.b64
           base64 --decode /tmp/p2wlan-refinement.tar.gz.b64 > /tmp/p2wlan-refinement.tar.gz
           echo "d1a60869993f47556632e14b76043d53382fede593605d14038469590215e130  /tmp/p2wlan-refinement.tar.gz" | sha256sum --check
           tar -xzf /tmp/p2wlan-refinement.tar.gz -C .
