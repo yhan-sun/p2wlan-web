@@ -1,0 +1,32 @@
+name: Export main source snapshot
+
+on:
+  push:
+    branches:
+      - automation/export-main-source-20260831
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Package source snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          tar --exclude=.git -czf /tmp/p2wlan-web-main-source.tar.gz .
+          sha256sum /tmp/p2wlan-web-main-source.tar.gz
+
+      - name: Upload source snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: p2wlan-web-main-source
+          path: /tmp/p2wlan-web-main-source.tar.gz
+          if-no-files-found: error
+          retention-days: 1
