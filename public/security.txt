@@ -1,5 +1,0 @@
-Contact: https://github.com/yhan-sun/p2wlan/security
-Canonical: https://p2wlan.yhan.fun/security.txt
-Preferred-Languages: zh-CN, en
-Policy: https://github.com/yhan-sun/p2wlan/security
-Expires: 2027-08-28T00:00:00Z
