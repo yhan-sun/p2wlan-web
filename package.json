@@ -9,7 +9,7 @@
   "scripts": {
     "sync-release": "node scripts/sync-release.mjs",
     "validate:content": "node scripts/validate.mjs",
-    "build": "node scripts/build.mjs && node scripts/write-release-data.mjs",
+    "build": "node scripts/build.mjs && node scripts/write-release-data.mjs && node scripts/inject-download-showcase.mjs",
     "validate:dist": "node scripts/validate-dist.mjs && node scripts/validate-release-data.mjs",
     "check": "npm run validate:content && npm run build && npm run validate:dist",
     "dev": "npm run build && node scripts/serve.mjs",
