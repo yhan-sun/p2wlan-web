@@ -10,6 +10,17 @@ const failures = [];
 const paths = new Set();
 const orders = new Set();
 
+const forbiddenBootstrapArtifacts = [".v3", ".github/workflows/v3-bootstrap.yml"];
+
+for (const relativePath of forbiddenBootstrapArtifacts) {
+  try {
+    await access(path.join(root, relativePath));
+    failures.push(`temporary V3 bootstrap artifact must not be committed: ${relativePath}`);
+  } catch {
+    // Expected: one-time bootstrap files are absent from the maintained source tree.
+  }
+}
+
 for (const doc of docs) {
   if (!doc.path?.startsWith("/docs/") || !doc.path.endsWith("/")) failures.push(`invalid doc path: ${doc.path}`);
   if (paths.has(doc.path)) failures.push(`duplicate doc path: ${doc.path}`);
