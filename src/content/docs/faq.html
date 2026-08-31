@@ -1,0 +1,55 @@
+<p class="doc-lead">这里集中回答产品边界。遇到具体故障时，请转到故障排查并保存两端证据。</p>
+
+
+<h2 id="wireguard">P2WLAN 是 WireGuard 吗？</h2>
+
+
+<p>不是。它使用 WireGuard-like Noise 数据面和相似密码学组件，但不是官方 WireGuard 实现，也不声明协议或配置互操作。</p>
+
+
+<h2 id="public-ip">使用端设备需要公网 IP 吗？</h2>
+
+
+<p>通常不需要。P2WLAN 会尝试 UDP NAT 穿透；失败时可以使用 Relay。自托管 Control Plane / Relay 则需要客户端可访问的稳定入口。</p>
+
+
+<h2 id="always-direct">所有网络都能 Direct 吗？</h2>
+
+
+<p>不能保证。双端对称 NAT、CGNAT、企业防火墙、酒店/校园网和 UDP 阻断都可能让打洞失败。</p>
+
+
+<h2 id="relay-plaintext">Relay 能看到业务明文吗？</h2>
+
+
+<p>按设计不能。业务载荷在端点加密，Relay 转发密文；但 Relay 仍能看到连接元数据。</p>
+
+
+<h2 id="application-auth">加入虚拟网后，SSH 或数据库还需要密码吗？</h2>
+
+
+<p>需要。P2WLAN 只提供网络连接与数据面加密，不替代 SSH key、RDP 身份验证、数据库账号、TLS 和主机防火墙。</p>
+
+
+<h2 id="self-host">可以完全自托管吗？</h2>
+
+
+<p>Control Plane 和 Relay 源码均在主仓库。生产部署需要你自行配置域名、HTTPS/WSS、Relay TLS、密钥、备份、监控和升级。</p>
+
+
+<h2 id="commercial">可以商业使用吗？</h2>
+
+
+<p>项目采用 MIT License，允许商业使用、修改和分发，但软件按“现状”提供，不附带担保。</p>
+
+
+<h2 id="production">现在适合生产吗？</h2>
+
+
+<p>项目处于 Preview，尚未完成独立安全审计。可用于真实网络测试、自托管和开发验证；高敏感生产环境需要自行完成代码审阅、威胁建模、压测、密钥管理和应急预案。</p>
+
+
+<h2 id="ios">为什么 iOS 不能直接安装？</h2>
+
+
+<p>当前 Release 是未签名 IPA，需要自己的签名和 provisioning。它不是 App Store 分发版本。</p>

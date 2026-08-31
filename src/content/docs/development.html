@@ -1,0 +1,92 @@
+<p class="doc-lead">P2WLAN 是单仓库多语言项目。修改前先确定责任边界：Flutter 负责 UI，Rust 负责客户端数据面，Go 负责 Control Plane 与 Relay。</p>
+
+
+<h2 id="repository-layout">仓库结构</h2>
+
+
+<div class="code-frame" data-language="text">
+<div class="code-frame__bar"><span>text</span></div>
+<pre><code>apps/flutter_client/   Flutter 桌面与移动客户端
+client/daemon/        Rust daemon
+client/cli/           Rust Linux CLI
+client/tun/           虚拟网卡抽象
+client/crypto/        加密组件
+server/               Go Control Plane
+server/relay/         Go Relay
+scripts/              安装、验证与网络测试脚本
+.github/workflows/    CI 与 Release</code></pre>
+</div>
+
+
+<h2 id="build-server">Go 服务</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>cd server
+go test ./...
+go build -o p2wlan-control .
+go build -o p2wlan-relay ./relay</code></pre>
+</div>
+
+
+<h2 id="build-rust">Rust workspace</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>cargo fmt --all -- --check
+cargo test --workspace
+cargo clippy --workspace --all-targets -- -D warnings
+cargo build --release</code></pre>
+</div>
+
+
+<p>实际 CI 可能按平台拆分任务；提交前应查看当前 workflow，而不是假设本机一个命令覆盖所有 Windows、macOS、Linux、Android 行为。</p>
+
+
+<h2 id="build-flutter">Flutter 客户端</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>cd apps/flutter_client
+flutter pub get
+flutter analyze
+flutter test</code></pre>
+</div>
+
+
+<p>平台打包还依赖相应 SDK、签名、Rust daemon 产物和集成脚本。不要把“Flutter UI 构建成功”当作完整客户端可用。</p>
+
+
+<h2 id="change-discipline">改动纪律</h2>
+
+
+<ul class="check-list">
+<li>网络状态机改动必须提供可重复测试和诊断证据。</li>
+<li>跨平台改动说明未验证的平台，不伪造通过结论。</li>
+<li>安全相关默认值应失败关闭，而不是静默降级到不安全模式。</li>
+<li>配置、命令和 Release 文件名变化必须同步文档。</li>
+<li>不要把测试 harness 开关暴露为普通生产功能。</li>
+</ul>
+
+
+<h2 id="documentation-source">文档事实来源</h2>
+
+
+<ol>
+<li>Release tag 下的源码和测试。</li>
+<li>CI / Release workflow。</li>
+<li>公开 README 和代码内配置说明。</li>
+<li>官网的解释性文档。</li>
+</ol>
+
+
+<p>当官网与源码冲突时，应修复官网并以源码为准。本站构建会检查禁用的跨项目残留、无效内部链接和基础元数据。</p>
+
+
+<h2 id="reporting">提交 Issue / PR</h2>
+
+
+<p>Issue 请包含版本、平台、网络组合、复现率、路径、诊断 JSON 和脱敏日志。PR 应控制范围、说明风险、列出验证矩阵并避免无关格式化。</p>

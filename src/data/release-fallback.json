@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "tag_name": "v0.1.146",
+  "name": "v0.1.146",
+  "published_at": "2026-08-29T06:08:10Z",
+  "html_url": "https://github.com/yhan-sun/p2wlan/releases/tag/v0.1.146",
+  "source": "github-api",
+  "fetched_at": "2026-08-31T10:41:43.869Z",
+  "assets": [
+    {
+      "name": "p2wlan-flutter-android-arm64-release.apk",
+      "size": 28422400,
+      "digest": "sha256:7e7e11fb4e31a6a2ce95832c2f82e3d8f3b48777804448588fc5866a5ae06f17",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.146/p2wlan-flutter-android-arm64-release.apk",
+      "content_type": "application/vnd.android.package-archive",
+      "updated_at": "2026-08-29T06:13:45Z"
+    },
+    {
+      "name": "p2wlan-flutter-ios-arm64-unsigned.ipa",
+      "size": 7300613,
+      "digest": "sha256:25d289d7cb131bd1213d373e64bb46baffad31af52cda916f27ab346280d730f",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.146/p2wlan-flutter-ios-arm64-unsigned.ipa",
+      "content_type": "application/octet-stream",
+      "updated_at": "2026-08-29T06:08:10Z"
+    },
+    {
+      "name": "p2wlan-flutter-linux-x64.tar.gz",
+      "size": 15204542,
+      "digest": "sha256:15e42cfbb2bce6977d5c2cbc49a162a5b7b2423f3ef92bc59f5506498417d7cd",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.146/p2wlan-flutter-linux-x64.tar.gz",
+      "content_type": "application/gzip",
+      "updated_at": "2026-08-29T06:10:56Z"
+    },
+    {
+      "name": "p2wlan-flutter-macos-arm64.dmg",
+      "size": 15175473,
+      "digest": "sha256:5fbb3ccea0e09ac6e550e249570bdda0d0203e7d76946fb956b663af25d38cb8",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.146/p2wlan-flutter-macos-arm64.dmg",
+      "content_type": "application/x-apple-diskimage",
+      "updated_at": "2026-08-29T06:14:25Z"
+    },
+    {
+      "name": "p2wlan-flutter-macos-x64.dmg",
+      "size": 17002814,
+      "digest": "sha256:8dea6756beec88d46411ee4fd2eb132a2cbb5af2f20bf5890d40fa240dae7968",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.146/p2wlan-flutter-macos-x64.dmg",
+      "content_type": "application/x-apple-diskimage",
+      "updated_at": "2026-08-29T06:18:30Z"
+    },
+    {
+      "name": "p2wlan-flutter-windows-x64-setup.exe",
+      "size": 14795378,
+      "digest": "sha256:a4031871a13bc02636ee3546c2040d973576e711827c4b06bc2f7ed5dd88f65e",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.146/p2wlan-flutter-windows-x64-setup.exe",
+      "content_type": "application/x-msdos-program",
+      "updated_at": "2026-08-29T06:17:07Z"
+    },
+    {
+      "name": "p2wlan-linux-arm64-cli.tar.gz",
+      "size": 12083891,
+      "digest": "sha256:fc4cd3323f549bb1ac13e09453c8659c88392143aab436e14d4915cf60231283",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.146/p2wlan-linux-arm64-cli.tar.gz",
+      "content_type": "application/gzip",
+      "updated_at": "2026-08-29T06:10:35Z"
+    },
+    {
+      "name": "p2wlan-linux-x64-cli.tar.gz",
+      "size": 12795171,
+      "digest": "sha256:2d14cc7ab41b1299cd6c27aa5461aea66a95fbd060598a84285b331836307be7",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.146/p2wlan-linux-x64-cli.tar.gz",
+      "content_type": "application/gzip",
+      "updated_at": "2026-08-29T06:09:54Z"
+    }
+  ]
+}

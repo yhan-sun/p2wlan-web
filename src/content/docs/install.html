@@ -1,0 +1,100 @@
+<p class="doc-lead">正式安装包统一从 GitHub Releases 发布。当前构建同步到 <strong>v0.1.146</strong>；不要从来历不明的镜像站下载安装包。</p>
+
+
+<h2 id="platform-matrix">平台与资产</h2>
+
+
+<div class="table-wrap"><table><thead><tr><th>平台</th><th>Release 文件</th><th>状态</th></tr></thead><tbody>
+<tr><td><strong>Android</strong><br/><span class="muted">arm64 · APK 侧载</span></td><td><code>p2wlan-flutter-android-arm64-release.apk</code></td><td>Preview</td></tr><tr><td><strong>iOS</strong><br/><span class="muted">arm64 · 未签名 IPA</span></td><td><code>p2wlan-flutter-ios-arm64-unsigned.ipa</code></td><td>实验性</td></tr><tr><td><strong>Linux GUI</strong><br/><span class="muted">x86_64 · Flutter 客户端</span></td><td><code>p2wlan-flutter-linux-x64.tar.gz</code></td><td>预览</td></tr><tr><td><strong>macOS</strong><br/><span class="muted">Apple Silicon · DMG</span></td><td><code>p2wlan-flutter-macos-arm64.dmg</code></td><td>稳定预览</td></tr><tr><td><strong>macOS</strong><br/><span class="muted">Intel · DMG</span></td><td><code>p2wlan-flutter-macos-x64.dmg</code></td><td>稳定预览</td></tr><tr><td><strong>Windows</strong><br/><span class="muted">Windows 10/11 · x64 安装程序</span></td><td><code>p2wlan-flutter-windows-x64-setup.exe</code></td><td>稳定预览</td></tr><tr><td><strong>Linux CLI</strong><br/><span class="muted">arm64 · CLI + daemon</span></td><td><code>p2wlan-linux-arm64-cli.tar.gz</code></td><td>推荐服务器</td></tr><tr><td><strong>Linux CLI</strong><br/><span class="muted">x86_64 · CLI + daemon</span></td><td><code>p2wlan-linux-x64-cli.tar.gz</code></td><td>推荐服务器</td></tr>
+</tbody></table></div>
+
+
+<h2 id="windows">Windows</h2>
+
+
+<ol>
+<li>下载 <code>p2wlan-flutter-windows-x64-setup.exe</code>。</li>
+<li>核对下载页展示的 SHA-256。</li>
+<li>运行安装程序；创建虚拟网卡或修改路由时，系统可能请求管理员权限。</li>
+<li>如果 Windows 安全提示阻止 Preview 构建，先核对发布来源和摘要，再决定是否继续。</li>
+</ol>
+
+
+<p>不要为了排障长期关闭 Defender、防火墙或驱动签名保护。需要放行时，应限定到 P2WLAN 程序和必要网络范围。</p>
+
+
+<h2 id="macos">macOS</h2>
+
+
+<ol>
+<li>Apple Silicon 下载 arm64 DMG；Intel Mac 下载 x64 DMG。</li>
+<li>打开 DMG，将应用拖入 Applications。</li>
+<li>首次启动和创建 <code>utun</code> 接口时，按系统提示授权。</li>
+</ol>
+
+
+<p>Preview 构建若触发 Gatekeeper 提示，应先验证 digest。不要使用不明来源的“去签名”或二次打包版本。</p>
+
+
+<h2 id="linux-gui">Linux GUI</h2>
+
+
+<p>x86_64 桌面环境可以使用 Flutter tarball。解压后从目录启动，并确保系统具备创建 TUN 接口所需权限。</p>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>tar -xzf p2wlan-flutter-linux-x64.tar.gz
+cd p2wlan-flutter-linux-x64
+./p2wlan</code></pre>
+</div>
+
+
+<h2 id="linux-cli">Linux CLI</h2>
+
+
+<p>服务器更推荐 CLI + daemon。可以手工下载对应架构的 tarball，或先审阅官方安装脚本再执行：</p>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>curl -fsSL https://raw.githubusercontent.com/yhan-sun/p2wlan/main/scripts/install-linux-cli.sh -o /tmp/p2wlan-install.sh
+less /tmp/p2wlan-install.sh
+sudo sh /tmp/p2wlan-install.sh</code></pre>
+</div>
+
+
+<aside class="callout callout--info">
+<div aria-hidden="true" class="callout__icon"></div>
+<div><strong>关于安装脚本</strong><div>脚本便于更新，但执行远程脚本前仍应先审阅。需要更严格的供应链控制时，请手工下载 tarball、核对 SHA-256，再将二进制安装到受控目录。</div></div>
+</aside>
+
+
+<h2 id="android">Android</h2>
+
+
+<p>当前提供 arm64 APK，需要启用允许该来源安装应用。首次启动虚拟网络时，Android 会显示 VPN 权限对话框。部分系统的省电策略会限制后台网络，请为 P2WLAN 关闭不必要的后台冻结，而不是关闭整个系统安全能力。</p>
+
+
+<h2 id="ios">iOS</h2>
+
+
+<p>Release 中的 IPA 是<strong>未签名实验构建</strong>，不能像 App Store 应用一样直接安装。需要使用自己的开发者签名和受支持的安装流程。普通用户应将 iOS 支持视为实验性能力。</p>
+
+
+<h2 id="upgrade">升级</h2>
+
+
+<p>桌面与移动端从新 Release 覆盖安装。Linux CLI 支持：</p>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan update --dry-run
+p2wlan update
+# 安装指定版本
+p2wlan update --version v0.1.146</code></pre>
+</div>
+
+
+<p>升级前保存配置路径：<code>p2wlan config path</code>。自托管服务升级前应备份 SQLite 数据库和环境配置。</p>

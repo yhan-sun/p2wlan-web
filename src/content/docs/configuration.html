@@ -1,0 +1,79 @@
+<p class="doc-lead">使用 <code>p2wlan config set &lt;key&gt; &lt;value&gt;</code> 修改持久配置。先运行 <code>config show</code> 保存基线，再一次只改一个变量。</p>
+
+
+<h2 id="identity-control">身份与控制面</h2>
+
+
+<div class="table-wrap"><table><thead><tr><th>Key</th><th>值</th><th>行为</th></tr></thead><tbody>
+<tr><td><code>control</code></td><td>HTTP(S) URL</td><td>切换控制面；变化时会清除旧 auth token 和设备凭据。</td></tr>
+<tr><td><code>network</code></td><td>非空字符串</td><td>切换网络；变化时清除设备凭据。</td></tr>
+<tr><td><code>device-name</code></td><td>非空字符串</td><td>修改设备名；变化时清除设备凭据。</td></tr>
+</tbody></table></div>
+
+
+<h2 id="interface-network">接口与网络</h2>
+
+
+<div class="table-wrap"><table><thead><tr><th>Key</th><th>允许值</th><th>说明</th></tr></thead><tbody>
+<tr><td><code>interface</code></td><td>1–15 字符</td><td>Linux TUN 接口名，默认通常为 <code>p2wlan0</code>。</td></tr>
+<tr><td><code>mtu</code></td><td>576–65535</td><td>默认 1420。遇到分片或特定业务卡顿时再逐步降低。</td></tr>
+<tr><td><code>udp-bind</code></td><td><code>ip:port</code></td><td>Direct UDP 本地绑定，默认 <code>0.0.0.0:0</code>。</td></tr>
+<tr><td><code>udp-advertise</code></td><td><code>ip:port</code> 或 clear</td><td>显式通告可达端点；不能使用 unspecified IP 或 0 端口。</td></tr>
+<tr><td><code>stun</code></td><td>逗号分隔服务器、off/clear</td><td>用于发现 server-reflexive UDP candidate。</td></tr>
+<tr><td><code>port-mapping</code></td><td>true/false</td><td>启用短期 UPnP IGD / PCP / NAT-PMP 尝试。</td></tr>
+<tr><td><code>birthday-probing</code></td><td>true/false</td><td>对适合的 NAT profile 生成有界探测候选。</td></tr>
+<tr><td><code>socket-pool</code></td><td>off、on、2–4</td><td>实验性 hard NAT socket pool；on 等价于 3。</td></tr>
+</tbody></table></div>
+
+
+<h2 id="diagnostics">本地诊断</h2>
+
+
+<p><code>diagnostics</code> 接受 socket address，并且必须绑定在 <code>127.0.0.1</code> 或 <code>::1</code>。CLI 默认诊断地址是 <code>127.0.0.1:39277</code>。</p>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan config set diagnostics 127.0.0.1:39277</code></pre>
+</div>
+
+
+<p>不要将诊断接口暴露到公网。需要远程查看时使用 SSH 隧道，而不是改成 <code>0.0.0.0</code>。</p>
+
+
+<h2 id="relay-config">Relay 与路径策略</h2>
+
+
+<div class="table-wrap"><table><thead><tr><th>Key</th><th>允许值</th><th>说明</th></tr></thead><tbody>
+<tr><td><code>relay</code></td><td>逗号分隔 endpoint</td><td>Relay candidates，可包含 region@endpoint。</td></tr>
+<tr><td><code>relay-policy</code></td><td>auto / direct / relay</td><td>兼容入口；relay 会切到 RelayOnly。</td></tr>
+<tr><td><code>path-policy</code></td><td>auto / score / direct-sticky / relay-only</td><td>控制路径选择策略。</td></tr>
+<tr><td><code>relay-startup-timeout</code></td><td>100–60000 ms</td><td>等待 Direct 的启动窗口；过大增加首包等待，过小可能过早走 Relay。</td></tr>
+</tbody></table></div>
+
+
+<h2 id="policy-guidance">策略选择</h2>
+
+
+<ul>
+<li><strong>auto：</strong>默认推荐，兼顾可用性与 Direct。</li>
+<li><strong>score：</strong>根据路径质量评分，适合研究或需要主动比较路径的场景。</li>
+<li><strong>direct-sticky：</strong>Direct 建立后更倾向保持，适合减少频繁切路。</li>
+<li><strong>relay-only：</strong>仅用于受控诊断、策略要求或 Direct 明确不可用环境。</li>
+</ul>
+
+
+<h2 id="change-method">安全修改流程</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan config show &gt; /tmp/p2wlan-config-before.txt
+p2wlan config set mtu 1380
+p2wlan down
+p2wlan up
+p2wlan doctor</code></pre>
+</div>
+
+
+<p>保留修改前后诊断结果。不要同时更改 STUN、socket pool、path policy 和 MTU，否则很难判断哪个变量产生影响。</p>

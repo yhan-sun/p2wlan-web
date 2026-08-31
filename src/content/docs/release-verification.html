@@ -1,0 +1,103 @@
+<p class="doc-lead">本站在 GitHub Actions 构建时读取最新正式 Release，并展示 GitHub 为每个资产记录的 SHA-256 digest。当前版本为 <strong>v0.1.146</strong>。</p>
+
+
+<h2 id="asset-digests">当前资产摘要</h2>
+
+
+<div class="table-wrap table-wrap--wide"><table><thead><tr><th>平台</th><th>文件</th><th>大小</th><th>SHA-256</th></tr></thead><tbody>
+<tr>
+<td><strong>Android</strong><br/><span class="muted">arm64 · APK 侧载</span></td>
+<td><code>p2wlan-flutter-android-arm64-release.apk</code></td>
+<td>27.1 MB</td>
+<td><button class="hash-button" data-copy-text="7e7e11fb4e31a6a2ce95832c2f82e3d8f3b48777804448588fc5866a5ae06f17" type="button">复制 SHA-256</button></td>
+</tr>
+<tr>
+<td><strong>iOS</strong><br/><span class="muted">arm64 · 未签名 IPA</span></td>
+<td><code>p2wlan-flutter-ios-arm64-unsigned.ipa</code></td>
+<td>7.0 MB</td>
+<td><button class="hash-button" data-copy-text="25d289d7cb131bd1213d373e64bb46baffad31af52cda916f27ab346280d730f" type="button">复制 SHA-256</button></td>
+</tr>
+<tr>
+<td><strong>Linux GUI</strong><br/><span class="muted">x86_64 · Flutter 客户端</span></td>
+<td><code>p2wlan-flutter-linux-x64.tar.gz</code></td>
+<td>14.5 MB</td>
+<td><button class="hash-button" data-copy-text="15e42cfbb2bce6977d5c2cbc49a162a5b7b2423f3ef92bc59f5506498417d7cd" type="button">复制 SHA-256</button></td>
+</tr>
+<tr>
+<td><strong>macOS</strong><br/><span class="muted">Apple Silicon · DMG</span></td>
+<td><code>p2wlan-flutter-macos-arm64.dmg</code></td>
+<td>14.5 MB</td>
+<td><button class="hash-button" data-copy-text="5fbb3ccea0e09ac6e550e249570bdda0d0203e7d76946fb956b663af25d38cb8" type="button">复制 SHA-256</button></td>
+</tr>
+<tr>
+<td><strong>macOS</strong><br/><span class="muted">Intel · DMG</span></td>
+<td><code>p2wlan-flutter-macos-x64.dmg</code></td>
+<td>16.2 MB</td>
+<td><button class="hash-button" data-copy-text="8dea6756beec88d46411ee4fd2eb132a2cbb5af2f20bf5890d40fa240dae7968" type="button">复制 SHA-256</button></td>
+</tr>
+<tr>
+<td><strong>Windows</strong><br/><span class="muted">Windows 10/11 · x64 安装程序</span></td>
+<td><code>p2wlan-flutter-windows-x64-setup.exe</code></td>
+<td>14.1 MB</td>
+<td><button class="hash-button" data-copy-text="a4031871a13bc02636ee3546c2040d973576e711827c4b06bc2f7ed5dd88f65e" type="button">复制 SHA-256</button></td>
+</tr>
+<tr>
+<td><strong>Linux CLI</strong><br/><span class="muted">arm64 · CLI + daemon</span></td>
+<td><code>p2wlan-linux-arm64-cli.tar.gz</code></td>
+<td>11.5 MB</td>
+<td><button class="hash-button" data-copy-text="fc4cd3323f549bb1ac13e09453c8659c88392143aab436e14d4915cf60231283" type="button">复制 SHA-256</button></td>
+</tr>
+<tr>
+<td><strong>Linux CLI</strong><br/><span class="muted">x86_64 · CLI + daemon</span></td>
+<td><code>p2wlan-linux-x64-cli.tar.gz</code></td>
+<td>12.2 MB</td>
+<td><button class="hash-button" data-copy-text="2d14cc7ab41b1299cd6c27aa5461aea66a95fbd060598a84285b331836307be7" type="button">复制 SHA-256</button></td>
+</tr></tbody></table></div>
+
+
+<h2 id="windows-verify">Windows 校验</h2>
+
+
+<div class="code-frame" data-language="powershell">
+<div class="code-frame__bar"><span>powershell</span></div>
+<pre><code>Get-FileHash .\p2wlan-flutter-windows-x64-setup.exe -Algorithm SHA256</code></pre>
+</div>
+
+
+<p>将输出的 Hash 与下载页中的 64 位十六进制摘要逐字符比较。</p>
+
+
+<h2 id="mac-linux-verify">macOS / Linux 校验</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code># macOS
+shasum -a 256 p2wlan-flutter-macos-arm64.dmg
+
+# Linux
+sha256sum p2wlan-linux-x64-cli.tar.gz</code></pre>
+</div>
+
+
+<h2 id="what-it-proves">SHA-256 能证明什么</h2>
+
+
+<p>摘要一致可以确认你本地文件与 GitHub Release 记录的资产字节一致，能够发现下载损坏或文件被替换。但摘要本身不是代码签名，也不是独立的可复现构建证明。</p>
+
+
+<aside class="callout callout--warning">
+<div aria-hidden="true" class="callout__icon"></div>
+<div><strong>仍处于 Preview</strong><div>项目尚未完成独立安全审计，也没有在本站声称拥有完整的可复现构建或第三方签名证明。高风险环境应自行审阅源码、固定 commit，并建立自己的构建与签名流程。</div></div>
+</aside>
+
+
+<h2 id="version-source">版本来源</h2>
+
+
+<ul>
+<li>下载链接、大小和 digest：GitHub Releases API。</li>
+<li>功能行为：对应 release tag 的源码与测试。</li>
+<li>主分支的新功能：可能尚未进入当前 Release，不能当作已发布能力。</li>
+<li>本站 fallback 数据：仅在 GitHub API 暂时不可用时使用，并在构建日志中标记。</li>
+</ul>

@@ -1,0 +1,76 @@
+<p class="doc-lead">Relay 的目标是保证可用性：当 Direct 暂时无法建立时，两端仍通过中继交换加密数据帧。业务应用继续访问相同虚拟 IP。</p>
+
+
+<h2 id="encryption-boundary">加密边界</h2>
+
+
+<p>业务载荷在端点 daemon 中加密，Relay 转发 opaque encrypted frame，不负责解密业务内容。但“无法读取明文”不等于“看不到任何信息”。</p>
+
+
+<div class="comparison-grid">
+<article><h3>Relay 不应获得</h3><ul><li>业务 IP 包明文</li><li>SSH、RDP 或数据库载荷</li><li>端到端会话私钥</li></ul></article>
+<article><h3>Relay 仍可能观察</h3><ul><li>节点/设备标识</li><li>连接时间与持续时长</li><li>方向、频率和帧大小</li><li>来源网络地址</li></ul></article>
+</div>
+
+
+<h2 id="transport-tls">Relay TLS 与端到端加密</h2>
+
+
+<p>二者是不同层次：</p>
+
+
+<ul>
+<li><strong>端到端加密：</strong>保护业务载荷不被 Relay 解密。</li>
+<li><strong>Relay TLS：</strong>保护客户端到 Relay 的传输、服务端身份和额外元数据暴露面。</li>
+</ul>
+
+
+<p>生产 Relay 应配置 <code>RELAY_TLS_CERT</code> 与 <code>RELAY_TLS_KEY</code>。<code>RELAY_ALLOW_INSECURE_PLAINTEXT=true</code> 只适合隔离开发环境。</p>
+
+
+<h2 id="ticket-auth">Ticket 认证</h2>
+
+
+<p>Relay 默认要求认证，需要 ticket keyring、audience 与 region。Control Plane 为设备签发短期 Relay ticket，Relay 验证后才接受注册。关键配置包括：</p>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>RELAY_REQUIRE_AUTH=true
+RELAY_TICKET_KEYRING_JSON='{"active":"..."}'
+RELAY_AUDIENCE=relay-tokyo-1
+RELAY_REGION=ap-northeast
+RELAY_TLS_CERT=/etc/p2wlan/tls/fullchain.pem
+RELAY_TLS_KEY=/etc/p2wlan/tls/privkey.pem</code></pre>
+</div>
+
+
+<p>keyring JSON 的实际结构必须与当前源码和 Control Plane 配置保持一致，不要直接复制示意值上线。</p>
+
+
+<h2 id="capacity">容量与保护</h2>
+
+
+<p>Relay 提供有界 send queue、注册超时、idle timeout、最大连接数、最大 frame payload 和认证失败速率限制。默认监听地址为 <code>:18081</code>，默认最大连接数为 1000；生产容量需基于真实并发、带宽和帧大小压测。</p>
+
+
+<h2 id="path-policy">何时使用 Relay-only</h2>
+
+
+<p><code>path-policy relay-only</code> 适合以下受控场景：</p>
+
+
+<ul>
+<li>验证 Relay 可用性和容量。</li>
+<li>企业策略明确禁止 UDP P2P。</li>
+<li>排除 Direct 路径变量。</li>
+</ul>
+
+
+<p>它不应成为掩盖 NAT 穿透故障的长期默认值。正常用户优先使用 auto。</p>
+
+
+<h2 id="relay-unavailable">Relay 不可用时</h2>
+
+
+<p>检查 DNS/TLS、TCP 端口、ticket audience/region、keyring、时间、revocation feed 和连接上限。客户端与 Relay 两侧日志必须按同一时间窗口比对。</p>

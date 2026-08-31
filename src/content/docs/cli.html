@@ -1,0 +1,112 @@
+<p class="doc-lead">Linux CLI 适合云主机、NAS、HomeLab 和无桌面服务器。它负责管理配置与 daemon 生命周期，数据面仍由 <code>p2wlan-daemon</code> 执行。</p>
+
+
+<h2 id="global-option">全局选项</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan --config /etc/p2wlan/config.json &lt;command&gt;</code></pre>
+</div>
+
+
+<p><code>--config</code> 可以为任意子命令指定配置文件。默认路径用 <code>p2wlan config path</code> 查看，不要在文档或脚本中猜测不同发行版的路径。</p>
+
+
+<h2 id="authentication">账号命令</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan register -u you@example.com
+p2wlan login -u you@example.com
+p2wlan login -u you@example.com -s https://control.example.com
+p2wlan logout</code></pre>
+</div>
+
+
+<p><code>-p/--password</code> 可直接传密码，但会增加 shell history 和进程参数泄漏风险。默认隐藏输入更安全。</p>
+
+
+<h2 id="lifecycle">网络生命周期</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan up       # 别名 start
+p2wlan status
+p2wlan status --json
+p2wlan down     # 别名 stop</code></pre>
+</div>
+
+
+<p><code>status --json</code> 适合自动化采集完整诊断响应；面向人阅读时使用普通 <code>status</code>。</p>
+
+
+<h2 id="logs">日志</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan logs
+p2wlan logs -n 300
+p2wlan logs -f
+p2wlan logs -n 200 -f</code></pre>
+</div>
+
+
+<p>提交日志前先检查账号、token、私钥、内网地址和业务目标是否需要脱敏。源码会对部分配置秘密做 redaction，但不能假设所有业务日志都已自动脱敏。</p>
+
+
+<h2 id="config-commands">配置</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan config path
+p2wlan config show
+p2wlan config set mtu 1380
+p2wlan config set path-policy score
+p2wlan config set relay-startup-timeout 1500</code></pre>
+</div>
+
+
+<p>支持项和合法范围见 <a href="/docs/configuration/">配置参考</a>。修改身份、网络或控制面相关字段可能清除旧凭据，随后需要重新登录或注册设备。</p>
+
+
+<h2 id="doctor">诊断</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan doctor</code></pre>
+</div>
+
+
+<p><code>doctor</code> 检查本地配置、daemon、Direct UDP 与 Relay fallback。诊断结果不是单一“通过/失败”，应结合对端日志和当时路径判断。</p>
+
+
+<h2 id="update">更新</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan update --dry-run
+p2wlan update
+p2wlan update --version v0.1.145
+p2wlan update --install-dir /usr/local/bin</code></pre>
+</div>
+
+
+<p><code>--repo</code> 默认指向 <code>yhan-sun/p2wlan</code>。生产环境建议固定版本并在升级前核对摘要，而不是无条件跟随 latest。</p>
+
+
+<h2 id="automation">自动化建议</h2>
+
+
+<ul>
+<li>脚本读取 <code>status --json</code>，不要解析彩色的人类可读输出。</li>
+<li>启动失败时设置有限重试和退避，不要无限循环 sudo。</li>
+<li>将配置和日志权限限制为运行用户可读。</li>
+<li>systemd 中仅授予 daemon 所需网络能力，避免整个运维脚本以 root 常驻。</li>
+</ul>

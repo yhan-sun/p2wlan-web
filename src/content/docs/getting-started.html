@@ -1,0 +1,104 @@
+<p class="doc-lead">本指南以两台设备加入同一网络为目标。桌面端可以使用 Flutter GUI；服务器或无桌面环境使用 Linux CLI。</p>
+
+
+<h2 id="prepare">1. 准备两台设备</h2>
+
+
+<p>两台设备应能正常访问控制面。首次验证建议让它们位于不同网络，例如家庭宽带与手机热点，这样能观察公网 UDP Direct 或 Relay 回退。</p>
+
+
+<aside class="callout callout--danger">
+<div aria-hidden="true" class="callout__icon"></div>
+<div><strong>不要复用重要密码</strong><div>当前 Linux CLI 源码中的默认控制面地址是 http://47.109.40.237:18080。HTTP 不为登录凭据提供 TLS 传输保护。Preview 测试请使用独立密码；敏感或生产环境必须改用自己的 HTTPS 控制面。</div></div>
+</aside>
+
+
+<h2 id="download">2. 下载 v0.1.146</h2>
+
+
+<p>前往 <a href="/download/">下载页</a>，页面会根据操作系统推荐安装包，并显示 GitHub 提供的 SHA-256 digest。安装前建议完成完整性校验。</p>
+
+
+<h2 id="login">3. 登录或注册</h2>
+
+
+<p>GUI 中按界面提示完成登录。Linux CLI：</p>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan register -u you@example.com
+# 已有账号时：
+p2wlan login -u you@example.com</code></pre>
+</div>
+
+
+<p>不传 <code>-p</code> 时，CLI 会在终端中隐藏密码输入。自托管用户可以指定控制面：</p>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan login -u you@example.com -s https://control.example.com</code></pre>
+</div>
+
+
+<h2 id="start-network">4. 启动虚拟网络</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan up
+p2wlan status</code></pre>
+</div>
+
+
+<p><code>up</code> 会启动 daemon 和 TUN 虚拟网卡；Linux 通常需要管理员权限。GUI 客户端会在需要时请求系统授权。</p>
+
+
+<h2 id="second-device">5. 在第二台设备重复操作</h2>
+
+
+<p>使用同一账号和网络加入第二台设备。设备上线后，状态页面或 CLI 会显示对端的虚拟 IP 与当前路径。</p>
+
+
+<h2 id="verify">6. 验证连通性</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>ping 10.20.0.5
+ssh user@10.20.0.5
+
+# 查看更完整的诊断 JSON
+p2wlan status --json</code></pre>
+</div>
+
+
+<p>虚拟 IP 示例仅用于说明，实际地址以客户端显示为准。路径可能显示 LAN Direct、Direct、Relay、Connecting 或 Offline。</p>
+
+
+<h2 id="diagnose">7. 不通时先做这三步</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan doctor
+p2wlan status --json
+p2wlan logs -n 200</code></pre>
+</div>
+
+
+<p>先区分“控制面登录失败”“daemon/TUN 未启动”“对端离线”“Direct 失败但 Relay 可用”和“Direct、Relay 都不可用”。不要一开始就关闭所有安全软件或随意开放公网端口。</p>
+
+
+<h2 id="stop">停止与退出</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan down
+p2wlan logout</code></pre>
+</div>
+
+
+<p><code>down</code> 停止本地 daemon；<code>logout</code> 删除保存的控制面会话。两者用途不同。</p>

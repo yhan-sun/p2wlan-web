@@ -1,0 +1,51 @@
+<p class="doc-lead">移动端通过系统 VPN / Network Extension 能力接入虚拟网络。与桌面端相比，后台调度、电池策略和热点切换对连接稳定性影响更明显。</p>
+
+
+<h2 id="android-permission">Android VPN 权限</h2>
+
+
+<p>首次启动网络时，系统会显示 VPN 连接确认。此权限允许 P2WLAN 创建本地虚拟接口，不代表应用自动获得设备上所有账号或文件权限。</p>
+
+
+<ul>
+<li>安装来源应为官方 GitHub Release。</li>
+<li>仅在需要组网时启用 VPN；系统状态栏会显示 VPN 标识。</li>
+<li>频繁断连时检查系统省电、后台冻结和厂商网络管理策略。</li>
+<li>从 Wi-Fi 切换到蜂窝或热点后，连接路径可能重新协商。</li>
+</ul>
+
+
+<h2 id="mobile-latency">移动网络延迟</h2>
+
+
+<p>移动端可能出现更明显的尾延迟，常见原因包括 Wi-Fi 省电、蜂窝调度、热点 NAT、后台线程冻结和路径重选。不要只看平均 RTT，应同时记录 P50、P95、P99、丢包率和当时路径。</p>
+
+
+<h2 id="android-debug">Android 排障顺序</h2>
+
+
+<ol>
+<li>确认 VPN 权限仍有效。</li>
+<li>保持屏幕亮起做一次对照测试，判断是否为后台限制。</li>
+<li>分别测试同一 Wi-Fi、不同 Wi-Fi、手机热点和蜂窝网络。</li>
+<li>观察 Direct 与 Relay 是否频繁切换。</li>
+<li>同时保存桌面端与 Android 端日志，避免只分析单端。</li>
+</ol>
+
+
+<h2 id="ios-status">iOS 状态</h2>
+
+
+<aside class="callout callout--warning">
+<div aria-hidden="true" class="callout__icon"></div>
+<div><strong>实验性、未签名</strong><div>Release 提供的是 unsigned IPA，需要自行签名和安装。它不是 App Store 分发，也不适合作为无开发者经验用户的默认入口。</div></div>
+</aside>
+
+
+<p>iOS 的 Network Extension、签名、provisioning profile 和后台执行均受系统约束。安装成功不代表具备长期稳定后台运行能力，实际表现还取决于签名权限和系统版本。</p>
+
+
+<h2 id="privacy">隐私提示</h2>
+
+
+<p>移动端的业务数据使用 P2WLAN 加密数据面，但控制面仍处理账号、设备、虚拟 IP、在线状态和信令。Relay 仍能观察连接元数据。请结合 <a href="/docs/security/">安全边界</a>评估使用场景。</p>

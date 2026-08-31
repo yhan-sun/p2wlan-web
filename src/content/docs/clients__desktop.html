@@ -1,0 +1,53 @@
+<p class="doc-lead">桌面客户端提供登录、设备列表、连接路径与诊断入口；真正的数据面由本地 Rust daemon 负责。理解 GUI 与 daemon 的分工，有助于定位“界面正常但网络不通”的问题。</p>
+
+
+<h2 id="runtime-model">运行模型</h2>
+
+
+<div class="flow-row"><span>Flutter GUI</span><b>→</b><span>本地 daemon</span><b>→</b><span>TUN / Wintun / utun</span><b>→</b><span>Direct 或 Relay</span></div>
+
+
+<p>关闭主窗口不一定等于停止虚拟网络；是否继续运行取决于托盘和后台进程状态。需要明确停止时，使用客户端的停止操作或 CLI 的 <code>p2wlan down</code>。</p>
+
+
+<h2 id="permissions">系统权限</h2>
+
+
+<ul>
+<li><strong>Windows：</strong>创建 Wintun、安装组件和修改路由可能需要 UAC 管理员授权。</li>
+<li><strong>macOS：</strong>创建 utun 接口、调整路由或启动辅助进程时可能请求管理员授权。</li>
+<li><strong>Linux：</strong>创建 TUN 通常需要 root、CAP_NET_ADMIN 或受控的 systemd 能力配置。</li>
+</ul>
+
+
+<p>不要通过“永久以 root 运行整个图形界面”来规避权限设计。应只让需要网络能力的 daemon 获得最小权限。</p>
+
+
+<h2 id="connection-status">连接状态</h2>
+
+
+<div class="definition-grid">
+<article><strong>LAN Direct</strong><p>两端通过本地网络直接通信，通常延迟最低。</p></article>
+<article><strong>Direct</strong><p>通过公网 UDP 建立端到端连接。</p></article>
+<article><strong>Relay</strong><p>Direct 暂不可用，业务密文经 Relay 转发。</p></article>
+<article><strong>Connecting</strong><p>正在获取候选、协商加密会话或确认路径。</p></article>
+<article><strong>Offline</strong><p>对端离线、控制面不可达或没有可用数据路径。</p></article>
+</div>
+
+
+<h2 id="daily-checks">日常检查</h2>
+
+
+<ol>
+<li>确认账号和网络一致。</li>
+<li>确认本机虚拟 IP、daemon 状态和 TUN 接口存在。</li>
+<li>确认对端在线且显示当前路径。</li>
+<li>先 ping 虚拟 IP，再测试 SSH/RDP/业务端口。</li>
+<li>出现尖峰或切路时记录两端日志和路径变化时间。</li>
+</ol>
+
+
+<h2 id="safe-exit">安全退出</h2>
+
+
+<p>停止虚拟网络后再卸载应用，以便 daemon 有机会清理路由和接口。异常退出后若仍残留路由，重启 daemon 或系统通常比手工删除未知路由更安全；需要手工处理时先保存当前路由表。</p>

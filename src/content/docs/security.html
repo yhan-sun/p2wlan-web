@@ -1,0 +1,65 @@
+<p class="doc-lead">安全判断必须区分业务数据面、控制面、Relay 传输、终端本身和发布供应链。任何一个层面安全，不代表整个系统自动安全。</p>
+
+
+<aside class="callout callout--warning">
+<div aria-hidden="true" class="callout__icon"></div>
+<div><strong>尚未完成独立安全审计</strong><div>P2WLAN 当前是 Preview。本文描述设计边界，不构成第三方安全认证，也不保证不存在实现缺陷。</div></div>
+</aside>
+
+
+<h2 id="protected">数据面保护</h2>
+
+
+<p>端点之间使用 WireGuard-like Noise 加密会话，密码学组件包括 X25519、ChaCha20-Poly1305 与 BLAKE2s。Relay 只转发密文，不持有端到端会话私钥。</p>
+
+
+<h2 id="control-plane">控制面风险</h2>
+
+
+<p>Control Plane 处理账号登录、设备注册、虚拟 IP、在线状态、信令和 Relay ticket。即使业务数据端到端加密，控制面仍是高价值组件。</p>
+
+
+<aside class="callout callout--danger">
+<div aria-hidden="true" class="callout__icon"></div>
+<div><strong>当前 CLI 默认地址使用 HTTP</strong><div>Linux CLI 源码当前默认控制面为 http://47.109.40.237:18080。该链路不提供 HTTPS 传输保护。请仅用独立测试密码；生产和敏感使用必须指定自托管 HTTPS 地址。</div></div>
+</aside>
+
+
+<h2 id="relay-metadata">Relay 可见元数据</h2>
+
+
+<p>Relay 无法按设计解密业务载荷，但可以观察连接来源、节点标识、时间、持续时长、方向、频率和 frame 大小。这些元数据可能足以推断通信关系或活动模式。</p>
+
+
+<h2 id="endpoint-security">终端安全</h2>
+
+
+<p>若设备本身被入侵，攻击者可以在加密前读取业务数据、窃取配置或控制虚拟网卡。应保护：</p>
+
+
+<ul>
+<li>配置文件、auth token、设备凭据和私钥的文件权限。</li>
+<li>daemon 二进制、更新来源和管理员授权。</li>
+<li>操作系统补丁、磁盘加密与登录凭据。</li>
+<li>SSH/RDP/数据库本身的认证；虚拟局域网不是应用层免认证。</li>
+</ul>
+
+
+<h2 id="self-host-checklist">自托管安全清单</h2>
+
+
+<ul class="check-list">
+<li>Control Plane 仅通过 HTTPS/WSS 暴露，内部 HTTP 只监听 loopback 或私网。</li>
+<li>JWT secret 使用高熵随机值，不提交到 Git。</li>
+<li>Relay 启用 TLS、ticket 认证、audience 和 region。</li>
+<li>metrics、diagnostics 和数据库不暴露公网。</li>
+<li>可信代理 CIDR 精确配置，避免信任任意 X-Forwarded-For。</li>
+<li>定期备份 SQLite，并验证恢复流程。</li>
+<li>固定 Release tag 和 SHA-256，保留升级回滚路径。</li>
+</ul>
+
+
+<h2 id="license">License 与保证</h2>
+
+
+<p>P2WLAN 使用 MIT License，允许个人与商业使用、修改和分发。MIT 同时声明软件按“现状”提供，不附带明示或暗示担保。官网不会增加“仅限非商业使用”的额外限制。</p>

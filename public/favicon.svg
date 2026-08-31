@@ -1,17 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
-  <title id="title">P2WLAN</title>
-  <desc id="desc">四个设备节点连接到中心节点</desc>
-  <rect x="3" y="3" width="58" height="58" rx="16" fill="#151719"/>
-  <g fill="none" stroke="#7f858b" stroke-linecap="round" stroke-width="2">
-    <path d="M18 19 32 32 46 19"/>
-    <path d="M18 45 32 32 46 45"/>
-  </g>
-  <g fill="#151719" stroke="#f2f3f3" stroke-width="1.6">
-    <circle cx="18" cy="19" r="4"/>
-    <circle cx="46" cy="19" r="4"/>
-    <circle cx="18" cy="45" r="4"/>
-    <circle cx="46" cy="45" r="4"/>
-  </g>
-  <rect x="26" y="26" width="12" height="12" rx="3.5" fill="#3158bd"/>
-  <circle cx="32" cy="32" r="1.8" fill="#fff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="P2WLAN">
+  <rect width="64" height="64" rx="16" fill="#0B0E14"/>
+  <path d="M16 43C23 36 30 33 37 30C42 28 46 24 49 20" fill="none" stroke="#5668FF" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="15" cy="44" r="6" fill="#F7F8FB"/>
+  <circle cx="49" cy="20" r="6" fill="#F7F8FB"/>
+  <circle cx="33" cy="32" r="3" fill="#8390FF"/>
 </svg>

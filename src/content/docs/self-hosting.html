@@ -1,0 +1,164 @@
+<p class="doc-lead">P2WLAN 的 Control Plane 和 Relay 位于主仓库 <code>server/</code>。仓库目前没有承诺一键生产部署模板，因此本页明确区分“源码已有能力”和“运维示例”。</p>
+
+
+<aside class="callout callout--danger">
+<div aria-hidden="true" class="callout__icon"></div>
+<div><strong>生产环境必须启用 TLS</strong><div>Control Plane 承载登录、token、设备凭据和信令。请在反向代理上提供 HTTPS/WSS；Relay 也应配置自己的 TLS 证书。</div></div>
+</aside>
+
+
+<h2 id="prerequisites">准备</h2>
+
+
+<ul>
+<li>一台具有稳定公网入口的 Linux 主机。</li>
+<li>域名，例如 <code>control.example.com</code> 和 <code>relay.example.com</code>。</li>
+<li>Go 1.23 或与当前 <code>server/go.mod</code> 兼容的工具链。</li>
+<li>反向代理与有效 TLS 证书。</li>
+<li>安全存储 JWT secret、Relay ticket keyring 和数据库备份。</li>
+</ul>
+
+
+<h2 id="build">从源码构建</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>git clone https://github.com/yhan-sun/p2wlan.git
+cd p2wlan/server
+
+go build -trimpath -o p2wlan-control .
+go build -trimpath -o p2wlan-relay ./relay</code></pre>
+</div>
+
+
+<h2 id="control-env">Control Plane 配置</h2>
+
+
+<div class="table-wrap"><table><thead><tr><th>变量</th><th>默认值</th><th>用途</th></tr></thead><tbody>
+<tr><td><code>PORT</code></td><td>8080（Dockerfile 设为 18080）</td><td>HTTP 监听端口。</td></tr>
+<tr><td><code>DB_PATH</code></td><td><code>p2pnet.db</code></td><td>SQLite 数据库路径。</td></tr>
+<tr><td><code>JWT_SECRET</code></td><td>无</td><td>必填；缺失时服务拒绝启动。</td></tr>
+<tr><td><code>CONTROL_ALLOWED_ORIGINS</code></td><td>空</td><td>允许的浏览器 Origin，native 客户端通常不发送 Origin。</td></tr>
+<tr><td><code>CONTROL_TRUSTED_PROXY_CIDRS</code></td><td>空</td><td>可信反向代理 CIDR，用于安全处理 X-Forwarded-For。</td></tr>
+</tbody></table></div>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>install -d -m 0750 /var/lib/p2wlan
+export PORT=18080
+export DB_PATH=/var/lib/p2wlan/p2pnet.db
+export JWT_SECRET="$(openssl rand -hex 32)"
+./p2wlan-control</code></pre>
+</div>
+
+
+<h2 id="control-container">Control Plane 容器</h2>
+
+
+<p>仓库提供 <code>server/Dockerfile</code>。它以非 root 用户运行，并将数据库放在 <code>/data</code>：</p>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>cd server
+docker build -t p2wlan-control:local .
+docker run --rm \
+  -p 127.0.0.1:18080:18080 \
+  -e JWT_SECRET="$(openssl rand -hex 32)" \
+  -v /var/lib/p2wlan:/data \
+  p2wlan-control:local</code></pre>
+</div>
+
+
+<h2 id="reverse-proxy">HTTPS / WSS 反向代理示例</h2>
+
+
+<p>以下是运维示例，不是仓库内现成文件：</p>
+
+
+<div class="code-frame" data-language="caddy">
+<div class="code-frame__bar"><span>caddy</span></div>
+<pre><code>control.example.com {
+  reverse_proxy 127.0.0.1:18080
+}</code></pre>
+</div>
+
+
+<p>WebSocket 路由位于 <code>/api/v1/signals/ws</code>，现代 Caddy 会自动处理 Upgrade。使用其他代理时需确认 WSS 转发。</p>
+
+
+<h2 id="relay-env">Relay 最小安全配置</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>export RELAY_BIND=:18081
+export RELAY_REQUIRE_AUTH=true
+export RELAY_AUDIENCE=relay-1
+export RELAY_REGION=ap-northeast
+export RELAY_TICKET_KEYRING_JSON='REPLACE_WITH_CONTROL_MATCHING_KEYRING'
+export RELAY_TLS_CERT=/etc/letsencrypt/live/relay.example.com/fullchain.pem
+export RELAY_TLS_KEY=/etc/letsencrypt/live/relay.example.com/privkey.pem
+./p2wlan-relay</code></pre>
+</div>
+
+
+<p>Relay 默认要求认证、默认不允许 plaintext。若配置 keyring、audience 或 region 缺失，启动会失败。这是安全保护，不应通过关闭认证绕过。</p>
+
+
+<h2 id="relay-options">Relay 常用变量</h2>
+
+
+<div class="table-wrap"><table><thead><tr><th>变量</th><th>默认</th><th>说明</th></tr></thead><tbody>
+<tr><td><code>RELAY_BIND</code></td><td>:18081</td><td>TCP 监听地址。</td></tr>
+<tr><td><code>RELAY_SEND_QUEUE</code></td><td>1024</td><td>每连接发送队列容量。</td></tr>
+<tr><td><code>RELAY_REGISTER_TIMEOUT</code></td><td>5s</td><td>注册超时。</td></tr>
+<tr><td><code>RELAY_IDLE_TIMEOUT</code></td><td>30s</td><td>空闲超时。</td></tr>
+<tr><td><code>RELAY_MAX_CONNECTIONS</code></td><td>1000</td><td>最大连接数。</td></tr>
+<tr><td><code>RELAY_METRICS_BIND</code></td><td>空</td><td>只读指标接口；默认关闭。</td></tr>
+<tr><td><code>RELAY_UDP_OBSERVER_BIND</code></td><td>空</td><td>可选 UDP observer / STUN 地址。</td></tr>
+</tbody></table></div>
+
+
+<h2 id="systemd">systemd 示例</h2>
+
+
+<div class="code-frame" data-language="systemd">
+<div class="code-frame__bar"><span>systemd</span></div>
+<pre><code>[Unit]
+Description=P2WLAN Control Plane
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=p2wlan
+Group=p2wlan
+EnvironmentFile=/etc/p2wlan/control.env
+ExecStart=/usr/local/bin/p2wlan-control
+WorkingDirectory=/var/lib/p2wlan
+Restart=on-failure
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/p2wlan
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+</div>
+
+
+<p>Relay 建议使用单独用户和 unit，并仅开放证书读取路径、必要监听端口和日志目录。部署前在你的发行版上验证 hardening 选项。</p>
+
+
+<h2 id="backup-upgrade">备份与升级</h2>
+
+
+<ol>
+<li>停止 Control Plane 或使用 SQLite 一致性备份方式。</li>
+<li>备份数据库、环境文件、ticket keyring 和反向代理配置。</li>
+<li>构建固定 tag，而不是直接部署不断变化的 main。</li>
+<li>在 staging 验证登录、设备注册、WebSocket、Relay ticket、Direct 与 Relay。</li>
+<li>升级后检查 <code>GET /health</code>、日志和数据库权限。</li>
+</ol>

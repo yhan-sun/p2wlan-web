@@ -1,0 +1,74 @@
+<p class="doc-lead">NAT 穿透的目标是在不手工开放入站端口的前提下，让两端发现并同时探测可用的 UDP 映射。任何实现都不能保证在所有 NAT、防火墙和运营商网络下成功。</p>
+
+
+<h2 id="candidate-types">候选来源</h2>
+
+
+<ul>
+<li><strong>Host candidate：</strong>本地接口地址，适合同一局域网。</li>
+<li><strong>Server-reflexive candidate：</strong>通过 STUN 观察到的公网 IP 与端口。</li>
+<li><strong>Port mapping candidate：</strong>短期 UPnP IGD、PCP 或 NAT-PMP 映射。</li>
+<li><strong>Predicted candidate：</strong>根据多个观察结果推断可能的对端映射。</li>
+<li><strong>Birthday probing candidate：</strong>对特定 NAT profile 生成有界端口集合。</li>
+</ul>
+
+
+<h2 id="why-hard">为什么 Hard NAT 难</h2>
+
+
+<p>对称 NAT 可能为不同目的地址分配不同外部端口，映射序列还可能受并发流量、超时和运营商 CGNAT 影响。一个 STUN 服务器看到的端口不一定就是发往对端时使用的端口。</p>
+
+
+<h2 id="fresh-mapping">Fresh mapping 与预测</h2>
+
+
+<p>当前 daemon 包含 fresh-socket measure-then-punch 路径：使用新 UDP socket 依次测量多个观察点，建模端口分配步骤，再从同一 socket 向预测端点发起探测。预测候选默认启用，但它仍是概率性策略，不是确定性保证。</p>
+
+
+<h2 id="bounded-techniques">有界增强策略</h2>
+
+
+<div class="definition-grid">
+<article><strong>Port mapping</strong><p>尝试路由器支持的 UPnP / PCP / NAT-PMP，默认开启。</p></article>
+<article><strong>Birthday probing</strong><p>当 NAT profile 合适时，对有限候选集合并行探测，默认开启。</p></article>
+<article><strong>Socket pool</strong><p>为 Hard NAT 提供 2–4 个 UDP socket 的实验能力，默认关闭。</p></article>
+<article><strong>UDP liveness</strong><p>在扩展扫描没有 ACK 时帮助区分 UDP 出站被阻断与端口预测失败。</p></article>
+</div>
+
+
+<h2 id="failure-causes">Direct 常见失败原因</h2>
+
+
+<ul>
+<li>双端对称 NAT 或大规模 CGNAT 的映射不可预测。</li>
+<li>企业、校园或酒店网络阻断未知 UDP。</li>
+<li>云安全组只允许 TCP，或宿主机防火墙丢弃 UDP。</li>
+<li>设备在探测期间切换 Wi-Fi、蜂窝、VPN 或代理。</li>
+<li>候选过期、时钟/调度抖动或两端版本差异导致协同失败。</li>
+</ul>
+
+
+<h2 id="diagnostic-method">诊断方法</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan doctor
+p2wlan status --json
+p2wlan logs -n 300</code></pre>
+</div>
+
+
+<p>记录两端相同时间窗口中的候选数量、NAT profile、probe wave、ACK、路径提交和 Relay 状态。只看一条“punch failed”日志无法判断根因。</p>
+
+
+<h2 id="safe-experiments">安全实验顺序</h2>
+
+
+<ol>
+<li>确认 Relay 能用，建立可用性基线。</li>
+<li>只开启默认 Direct 策略测试。</li>
+<li>比较不同网络组合，而不是只重复同一环境。</li>
+<li>一次只改变一个设置，例如 socket pool 或 STUN 列表。</li>
+<li>设置停止条件；不要进行无限端口扫描或无界探测。</li>
+</ol>

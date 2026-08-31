@@ -1,0 +1,59 @@
+<p class="doc-lead">P2WLAN 将“发现与协调”和“业务数据传输”分开。Control Plane 负责身份、设备、虚拟 IP 和信令；本地 daemon 负责实际数据面。</p>
+
+
+<h2 id="planes">控制面与数据面</h2>
+
+
+<div class="comparison-grid">
+<article><span class="eyebrow">Control Plane</span><h3>建立关系</h3><ul><li>登录与设备注册</li><li>分配虚拟 IP</li><li>交换候选和信令</li><li>签发 Relay ticket</li><li>维护在线状态</li></ul></article>
+<article><span class="eyebrow">Data Plane</span><h3>传输业务数据</h3><ul><li>创建 TUN 虚拟接口</li><li>建立加密会话</li><li>选择 Direct 或 Relay</li><li>封装与解封装 IP 包</li><li>保持路径并执行回退</li></ul></article>
+</div>
+
+
+<h2 id="virtual-network">虚拟网络</h2>
+
+
+<p>默认 CIDR 为 <code>10.20.0.0/16</code>，默认 MTU 为 1420。普通应用只看到对端虚拟 IP，不需要知道当前底层路径是局域网、公网 UDP 还是 Relay。</p>
+
+
+<h2 id="connection-sequence">连接建立序列</h2>
+
+
+<ol class="timeline">
+<li><strong>注册与在线：</strong>设备向控制面认证并发布在线状态。</li>
+<li><strong>候选收集：</strong>daemon 收集 host、STUN server-reflexive、映射和预测候选。</li>
+<li><strong>双向探测：</strong>两端通过信令协调时间窗口并发送 UDP probes。</li>
+<li><strong>加密会话：</strong>确认可用端点后建立 WireGuard-like Noise 会话。</li>
+<li><strong>路径提交：</strong>Direct 可用则选 Direct；否则使用已准备的 Relay。</li>
+<li><strong>持续维护：</strong>keepalive、质量统计和重新协商维持连接。</li>
+</ol>
+
+
+<h2 id="path-order">路径优先级</h2>
+
+
+<div class="path-strip"><span>LAN Direct</span><i></i><span>Public UDP Direct</span><i></i><span>Encrypted Relay</span></div>
+
+
+<p>这不是“先长时间阻塞等待 Direct，最后才准备 Relay”的简单串行流程。实现会围绕首个可用业务包、回退与后续 Direct 提升做协同，但具体时序以对应版本源码和诊断事件为准。</p>
+
+
+<h2 id="path-semantics">状态含义</h2>
+
+
+<ul>
+<li><strong>LAN Direct：</strong>底层端点位于同一可达局域网。</li>
+<li><strong>Direct：</strong>底层端点通过公网 UDP 或 NAT 映射直接通信。</li>
+<li><strong>Relay：</strong>加密 frame 经中继转发，业务应用无需修改连接目标。</li>
+<li><strong>Connecting：</strong>尚未完成候选确认、加密握手或路径提交。</li>
+<li><strong>Offline：</strong>对端不在线或当前没有可用路径。</li>
+</ul>
+
+
+<h2 id="not-wireguard">与 WireGuard 的关系</h2>
+
+
+<aside class="callout callout--info">
+<div aria-hidden="true" class="callout__icon"></div>
+<div><strong>WireGuard-like，不是 WireGuard</strong><div>P2WLAN 使用 X25519、ChaCha20-Poly1305、BLAKE2s 等组件构建 Noise 风格数据面，但不是官方 WireGuard 实现，也不声明与 WireGuard 配置或协议互操作。</div></div>
+</aside>

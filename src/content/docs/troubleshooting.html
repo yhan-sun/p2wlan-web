@@ -1,0 +1,105 @@
+<p class="doc-lead">排障的第一原则是定位层次，而不是随机改配置。先保存两端时间、版本、网络环境、路径和日志，再逐步缩小范围。</p>
+
+
+<h2 id="minimum-evidence">最小证据集</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan status
+p2wlan status --json &gt; status.json
+p2wlan doctor
+p2wlan logs -n 300 &gt; p2wlan.log
+p2wlan config show</code></pre>
+</div>
+
+
+<p>同时记录：两端 Release、操作系统、Wi-Fi/蜂窝/热点、是否使用其他 VPN/代理、问题发生的绝对时间和对端虚拟 IP。</p>
+
+
+<h2 id="symptom-matrix">症状矩阵</h2>
+
+
+<div class="table-wrap table-wrap--wide"><table><thead><tr><th>症状</th><th>优先检查</th><th>下一步</th></tr></thead><tbody>
+<tr><td>无法登录</td><td>控制面 URL、HTTP/HTTPS、DNS、时间、账号</td><td>curl /health；确认独立测试密码与服务日志。</td></tr>
+<tr><td>登录成功但 up 失败</td><td>daemon、管理员权限、TUN/Wintun</td><td>查看 daemon 日志和系统接口/路由。</td></tr>
+<tr><td>对端一直 Offline</td><td>账号/网络是否一致、对端进程、控制面在线状态</td><td>两端重查 status，不要只重启单端。</td></tr>
+<tr><td>Relay 可用但 Direct 失败</td><td>UDP、防火墙、NAT profile、候选与 probe</td><td>比较不同网络组合；查看 NAT 穿透文档。</td></tr>
+<tr><td>Direct 和 Relay 都失败</td><td>控制面、Relay TLS/ticket、网络出口</td><td>检查 Relay 服务端日志、端口和 audience。</td></tr>
+<tr><td>ping 通但 SSH/RDP 卡住</td><td>MTU、应用监听地址、主机防火墙</td><td>逐步降低 MTU，并检查业务端口。</td></tr>
+<tr><td>移动端偶发高延迟</td><td>省电、后台冻结、路径切换、Wi-Fi 调度</td><td>亮屏对照、记录 P95/P99 与路径。</td></tr>
+</tbody></table></div>
+
+
+<h2 id="control-check">控制面检查</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>curl -v https://control.example.com/health
+# 预期响应体：ok</code></pre>
+</div>
+
+
+<p>自托管环境还要确认 WebSocket 反向代理、JWT secret、SQLite 权限和服务时间。HTTP 200 的 health 只说明进程可响应，不代表登录、信令和 ticket 全部正常。</p>
+
+
+<h2 id="tun-check">TUN 与路由</h2>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code># Linux
+ip link show p2wlan0
+ip addr show p2wlan0
+ip route
+
+# macOS
+ifconfig | grep -A6 utun
+netstat -rn
+
+# Windows PowerShell
+Get-NetAdapter
+Get-NetRoute</code></pre>
+</div>
+
+
+<p>不要复制粘贴删除路由命令，先确认接口和目标网段确实属于 P2WLAN。</p>
+
+
+<h2 id="direct-failure">Direct 失败</h2>
+
+
+<ol>
+<li>确认 UDP 出站未被阻断。</li>
+<li>检查云安全组和主机防火墙。</li>
+<li>测试一端换到手机热点，判断问题是否与固定 NAT 组合有关。</li>
+<li>查看候选、probe wave、ACK 和最终 path commit。</li>
+<li>仅在有基线后尝试 socket-pool 或其他实验设置。</li>
+</ol>
+
+
+<h2 id="relay-failure">Relay 失败</h2>
+
+
+<p>服务端重点检查 TLS 证书、ticket keyring、audience、region、注册超时、最大连接数和认证失败限制。客户端重点检查 Relay endpoint、系统时间和控制面是否成功签发 ticket。</p>
+
+
+<h2 id="mtu">MTU 问题</h2>
+
+
+<p>小 ping 正常但大包、TLS 或 RDP 卡顿时，可能存在 path MTU 问题。默认 MTU 为 1420，可逐步尝试 1380、1340 等较小值，每次重启网络并记录结果。</p>
+
+
+<div class="code-frame" data-language="bash">
+<div class="code-frame__bar"><span>bash</span></div>
+<pre><code>p2wlan config set mtu 1380
+p2wlan down
+p2wlan up</code></pre>
+</div>
+
+
+<h2 id="support-bundle">提交问题</h2>
+
+
+<p>问题报告应包含可复现步骤、预期/实际结果、两端版本、网络拓扑和脱敏日志。不要上传密码、token、私钥或与问题无关的业务数据。</p>
