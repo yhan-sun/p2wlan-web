@@ -28,9 +28,9 @@
     --text-faint: #8f9499;
     --border: #d9dad5;
     --border-strong: #c6c8c2;
-    --primary: #3158bd;
-    --primary-hover: #23469f;
-    --primary-soft: #e8ecf8;
+    --primary: #4b68a3;
+    --primary-hover: #3e5a91;
+    --primary-soft: #e8ecf4;
     --success: #28715b;
     --success-soft: #e3eee9;
     --warning: #8b601f;
@@ -69,9 +69,9 @@
     --text-faint: #777c81;
     --border: #2d3033;
     --border-strong: #42464a;
-    --primary: #8aa5ed;
-    --primary-hover: #a7b9ef;
-    --primary-soft: #232b40;
+    --primary: #96abd8;
+    --primary-hover: #b1c0df;
+    --primary-soft: #252c3a;
     --success: #70b69e;
     --success-soft: #20332c;
     --warning: #d0a463;
@@ -190,15 +190,17 @@
     border-bottom: 1px solid var(--border);
     background: color-mix(in srgb, var(--bg) 94%, transparent);
     backdrop-filter: blur(12px);
+    transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
   }
+  .site-header.is-scrolled { background: color-mix(in srgb, var(--bg) 97%, transparent); box-shadow: 0 8px 24px rgb(18 22 27 / 3%); }
   .site-header__inner { display: flex; height: 100%; align-items: center; justify-content: space-between; gap: 24px; }
   .brand { display: inline-flex; align-items: center; gap: 9px; }
   .brand img { width: 31px; height: 31px; }
   .brand strong { font-size: .98rem; font-weight: 700; letter-spacing: -.025em; }
   .desktop-nav { display: flex; align-items: center; gap: 25px; }
-  .desktop-nav a { position: relative; color: var(--text-muted); font-size: .88rem; font-weight: 590; }
+  .desktop-nav a { position: relative; color: var(--text-muted); font-size: .88rem; font-weight: 590; transition: color .15s ease; }
   .desktop-nav a:hover, .desktop-nav a[aria-current="page"] { color: var(--text-strong); }
-  .desktop-nav a[aria-current="page"]::after { position: absolute; right: 0; bottom: -20px; left: 0; height: 1px; background: var(--text-strong); content: ""; }
+  .desktop-nav a[aria-current="page"]::after { position: absolute; right: 0; bottom: -21px; left: 0; height: 2px; background: var(--primary); content: ""; }
   .header-actions { display: flex; align-items: center; gap: 7px; }
   .icon-button, .mobile-menu-button {
     display: inline-flex;
@@ -359,8 +361,8 @@
   .scenario-tabs button:hover, .scenario-tabs button.is-active { background: var(--bg-soft); color: var(--text-strong); }
   .scenario-copy { min-height: 58px; border-top: 1px solid var(--border); padding: 13px 18px 15px; font-size: .8rem; }
 
-  .signal-bar { border-block: 1px solid var(--border); }
-  .signal-bar__inner { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .signal-bar { border-block: 0; }
+  .signal-bar__inner { display: grid; grid-template-columns: repeat(4, 1fr); border-block: 1px solid var(--border); }
   .signal-bar__inner > div { display: grid; gap: 3px; border-right: 1px solid var(--border); padding: 22px 24px; }
   .signal-bar__inner > div:first-child { padding-left: 0; }
   .signal-bar__inner > div:last-child { border-right: 0; padding-right: 0; }
@@ -491,16 +493,16 @@
 }
 
 @layer docs {
-  .docs-progress { position: fixed; z-index: 150; top: var(--header-height); right: 0; left: 0; height: 2px; transform: scaleX(0); transform-origin: left; background: var(--primary); }
+  .docs-progress { position: fixed; z-index: 150; top: calc(var(--header-height) - 2px); right: 0; left: 0; height: 2px; transform: scaleX(0); transform-origin: left; background: var(--primary); will-change: transform; }
   .docs-main { min-height: 80vh; padding: 46px 0 90px; }
   .docs-layout { display: grid; grid-template-columns: 210px minmax(0, 760px) 160px; justify-content: space-between; gap: 46px; align-items: start; }
   .docs-sidebar { position: sticky; top: calc(var(--header-height) + 34px); max-height: calc(100vh - var(--header-height) - 60px); overflow: auto; scrollbar-width: thin; }
   .docs-sidebar__head { display: none; }
   .docs-sidebar nav section + section { margin-top: 27px; }
   .docs-sidebar nav h2 { margin-bottom: 8px; color: var(--text-faint); font-size: .68rem; font-weight: 700; letter-spacing: .05em; }
-  .docs-sidebar nav a { display: block; border-left: 1px solid var(--border); padding: 5px 0 5px 13px; color: var(--text-muted); font-size: .82rem; line-height: 1.45; }
+  .docs-sidebar nav a { display: block; border-left: 1px solid var(--border); padding: 5px 0 5px 13px; color: var(--text-muted); font-size: .82rem; line-height: 1.45; transition: color .15s ease, border-color .15s ease; }
   .docs-sidebar nav a:hover { color: var(--text-strong); }
-  .docs-sidebar nav a[aria-current="page"] { border-left-color: var(--text-strong); color: var(--text-strong); font-weight: 650; }
+  .docs-sidebar nav a[aria-current="page"] { border-left-color: var(--primary); color: var(--text-strong); font-weight: 650; }
   .docs-sidebar__meta { display: grid; gap: 5px; margin-top: 30px; border-top: 1px solid var(--border); padding-top: 15px; color: var(--text-faint); font-size: .7rem; }
   .docs-sidebar__meta a { color: var(--text-muted); }
   .docs-menu-trigger { display: none; }
@@ -538,8 +540,9 @@
   .doc-toc { position: sticky; top: calc(var(--header-height) + 36px); }
   .doc-toc > strong { display: block; margin-bottom: 12px; color: var(--text-faint); font-size: .68rem; letter-spacing: .05em; }
   .doc-toc nav { display: grid; }
-  .doc-toc nav a { border-left: 1px solid var(--border); padding: 5px 0 5px 11px; color: var(--text-faint); font-size: .74rem; line-height: 1.45; }
-  .doc-toc nav a:hover, .doc-toc nav a.is-active { border-left-color: var(--text-strong); color: var(--text-strong); }
+  .doc-toc nav a { border-left: 1px solid var(--border); padding: 5px 0 5px 11px; color: var(--text-faint); font-size: .74rem; line-height: 1.45; transition: color .15s ease, border-color .15s ease; }
+  .doc-toc nav a:hover { border-left-color: var(--border-strong); color: var(--text-strong); }
+  .doc-toc nav a.is-active { border-left-color: var(--primary); color: var(--text-strong); }
   .doc-toc__top { display: block; margin-top: 17px; color: var(--text-faint); font-size: .72rem; }
 
   .doc-footer { margin-top: 66px; border-top: 1px solid var(--border-strong); padding-top: 27px; }
