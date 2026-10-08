@@ -32,7 +32,7 @@
 <h2 id="path-order">路径优先级</h2>
 
 
-<div class="path-strip"><span>LAN Direct</span><i></i><span>Public UDP Direct</span><i></i><span>Encrypted Relay</span></div>
+<div class="path-strip" role="region" aria-label="连接路径优先级" tabindex="0"><span>LAN Direct</span><i></i><span>Public UDP Direct</span><i></i><span>Encrypted Relay</span></div>
 
 
 <p>这不是“先长时间阻塞等待 Direct，最后才准备 Relay”的简单串行流程。实现会围绕首个可用业务包、回退与后续 Direct 提升做协同，但具体时序以对应版本源码和诊断事件为准。</p>

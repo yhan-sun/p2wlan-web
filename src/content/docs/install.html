@@ -1,22 +1,20 @@
-<p class="doc-lead">正式安装包统一从 GitHub Releases 发布。当前构建同步到 <strong>v0.1.146</strong>；不要从来历不明的镜像站下载安装包。</p>
+<p class="doc-lead">正式安装包统一从 GitHub Releases 发布。当前构建同步到 <strong>{{release.tag}}</strong>；不要从来历不明的镜像站下载安装包。</p>
 
 
 <h2 id="platform-matrix">平台与资产</h2>
 
 
-<div class="table-wrap"><table><thead><tr><th>平台</th><th>Release 文件</th><th>状态</th></tr></thead><tbody>
-<tr><td><strong>Android</strong><br/><span class="muted">arm64 · APK 侧载</span></td><td><code>p2wlan-flutter-android-arm64-release.apk</code></td><td>Preview</td></tr><tr><td><strong>iOS</strong><br/><span class="muted">arm64 · 未签名 IPA</span></td><td><code>p2wlan-flutter-ios-arm64-unsigned.ipa</code></td><td>实验性</td></tr><tr><td><strong>Linux GUI</strong><br/><span class="muted">x86_64 · Flutter 客户端</span></td><td><code>p2wlan-flutter-linux-x64.tar.gz</code></td><td>预览</td></tr><tr><td><strong>macOS</strong><br/><span class="muted">Apple Silicon · DMG</span></td><td><code>p2wlan-flutter-macos-arm64.dmg</code></td><td>稳定预览</td></tr><tr><td><strong>macOS</strong><br/><span class="muted">Intel · DMG</span></td><td><code>p2wlan-flutter-macos-x64.dmg</code></td><td>稳定预览</td></tr><tr><td><strong>Windows</strong><br/><span class="muted">Windows 10/11 · x64 安装程序</span></td><td><code>p2wlan-flutter-windows-x64-setup.exe</code></td><td>稳定预览</td></tr><tr><td><strong>Linux CLI</strong><br/><span class="muted">arm64 · CLI + daemon</span></td><td><code>p2wlan-linux-arm64-cli.tar.gz</code></td><td>推荐服务器</td></tr><tr><td><strong>Linux CLI</strong><br/><span class="muted">x86_64 · CLI + daemon</span></td><td><code>p2wlan-linux-x64-cli.tar.gz</code></td><td>推荐服务器</td></tr>
-</tbody></table></div>
+{{release.packages}}
 
 
 <h2 id="windows">Windows</h2>
 
 
 <ol>
-<li>下载 <code>p2wlan-flutter-windows-x64-setup.exe</code>。</li>
+<li>下载 <code>{{asset.windows-x64.name}}</code>。</li>
 <li>核对下载页展示的 SHA-256。</li>
 <li>运行安装程序；创建虚拟网卡或修改路由时，系统可能请求管理员权限。</li>
-<li>如果 Windows 安全提示阻止 Preview 构建，先核对发布来源和摘要，再决定是否继续。</li>
+<li>如果 Windows 安全提示阻止安装，先核对发布来源和摘要，再决定是否继续。</li>
 </ol>
 
 
@@ -33,7 +31,7 @@
 </ol>
 
 
-<p>Preview 构建若触发 Gatekeeper 提示，应先验证 digest。不要使用不明来源的“去签名”或二次打包版本。</p>
+<p>客户端若触发 Gatekeeper 提示，应先验证 digest。不要使用不明来源的“去签名”或二次打包版本。</p>
 
 
 <h2 id="linux-gui">Linux GUI</h2>
@@ -44,8 +42,9 @@
 
 <div class="code-frame" data-language="bash">
 <div class="code-frame__bar"><span>bash</span></div>
-<pre><code>tar -xzf p2wlan-flutter-linux-x64.tar.gz
-cd p2wlan-flutter-linux-x64
+<pre><code>mkdir -p p2wlan-linux-x64
+tar -xzf {{asset.linux-gui-x64.name}} -C p2wlan-linux-x64
+cd p2wlan-linux-x64
 ./p2wlan</code></pre>
 </div>
 
@@ -58,9 +57,9 @@ cd p2wlan-flutter-linux-x64
 
 <div class="code-frame" data-language="bash">
 <div class="code-frame__bar"><span>bash</span></div>
-<pre><code>curl -fsSL https://raw.githubusercontent.com/yhan-sun/p2wlan/main/scripts/install-linux-cli.sh -o /tmp/p2wlan-install.sh
+<pre><code>curl -fsSL https://raw.githubusercontent.com/yhan-sun/p2wlan/{{release.tag}}/scripts/install-linux-cli.sh -o /tmp/p2wlan-install.sh
 less /tmp/p2wlan-install.sh
-sudo sh /tmp/p2wlan-install.sh</code></pre>
+sudo sh /tmp/p2wlan-install.sh --version {{release.tag}}</code></pre>
 </div>
 
 
@@ -93,7 +92,7 @@ sudo sh /tmp/p2wlan-install.sh</code></pre>
 <pre><code>p2wlan update --dry-run
 p2wlan update
 # 安装指定版本
-p2wlan update --version v0.1.146</code></pre>
+p2wlan update --version {{release.tag}}</code></pre>
 </div>
 
 

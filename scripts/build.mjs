@@ -1,8 +1,8 @@
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { SITE, normalizeAssets, normalizeRelease } from "../src/data/site.mjs";
+import { SITE, normalizeAssets } from "../src/data/site.mjs";
+import { loadRelease } from "../src/data/load-release.mjs";
 import { escapeHtml, formatBytes } from "../src/ui.mjs";
 import { renderDocArticle, renderLayout, renderNotFound } from "../src/layout.mjs";
 import { renderHome } from "../src/pages/home.mjs";
@@ -13,26 +13,11 @@ import { renderChangelog } from "../src/pages/changelog.mjs";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dist = path.join(root, "dist");
 const source = path.join(root, "src");
-const fallbackPath = path.join(source, "data", "release-fallback.json");
-const cachePath = path.join(root, ".cache", "release.json");
 const buildTime = new Date().toISOString();
 const buildId = process.env.GITHUB_SHA?.slice(0, 12) || `local-${Date.now()}`;
 
 async function readJson(file) {
   return JSON.parse(await readFile(file, "utf8"));
-}
-
-async function loadRelease() {
-  const fallback = normalizeRelease(await readJson(fallbackPath));
-  if (existsSync(cachePath)) {
-    try {
-      const candidate = normalizeRelease(await readJson(cachePath));
-      if (candidate.tag && Array.isArray(candidate.assets) && candidate.assets.length) return { release: candidate, fallback };
-    } catch (error) {
-      console.warn(`release cache ignored: ${error.message}`);
-    }
-  }
-  return { release: fallback, fallback };
 }
 
 function stripHtml(value) {
@@ -61,7 +46,19 @@ function hydrateDocBody(body, release, fallback) {
     if (previous.digest && current.digest) output = output.replaceAll(previous.digest, current.digest);
     output = output.replaceAll(formatBytes(previous.size), formatBytes(current.size));
   }
-  return output;
+  const assets = normalizeAssets(release);
+  const packages = assets.filter((asset) => !asset.supporting);
+  output = output.replaceAll("{{release.tag}}", escapeHtml(release.tag));
+  output = output.replace(/\{\{asset\.([a-z0-9-]+)\.(name|url|digest|size)\}\}/g, (_, key, field) => {
+    const asset = assets.find((item) => item.key === key);
+    if (!asset) return field === "url" ? "/download/" : "当前版本未提供此资产";
+    return escapeHtml(field === "size" ? formatBytes(asset.size) : asset[field]);
+  });
+  const table = (withDigest) => `<div class="table-wrap${withDigest ? " table-wrap--wide" : ""}" role="region" aria-label="当前 Release 资产" tabindex="0"><table><thead><tr><th scope="col">平台</th><th scope="col">文件</th>${withDigest ? '<th scope="col">大小</th><th scope="col">SHA-256</th>' : '<th scope="col">状态</th>'}</tr></thead><tbody>${packages.map((asset) => `<tr><td><strong>${escapeHtml(asset.platform)}</strong><br/><span class="muted">${escapeHtml(asset.detail)}</span></td><td><a href="${escapeHtml(asset.url)}"><code>${escapeHtml(asset.name)}</code></a></td>${withDigest ? `<td>${formatBytes(asset.size)}</td><td>${asset.digest ? `<button class="hash-button" type="button" data-copy-text="${escapeHtml(asset.digest.replace(/^sha256:/, ""))}" aria-label="复制 ${escapeHtml(asset.name)} 的 SHA-256">复制 SHA-256</button>` : "GitHub 未提供"}</td>` : `<td>${asset.experimental ? "未签名实验构建" : "已发布"}</td>`}</tr>`).join("")}</tbody></table></div>`;
+  output = output.replaceAll("{{release.packages}}", table(false)).replaceAll("{{release.digests}}", table(true));
+  return output
+    .replace(/<div class="(table-wrap[^\"]*)">/g, '<div class="$1" role="region" aria-label="可横向滚动的表格" tabindex="0">')
+    .replace(/<pre>/g, '<pre role="region" tabindex="0" aria-label="可横向滚动的代码">');
 }
 
 function outputPath(pathName) {
@@ -116,19 +113,19 @@ addPage({
   kind: "home",
   content: renderHome({ release, assets }),
   section: "产品",
-  headings: ["不同网络，同一个局域网", "复杂网络留在底层", "运行在你的基础设施", "下载"],
+  headings: ["不同网络，同一个局域网", "交互式 P2P 连接", "远在不同网络，近在一个地址", "你的网络，由你来运行", "下载"],
   keywords: ["P2P VPN", "虚拟局域网", "自托管", "NAT 穿透", "Relay"],
 });
 
 addPage({
   pathName: "/download/",
   title: "下载 P2WLAN",
-  description: "下载 Windows、macOS、Linux、Android 与 iOS 客户端，并核对文件大小与 SHA-256。",
+  description: "下载 Windows、macOS、Linux 与 Android 客户端，选择系统与架构，并核对文件大小与 SHA-256。",
   kind: "download",
   content: renderDownload({ release, assets }),
   section: "下载",
   headings: ["按平台下载", "高级下载", "完整性校验"],
-  keywords: ["下载", "SHA-256", "Windows", "macOS", "Linux", "Android", "iOS"],
+  keywords: ["下载", "SHA-256", "Windows", "macOS", "Linux", "Android"],
 });
 
 addPage({

@@ -9,11 +9,11 @@
 
 <aside class="callout callout--danger">
 <div aria-hidden="true" class="callout__icon"></div>
-<div><strong>不要复用重要密码</strong><div>当前 Linux CLI 源码中的默认控制面地址是 http://47.109.40.237:18080。HTTP 不为登录凭据提供 TLS 传输保护。Preview 测试请使用独立密码；敏感或生产环境必须改用自己的 HTTPS 控制面。</div></div>
+<div><strong>不要复用重要密码</strong><div>若控制面地址使用 HTTP，登录凭据不会获得 TLS 传输保护。首次测试请使用独立密码；敏感或生产环境必须改用自己的 HTTPS 控制面。</div></div>
 </aside>
 
 
-<h2 id="download">2. 下载 v0.1.146</h2>
+<h2 id="download">2. 下载 {{release.tag}}</h2>
 
 
 <p>前往 <a href="/download/">下载页</a>，页面会根据操作系统推荐安装包，并显示 GitHub 提供的 SHA-256 digest。安装前建议完成完整性校验。</p>

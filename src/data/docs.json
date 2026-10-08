@@ -17,7 +17,6 @@
       "连接",
       "准备两台设备",
       "下载",
-      "v0.1.146",
       "登录或注册",
       "启动虚拟网络",
       "在第二台设备重复",
@@ -195,7 +194,7 @@
     "slug": "clients/mobile",
     "file": "clients__mobile.html",
     "group": "客户端",
-    "title": "Android 与 iOS",
+    "title": "移动客户端与平台限制",
     "description": "移动端 VPN 权限、后台限制、热点网络和 iOS 未签名构建说明。",
     "keywords": [
       "Android",
@@ -299,7 +298,7 @@
     "file": "security.html",
     "group": "部署与运维",
     "title": "安全边界与威胁模型",
-    "description": "P2WLAN 的端到端加密、控制面、Relay 元数据、凭据与 Preview 风险说明。",
+    "description": "P2WLAN 的端到端加密、控制面、Relay 元数据、凭据与审计边界说明。",
     "keywords": [
       "安全边界与威胁模",
       "P2WLAN",
@@ -308,7 +307,6 @@
       "Relay",
       "元数据",
       "凭据与",
-      "Preview",
       "风险说明",
       "数据面保护",
       "控制面风险",

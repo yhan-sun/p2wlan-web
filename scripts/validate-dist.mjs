@@ -62,10 +62,16 @@ for (const relative of htmlFiles) {
   if (!html.includes("site-header") || !html.includes("site-footer")) failures.push(`missing shared shell: ${relative}`);
   if (/\{\{|\}\}|undefined\/undefined/.test(html)) failures.push(`unresolved token: ${relative}`);
   failures.push(...validateSemanticHtml(relative, html));
-  for (const match of html.matchAll(/(?:href|src)="(\/[^"]+)"/g)) {
+  for (const match of html.matchAll(/(?:href|src)="(\/[^"]+|#[^"]+)"/g)) {
     const href = match[1];
     if (href.startsWith("//")) continue;
-    if (!(await exists(targetFor(href)))) failures.push(`${relative} references missing ${href}`);
+    const target = href.startsWith("#") ? file : targetFor(href);
+    if (!(await exists(target))) failures.push(`${relative} references missing ${href}`);
+    else if (href.includes("#") && path.extname(target) === ".html") {
+      const fragment = decodeURIComponent(href.split("#")[1]);
+      const targetHtml = target === file ? html : await readFile(target, "utf8");
+      if (fragment && !targetHtml.includes(`id="${fragment}"`)) failures.push(`${relative} references missing fragment ${href}`);
+    }
   }
 }
 

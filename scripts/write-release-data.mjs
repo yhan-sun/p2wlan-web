@@ -1,13 +1,10 @@
-import { readFile, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { normalizeRelease } from "../src/data/site.mjs";
+import { loadRelease } from "../src/data/load-release.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const cache = path.join(root, ".cache", "release.json");
-const fallback = path.join(root, "src", "data", "release-fallback.json");
-const release = normalizeRelease(JSON.parse(await readFile(existsSync(cache) ? cache : fallback, "utf8")));
+const { release } = await loadRelease();
 const output = {
   schema_version: 1,
   tag_name: release.tag,
@@ -16,6 +13,7 @@ const output = {
   html_url: release.url,
   source: release.source,
   fetched_at: release.fetchedAt,
+  prerelease: release.prerelease,
   assets: release.assets.map((asset) => ({
     name: asset.name,
     size: asset.size,

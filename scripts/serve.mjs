@@ -13,6 +13,7 @@ const types = new Map([
   [".svg", "image/svg+xml"],
   [".png", "image/png"],
   [".jpg", "image/jpeg"],
+  [".webp", "image/webp"],
   [".webmanifest", "application/manifest+json; charset=utf-8"],
   [".xml", "application/xml; charset=utf-8"],
   [".txt", "text/plain; charset=utf-8"],
@@ -29,13 +30,26 @@ function resolveRequest(url) {
 }
 
 createServer((request, response) => {
-  const target = resolveRequest(request.url || "/");
+  let target;
+  try { target = resolveRequest(request.url || "/"); }
+  catch (error) {
+    response.writeHead(error instanceof URIError ? 400 : 503, { "Content-Type": "text/plain; charset=utf-8" });
+    response.end(error instanceof URIError ? "Invalid URL" : "Preview is rebuilding. Refresh shortly.");
+    return;
+  }
   const is404 = target.endsWith("404.html") && !String(request.url).includes("404");
-  response.writeHead(is404 ? 404 : 200, {
+  const stream = createReadStream(target);
+  stream.on("open", () => response.writeHead(is404 ? 404 : 200, {
     "Content-Type": types.get(path.extname(target)) || "application/octet-stream",
     "Cache-Control": "no-store",
+  }));
+  stream.on("error", () => {
+    if (response.headersSent) { response.destroy(); return; }
+    response.writeHead(503, { "Content-Type": "text/plain; charset=utf-8" });
+    response.end("Preview is rebuilding. Refresh shortly.");
   });
-  createReadStream(target).pipe(response);
+  response.on("close", () => stream.destroy());
+  stream.pipe(response);
 }).listen(port, "127.0.0.1", () => {
   console.log(`P2WLAN preview: http://127.0.0.1:${port}`);
 });

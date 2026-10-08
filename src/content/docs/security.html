@@ -3,7 +3,7 @@
 
 <aside class="callout callout--warning">
 <div aria-hidden="true" class="callout__icon"></div>
-<div><strong>尚未完成独立安全审计</strong><div>P2WLAN 当前是 Preview。本文描述设计边界，不构成第三方安全认证，也不保证不存在实现缺陷。</div></div>
+<div><strong>尚未完成独立安全审计</strong><div>本文描述设计边界，不构成第三方安全认证，也不保证不存在实现缺陷。</div></div>
 </aside>
 
 
@@ -21,7 +21,7 @@
 
 <aside class="callout callout--danger">
 <div aria-hidden="true" class="callout__icon"></div>
-<div><strong>当前 CLI 默认地址使用 HTTP</strong><div>Linux CLI 源码当前默认控制面为 http://47.109.40.237:18080。该链路不提供 HTTPS 传输保护。请仅用独立测试密码；生产和敏感使用必须指定自托管 HTTPS 地址。</div></div>
+<div><strong>检查控制面传输保护</strong><div>若控制面使用 HTTP，该链路不提供 HTTPS 传输保护。请仅用独立测试密码；生产和敏感使用必须指定自托管 HTTPS 地址。</div></div>
 </aside>
 
 

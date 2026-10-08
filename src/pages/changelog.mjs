@@ -1,48 +1,42 @@
 import { SITE } from "../data/site.mjs";
-import { escapeHtml, formatBytes, formatDate, icon } from "../ui.mjs";
+import { escapeHtml, formatDate, icon, releaseLabel } from "../ui.mjs";
 
-export function renderChangelog({ release, assets }) {
-  const totalBytes = assets.reduce((sum, asset) => sum + Number(asset.size || 0), 0);
-  const families = new Set(assets.map((asset) => asset.family)).size;
+// Small, escaped subset of release Markdown. No raw HTML or arbitrary links.
+function inlineNotes(value) {
+  return escapeHtml(value)
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\[([^\]]+)\]\((https:\/\/github\.com\/yhan-sun\/p2wlan\/[a-zA-Z0-9_./?#=-]+)\)/g, '<a href="$2">$1 ↗</a>')
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+}
 
-  return `
-    <main id="main-content" class="page-main">
-      <section class="page-hero page-hero--release">
-        <div class="container page-hero__grid">
-          <div class="page-hero__copy"><p class="page-kicker">Release history</p><h1>版本与发布状态</h1><p>官网在构建时同步最新正式 Release。功能事实、预编译资产与 SHA-256 以对应 GitHub tag 为准。</p></div>
-          <div class="release-orbit" aria-hidden="true"><span>${escapeHtml(release.tag)}</span><i></i><b>Preview</b></div>
-        </div>
-      </section>
+function renderNotes(body) {
+  if (!body.trim()) return '<p>此版本未提供发布说明。请前往 GitHub 查看对应 tag。</p>';
+  let list = false;
+  const output = [];
+  for (const raw of body.split("\n")) {
+    const line = raw.trim();
+    if (!line || /^P2WLAN v\d/.test(line)) continue;
+    const item = line.match(/^[-*] (.+)/);
+    if (item) {
+      if (!list) { output.push("<ul>"); list = true; }
+      output.push(`<li>${inlineNotes(item[1])}</li>`);
+      continue;
+    }
+    if (list) { output.push("</ul>"); list = false; }
+    if (/^#{1,3}\s|^(改进与修复|验证与边界|已知限制)$/.test(line)) output.push(`<h3>${inlineNotes(line.replace(/^#+\s*/, ""))}</h3>`);
+    else output.push(`<p>${inlineNotes(line)}</p>`);
+  }
+  if (list) output.push("</ul>");
+  return output.join("");
+}
 
-      <section class="section section--tight">
-        <div class="container release-layout">
-          <article class="release-card">
-            <header><div><p>Current release</p><h2>${escapeHtml(release.tag)}</h2><span>${formatDate(
-              release.publishedAt
-            )}</span></div><a class="button button--primary" href="${escapeHtml(release.url)}">GitHub Release ${icon(
-              "arrow"
-            )}</a></header>
-            <dl><div><dt>资产</dt><dd>${assets.length}</dd><small>安装包与 CLI 构建</small></div><div><dt>平台族</dt><dd>${families}</dd><small>桌面、Linux 与移动端</small></div><div><dt>总大小</dt><dd>${formatBytes(
-              totalBytes
-            )}</dd><small>当前 Release 资产合计</small></div><div><dt>许可</dt><dd>MIT</dd><small>源码许可</small></div></dl>
-            <footer><span class="status-dot status-dot--direct"></span><p>Release 元数据来源：${escapeHtml(
-              release.source
-            )}</p></footer>
-          </article>
-
-          <aside class="release-notes"><p class="section-kicker">Release discipline</p><h2>发布版本和主分支需要严格区分。</h2><div><article><span>01</span><div><h3>Release 是可下载基线</h3><p>发布工作流生成并上传预编译文件；下载页只把当前 Release 的资产描述为已发布能力。</p></div></article><article><span>02</span><div><h3>主分支可能领先</h3><p>尚未打 tag 的代码、实验开关与文档修改，不自动视为当前 Release 已支持。</p></div></article><article><span>03</span><div><h3>摘要不是安全审计</h3><p>SHA-256 可以发现文件变化，但不能替代代码签名、可复现构建或独立安全审计。</p></div></article></div></aside>
-        </div>
-      </section>
-
-      <section class="section section--compact section--surface">
-        <div class="container timeline-layout">
-          <header class="section-intro section-intro--small"><p class="section-kicker">How to investigate regressions</p><h2>记录最后正常版本和首次异常版本。</h2><p>网络路径问题往往与平台、NAT 组合和时间窗口相关。版本号只是证据的一部分，还应保存两端平台、网络拓扑、路径与脱敏诊断。</p></header>
-          <ol class="release-process"><li><span>1</span><div><strong>固定两端版本</strong><small>避免自动更新干扰复现。</small></div></li><li><span>2</span><div><strong>记录网络组合</strong><small>家庭宽带、热点、CGNAT 或企业网络。</small></div></li><li><span>3</span><div><strong>对比路径证据</strong><small>Direct、Relay、延迟与诊断 JSON。</small></div></li></ol>
-        </div>
-      </section>
-
-      <section class="page-cta"><div class="container page-cta__panel"><div><p>历史版本</p><h2>所有 tag、源码归档和 Release 资产都保留在 GitHub。</h2></div><a class="button button--light" href="${SITE.releases}">浏览全部 Release ${icon(
-        "arrow"
-      )}</a></div></section>
-    </main>`;
+export function renderChangelog({ release }) {
+  return `<main id="main-content" class="page-main">
+    <section class="page-hero changelog-hero"><div class="container"><p class="page-kicker">Always connecting</p><h1>每一次更新，<br/>让连接更进一步。</h1><p>客户端版本的改进、修复与已知边界。</p><a class="text-action" href="${SITE.releases}">在 GitHub 查看全部发布 ↗</a></div></section>
+    <section class="release-timeline" aria-label="客户端版本时间线"><div class="container">
+      <article class="release-entry release-entry--current" id="${escapeHtml(release.tag)}"><header class="release-entry__meta"><span class="release-badge">最新${releaseLabel(release)}</span><h2>${escapeHtml(release.tag)}</h2><time datetime="${escapeHtml(release.publishedAt)}">${formatDate(release.publishedAt)}</time><a href="${escapeHtml(release.url)}">发布详情 ↗</a></header><div class="release-entry__body"><div class="release-entry__actions"><p>客户端更新</p><a class="button button--primary" href="/download/">下载此版本 ${icon("download")}</a></div><div class="release-markdown">${renderNotes(release.body)}</div></div></article>
+      ${(release.history || []).map((item) => `<article class="release-entry" id="${escapeHtml(item.tag)}"><header class="release-entry__meta"><h2>${escapeHtml(item.tag)}</h2><time datetime="${escapeHtml(item.publishedAt)}">${formatDate(item.publishedAt)}</time><a href="${escapeHtml(item.url)}">发布详情 ↗</a></header><details class="release-history-notes"><summary><span>查看改进、修复与发布说明</span>${icon("chevron")}</summary><div class="release-markdown">${renderNotes(item.body)}</div></details></article>`).join("")}
+    </div></section>
+    <section class="release-footnote"><div class="container"><p>以上内容来自对应 GitHub Release。客户端 <code>vX.Y.Z</code> 与服务端 <code>server-vX.Y.Z</code> 分别发布；主分支中的未发布改动不作为当前客户端能力。</p><a class="text-action" href="/docs/release-verification/">版本与完整性校验 ${icon("arrow")}</a></div></section>
+  </main>`;
 }

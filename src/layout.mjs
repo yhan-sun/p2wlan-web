@@ -1,5 +1,5 @@
-import { DOC_GROUP_ORDER, NAVIGATION, SITE } from "./data/site.mjs";
-import { escapeHtml, icon } from "./ui.mjs";
+import { DOC_GROUP_ORDER, NAVIGATION, normalizeAssets, SITE } from "./data/site.mjs";
+import { escapeHtml, icon, releaseLabel } from "./ui.mjs";
 
 function normalizePath(pathName) {
   if (!pathName || pathName === "/") return "/";
@@ -25,7 +25,7 @@ export function renderHeader(activePath, release) {
         <div class="header-actions">
           <button class="header-button header-button--search" type="button" data-open-search aria-label="搜索文档">${icon(
             "search"
-          )}<span>搜索</span><kbd>⌘K</kbd></button>
+          )}<span>搜索</span><kbd data-shortcut-hint>⌘ K</kbd></button>
           <button class="header-button header-button--icon" type="button" data-theme-toggle aria-label="切换明暗主题"><span data-theme-icon>${icon(
             "sun"
           )}</span></button>
@@ -38,10 +38,10 @@ export function renderHeader(activePath, release) {
         </div>
       </div>
       <nav class="mobile-menu" id="mobile-menu" data-mobile-menu aria-label="移动端导航" hidden><div class="container">${NAVIGATION.map(
-        ([href, label]) => `<a href="${href}">${label}${icon("arrow")}</a>`
+        ([href, label]) => `<a href="${href}"${isCurrentNav(path, href) ? ' aria-current="page"' : ""}>${label}${icon("arrow")}</a>`
       ).join("")}<a href="${SITE.repository}">GitHub${icon("arrow")}</a><span>${escapeHtml(
         release.tag
-      )} · Preview</span></div></nav>
+      )} · ${releaseLabel(release)}</span></div></nav>
     </header>`;
 }
 
@@ -52,13 +52,11 @@ export function renderFooter(release, buildId, buildDate) {
         <div class="footer-brand"><a class="brand" href="/"><img src="/images/p2wlan-icon.svg" width="34" height="34" alt="" /><span>P2WLAN</span></a><p>开源、可自托管的 P2P 虚拟局域网。</p></div>
         <nav aria-label="页脚产品导航"><strong>产品</strong><a href="/download/">下载</a><a href="/changelog/">版本</a><a href="${SITE.repository}">GitHub ↗</a></nav>
         <nav aria-label="页脚文档导航"><strong>文档</strong><a href="/docs/getting-started/">快速开始</a><a href="/docs/self-hosting/">自托管</a><a href="/docs/security/">安全</a></nav>
-        <div class="footer-release"><strong>Current release</strong><a href="/changelog/"><span class="status-dot status-dot--direct"></span>${escapeHtml(
+        <div class="footer-release"><strong>Current release</strong><a href="/changelog/"><span class="release-mark" aria-hidden="true"></span>${escapeHtml(
           release.tag
-        )}</a><small>MIT · Preview</small></div>
+        )}</a><small>免费开源 · MIT</small></div>
       </div>
-      <div class="container site-footer__bottom"><p>© ${new Date().getUTCFullYear()} P2WLAN Contributors · MIT License</p><p>构建 ${escapeHtml(
-        buildId
-      )} · ${escapeHtml(buildDate)}</p></div>
+      <div class="container site-footer__bottom"><p>© ${new Date().getUTCFullYear()} P2WLAN Contributors</p><p>不同网络，同一个局域网。</p></div>
     </footer>`;
 }
 
@@ -66,11 +64,12 @@ export function renderSearchDialog() {
   return `
     <dialog class="search-dialog" data-search-dialog aria-label="站内搜索">
       <div class="search-dialog__panel">
-        <header><span>${icon("search")}</span><input type="search" autocomplete="off" placeholder="搜索命令、配置、错误或概念…" data-search-input aria-label="搜索内容" /><button type="button" data-close-search aria-label="关闭搜索">${icon(
+        <header><span>${icon("search")}</span><input id="site-search-input" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="site-search-results" autocomplete="off" placeholder="搜索命令、配置、错误或概念…" data-search-input aria-label="搜索内容" /><button type="button" data-close-search aria-label="关闭搜索">${icon(
           "close"
         )}</button></header>
         <p class="search-dialog__hint" data-search-hint>例如：Relay、对称 NAT、status --json、TLS。</p>
-        <div class="search-results" data-search-results role="listbox"></div>
+        <div class="search-results" id="site-search-results" data-search-results role="listbox" aria-label="搜索结果" hidden></div>
+        <span class="sr-only" data-search-status role="status" aria-live="polite"></span>
         <footer><span>↑↓ 选择</span><span>Enter 打开</span><span>Esc 关闭</span></footer>
       </div>
     </dialog>`;
@@ -83,7 +82,7 @@ function pageSchema({ kind, title, description, canonical, release, buildTime })
       "@type": "SoftwareApplication",
       name: SITE.name,
       applicationCategory: "NetworkingApplication",
-      operatingSystem: "Windows, macOS, Linux, Android, iOS",
+      operatingSystem: "Windows, macOS, Linux, Android",
       softwareVersion: release.tag,
       description,
       url: canonical,
@@ -109,7 +108,7 @@ export function renderLayout({ pathName, title, description, content, kind, rele
   const schema = pageSchema({ kind, title: fullTitle, description, canonical, release, buildTime });
   const buildDate = buildTime.slice(0, 10);
   return `<!doctype html>
-<html lang="zh-CN" data-theme="auto">
+<html lang="zh-CN" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -118,8 +117,7 @@ export function renderLayout({ pathName, title, description, content, kind, rele
   <meta name="keywords" content="${escapeHtml(["P2WLAN", "P2P", "虚拟局域网", ...keywords].join(", "))}" />
   <meta name="author" content="P2WLAN Contributors" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
-  <meta name="theme-color" content="#0c1018" media="(prefers-color-scheme: dark)" />
-  <meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#080a0e" />
   <link rel="canonical" href="${canonical}" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -137,7 +135,7 @@ export function renderLayout({ pathName, title, description, content, kind, rele
   <meta name="twitter:title" content="${escapeHtml(fullTitle)}" />
   <meta name="twitter:description" content="${escapeHtml(description)}" />
   <meta name="twitter:image" content="${SITE.origin}/og-image.jpg" />
-  <script>document.documentElement.classList.add('has-js');try{const t=localStorage.getItem('p2wlan-theme');if(t)document.documentElement.dataset.theme=t}catch{}</script>
+  <script>document.documentElement.classList.add('has-js');try{const t=localStorage.getItem('p2wlan-theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch{}</script>
   <link rel="stylesheet" href="/assets/styles.css?v=${escapeHtml(buildId)}" />
   <script type="application/ld+json">${JSON.stringify(schema).replaceAll("<", "\\u003c")}</script>
 </head>
@@ -146,6 +144,7 @@ export function renderLayout({ pathName, title, description, content, kind, rele
   ${content}
   ${renderFooter(release, buildId, buildDate)}
   ${renderSearchDialog()}
+  <script type="application/json" data-download-assets>${JSON.stringify(normalizeAssets(release).filter((asset) => !asset.supporting && !asset.experimental).map(({ key, platform, architecture, detail, extension, size, name, url }) => ({ key, platform, architecture, detail, extension, size, name, url }))).replaceAll("<", "\\u003c")}</script>
   <script src="/assets/client.js?v=${escapeHtml(buildId)}" defer></script>
 </body>
 </html>`;
@@ -177,13 +176,15 @@ export function renderDocArticle({ doc, body, docs, release, buildTime }) {
     <div class="docs-progress" data-docs-progress aria-hidden="true"></div>
     <main class="docs-main" id="main-content">
       <div class="container docs-layout">
-        <button class="docs-menu-trigger" type="button" data-open-docs-menu aria-controls="docs-sidebar" aria-expanded="false">${icon(
+        <div class="docs-mobile-toolbar"><button class="docs-menu-trigger" type="button" data-open-docs-menu aria-controls="docs-sidebar" aria-expanded="false">${icon(
           "menu"
-        )}<span>目录</span></button>
-        <aside class="docs-sidebar" id="docs-sidebar" data-docs-sidebar>
+        )}<span>文档目录</span></button><button class="docs-toolbar-search" type="button" data-open-search>${icon("search")}<span>搜索</span></button></div>
+        <button class="drawer-backdrop" type="button" data-docs-backdrop data-close-docs-menu tabindex="-1" aria-label="关闭文档目录" hidden></button>
+        <aside class="docs-sidebar" id="docs-sidebar" data-docs-sidebar aria-label="文档目录">
           <header><strong>文档目录</strong><button type="button" data-close-docs-menu aria-label="关闭文档目录">${icon(
             "close"
           )}</button></header>
+          <button class="sidebar-search" type="button" data-open-search>${icon("search")}<span>搜索文档</span><kbd data-shortcut-hint>⌘ K</kbd></button>
           <nav aria-label="文档章节">${groups
             .map(
               (group) => `<section><h2>${escapeHtml(group.name)}</h2>${group.items
@@ -209,6 +210,7 @@ export function renderDocArticle({ doc, body, docs, release, buildTime }) {
           )}</span><span>同步于 ${escapeHtml(buildTime.slice(0, 10))}</span></div><h1>${escapeHtml(doc.title)}</h1><p>${escapeHtml(
             doc.description
           )}</p></header>
+          <details class="doc-mobile-toc"><summary>本页内容 ${icon("chevron")}</summary><nav aria-label="本页章节">${headings.map((heading) => `<a data-toc-link href="#${escapeHtml(heading.id)}">${escapeHtml(heading.title)}</a>`).join("")}</nav></details>
           <div class="doc-content">${body}</div>
           <footer class="doc-footer"><div class="doc-feedback"><div><strong>发现文档问题？</strong><p>请附上页面 URL、对应 Release 和可验证依据。</p></div><a class="text-action" href="${SITE.repository}/issues/new">提交 Issue ${icon(
             "arrow"
@@ -228,7 +230,7 @@ export function renderDocArticle({ doc, body, docs, release, buildTime }) {
         </article>
 
         <aside class="doc-toc" aria-label="本页目录"><strong>本页内容</strong><nav>${headings
-          .map((heading) => `<a href="#${escapeHtml(heading.id)}">${escapeHtml(heading.title)}</a>`)
+          .map((heading) => `<a data-toc-link href="#${escapeHtml(heading.id)}">${escapeHtml(heading.title)}</a>`)
           .join("")}</nav><a class="doc-toc__top" href="#main-content">回到顶部 ↑</a></aside>
       </div>
     </main>`;
