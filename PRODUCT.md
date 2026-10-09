@@ -10,7 +10,7 @@ brand
 
 ## Product Purpose
 
-官方产品网站与文档站。P2WLAN 为不同网络中的设备提供私有虚拟 IP，优先尝试 LAN / 公网 UDP 直连，受限时使用加密 Relay。GUI 覆盖 Windows、macOS、Linux 与 Android，CLI 面向服务器；Control Plane 与 Relay 可自托管。事实来源为主仓库 README、对应客户端 Release 与现有文档。
+官方产品网站与文档站。P2WLAN 为不同网络中的设备提供私有虚拟 IP，优先尝试 LAN / 公网 UDP 直连，受限时使用加密 Relay。GUI 覆盖 Windows、macOS、Linux 与 Android，CLI 面向服务器；OpenWrt 原生包支持路由器本机节点，Control Plane 与 Relay 可自托管。事实来源为主仓库 README、对应客户端 Release 与现有文档。
 
 ## Brand Personality
 

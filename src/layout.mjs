@@ -82,7 +82,7 @@ function pageSchema({ kind, title, description, canonical, release, buildTime })
       "@type": "SoftwareApplication",
       name: SITE.name,
       applicationCategory: "NetworkingApplication",
-      operatingSystem: "Windows, macOS, Linux, Android",
+      operatingSystem: "Windows, macOS, Linux, Android, OpenWrt",
       softwareVersion: release.tag,
       description,
       url: canonical,
@@ -144,7 +144,7 @@ export function renderLayout({ pathName, title, description, content, kind, rele
   ${content}
   ${renderFooter(release, buildId, buildDate)}
   ${renderSearchDialog()}
-  <script type="application/json" data-download-assets>${JSON.stringify(normalizeAssets(release).filter((asset) => !asset.supporting && !asset.experimental).map(({ key, platform, architecture, detail, extension, size, name, url }) => ({ key, platform, architecture, detail, extension, size, name, url }))).replaceAll("<", "\\u003c")}</script>
+  <script type="application/json" data-download-assets>${JSON.stringify(normalizeAssets(release).filter((asset) => !asset.supporting && !asset.experimental && asset.family !== "openwrt").map(({ key, platform, architecture, detail, extension, size, name, url }) => ({ key, platform, architecture, detail, extension, size, name, url }))).replaceAll("<", "\\u003c")}</script>
   <script src="/assets/client.js?v=${escapeHtml(buildId)}" defer></script>
 </body>
 </html>`;

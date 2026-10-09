@@ -1,14 +1,20 @@
 {
   "schema_version": 1,
-  "tag_name": "v0.1.169",
-  "name": "v0.1.169",
-  "published_at": "2026-10-08T01:26:01Z",
-  "html_url": "https://github.com/yhan-sun/p2wlan/releases/tag/v0.1.169",
+  "tag_name": "v0.1.170",
+  "name": "v0.1.170",
+  "published_at": "2026-10-08T06:03:07Z",
+  "html_url": "https://github.com/yhan-sun/p2wlan/releases/tag/v0.1.170",
   "prerelease": false,
   "source": "verified-fallback",
-  "fetched_at": "2026-10-08T04:12:28.865Z",
-  "body": "P2WLAN v0.1.169\n\n改进与修复\n\n- 修复 Windows 较慢退出时，进程等待被辅助程序的较短超时提前截断的问题；使用原生进程查询，并保留查询失败与已经退出的区别。\n- 修复 Wintun 收包队列满时退出可能阻塞的问题；等待读线程完成最后的收包、复制和释放后，再结束驱动会话。适配器关闭或缓冲损坏时停止收包，避免持续空转。\n- 修复首次手动 / 离线启动时空 Control 地址导致 daemon 提前退出的问题；Relay 参数支持运行时已有的域名和 TLS 格式，配置错误会留下不含原始输入的明确诊断。\n- 改进 Hard↔Hard NAT 的直连恢复、候选交接和冷启动验证，保留原有代际隔离、探测预算和 Relay 回退。\n- 纳入兼容的依赖更新及管理台构建依赖安全修复。\n\n验证与边界\n\n- 发布源码的全部必需 CI 与跨平台安装包构建已通过；Windows 完成 50 次生产网卡启停、20 次托盘退出和 8 次界面停止循环，无新 WER 崩溃记录。正式资产经过版本、源码身份和摘要清单校验。\n- 服务预关机、系统注销和关机通知的真实投递尚未验证；Windows 10 物理机及真实运营商网络尚未独立复测；Issue #165 保留以等待新版实际反馈。自动化结果不构成任意 NAT 或双 5G 直连保证。\n- iOS 资产为 unsigned IPA，需要按平台要求自行签名。\n\n每个资产的准确平台、架构、文件大小和 SHA-256 见 RELEASE-MANIFEST.json。\n\n源码提交：[347394a2](https://github.com/yhan-sun/p2wlan/commit/347394a2bb556a490705bfcac0fb0da9882b05a9)。修复详情：[PR #176](https://github.com/yhan-sun/p2wlan/pull/176)。[完整变更](https://github.com/yhan-sun/p2wlan/compare/v0.1.168...v0.1.169)。\n",
+  "fetched_at": "2026-10-09T01:19:47.111Z",
+  "body": "增加 OpenWrt 原生客户端包，让 ARM64 和 x86_64 路由器本机加入 P2WLAN。\n\n- OpenWrt 24.10：IPK；25.12：APK。ARM64 包架构覆盖 generic、Cortex-A53、A72、A76。\n- 安装器自动选择固件版本和包架构，校验固定 tag 的发行清单 SHA-256 后安装；使用固件软件源中匹配内核的 kmod-tun。\n- 默认配置由 procd 管理，支持开机启动、重复 up 复用进程、down 后不自动复活，保留 sysupgrade 配置。设备身份和凭据分别以 0700 目录、0600 文件保存。\n- 普通 Linux glibc 自升级包在 musl/OpenWrt 上会被拒绝；升级请重新运行原生安装器。\n\n[OpenWrt 安装与服务指南](https://github.com/yhan-sun/p2wlan/blob/v0.1.170/docs/guides/openwrt.md) · [PR #177](https://github.com/yhan-sun/p2wlan/pull/177)\n\n验证源码为 `557c9602cfde5e087d7cb3a3b260653f7e0063e4`。\n\n- [正式发行构建](https://github.com/yhan-sun/p2wlan/actions/runs/37733072361)成功。OpenWrt 24.10.8 / 25.12.5 的 ARM64、x86_64 四组 QEMU 固件验证各通过 14 项检查，包括原生依赖、真实 TUN、服务进程所有权、停止后不重启、配置保留及异常配置拒绝启动。\n- [Windows 生命周期回归](https://github.com/yhan-sun/p2wlan/actions/runs/37732931087)通过，覆盖生产 daemon 启停、真实 Wintun 和桌面托盘退出。\n- [发布后审计](https://github.com/yhan-sun/p2wlan/actions/runs/37735633147)通过：21 个公开资产的名称、大小、SHA-256、版本及源码提交一致。四份 OpenWrt 基础架构包、Windows 安装包和安装脚本已匿名下载核对；公开原生包的哈希与 QEMU 验证报告一致。\n\n本版支持路由器本机节点，不自动发布 LAN 子网或提供 LuCI。独立房间 profile 重启后需重新连接。QEMU 验证不能替代具体型号路由器的闪存、内存、无线网络和固件定制验收。\n",
   "history": [
+    {
+      "tag_name": "v0.1.169",
+      "published_at": "2026-10-08T01:26:01Z",
+      "html_url": "https://github.com/yhan-sun/p2wlan/releases/tag/v0.1.169",
+      "body": "P2WLAN v0.1.169\n\n改进与修复\n\n- 修复 Windows 较慢退出时，进程等待被辅助程序的较短超时提前截断的问题；使用原生进程查询，并保留查询失败与已经退出的区别。\n- 修复 Wintun 收包队列满时退出可能阻塞的问题；等待读线程完成最后的收包、复制和释放后，再结束驱动会话。适配器关闭或缓冲损坏时停止收包，避免持续空转。\n- 修复首次手动 / 离线启动时空 Control 地址导致 daemon 提前退出的问题；Relay 参数支持运行时已有的域名和 TLS 格式，配置错误会留下不含原始输入的明确诊断。\n- 改进 Hard↔Hard NAT 的直连恢复、候选交接和冷启动验证，保留原有代际隔离、探测预算和 Relay 回退。\n- 纳入兼容的依赖更新及管理台构建依赖安全修复。\n\n验证与边界\n\n- 发布源码的全部必需 CI 与跨平台安装包构建已通过；Windows 完成 50 次生产网卡启停、20 次托盘退出和 8 次界面停止循环，无新 WER 崩溃记录。正式资产经过版本、源码身份和摘要清单校验。\n- 服务预关机、系统注销和关机通知的真实投递尚未验证；Windows 10 物理机及真实运营商网络尚未独立复测；Issue #165 保留以等待新版实际反馈。自动化结果不构成任意 NAT 或双 5G 直连保证。\n- iOS 资产为 unsigned IPA，需要按平台要求自行签名。\n\n每个资产的准确平台、架构、文件大小和 SHA-256 见 RELEASE-MANIFEST.json。\n\n源码提交：[347394a2](https://github.com/yhan-sun/p2wlan/commit/347394a2bb556a490705bfcac0fb0da9882b05a9)。修复详情：[PR #176](https://github.com/yhan-sun/p2wlan/pull/176)。[完整变更](https://github.com/yhan-sun/p2wlan/compare/v0.1.168...v0.1.169)。\n"
+    },
     {
       "tag_name": "v0.1.168",
       "published_at": "2026-09-30T07:06:03Z",
@@ -20,102 +26,176 @@
       "published_at": "2026-09-29T07:47:43Z",
       "html_url": "https://github.com/yhan-sun/p2wlan/releases/tag/v0.1.167",
       "body": "本版完善 Hard 双对称 NAT 打洞的网络切换恢复和问题诊断。\n\n- 网络或连接会话改变后，旧候选在排队、控制面发送和打洞准入阶段都会重新校验，减少旧状态干扰恢复。\n- 独立探测 socket 的观测与主 socket 端口预测证据分开，避免混合样本误导分配模型。\n- 日志保留同一次运行的启动片段和最新片段，验证轮转连续性，并标注缺失分段、省略字节和覆盖范围。\n- Android daemon 重启会建立新的日志运行边界；支持摘要补充打洞终态、路径转换和有界精确计数。\n\n对应源码 `1aea747c10ddfb081eadeffba74004a888c9d6dd` 已合入 main，16 套必需 CI 全部通过。正式产物由 GitHub Actions 构建，身份及摘要见 `RELEASE-MANIFEST.json`。\n\n新版本真实 Android/macOS 设备及公网双对称 NAT 回归尚待实测，直连成功率和耗时改善以两端日志为准。\n\n## What's Changed\n* feat:修复切网hard恢复与客户端诊断可靠性 by @anYuJia in https://github.com/yhan-sun/p2wlan/pull/161\n\n\n**Full Changelog**: https://github.com/yhan-sun/p2wlan/compare/v0.1.166...v0.1.167"
-    },
-    {
-      "tag_name": "v0.1.166",
-      "published_at": "2026-09-28T10:13:54Z",
-      "html_url": "https://github.com/yhan-sun/p2wlan/releases/tag/v0.1.166",
-      "body": "本版修复 Android 切网后重复恢复与限时 Hard↔Hard 协商被候选刷新干扰的问题，并增加可用于两端对照的诊断信息。\n\n- 合并已授权的网络变化通知，旧网络的迟到注册结果不能重新发布授权；UDP 初始采集可随网络变化退出并清理原任务。\n- 当前注册恢复后释放精确旧信令租约，让消息按原顺序重投；需要配套服务端 server-v0.1.165。\n- 保留有效 hard 协商的原始候选与截止，记录接纳、profile 绑定、执行认领和取消原因。\n- 日志上传附带有界脱敏状态摘要；本地状态读取 401、超时或不可用时仍可上传日志，并标明缓存与失败原因。\n- 修复 macOS/Linux 默认运行目录权限恢复、启动诊断和旧安装日志存储错误提示。\n\nAndroid 与 macOS 请同时升级后重新连接。实际双对称网络直连效果仍待真机验证，本版不保证所有对称 NAT 都能建立直连。\n"
     }
   ],
   "assets": [
     {
       "name": "p2wlan-android-arm64-release.apk",
-      "size": 30637150,
-      "digest": "sha256:093e0e753992e35c32b489d8bd3c499a102d1282ecf9652c60f9d53bbbab1847",
-      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.169/p2wlan-android-arm64-release.apk",
+      "size": 30636350,
+      "digest": "sha256:dc13c42b6c80e37be0c71ef1b858b83c0e07838d773e48751c44dbe1e88178ce",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-android-arm64-release.apk",
       "content_type": "application/vnd.android.package-archive",
-      "updated_at": "2026-10-08T01:25:59Z"
+      "updated_at": "2026-10-08T06:03:04Z"
     },
     {
       "name": "p2wlan-ios-arm64-unsigned.ipa",
-      "size": 7614243,
-      "digest": "sha256:01b56524e599e22ecb533aea77a812d3c814459b3c068d87da476a7ebc0298c4",
-      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.169/p2wlan-ios-arm64-unsigned.ipa",
+      "size": 7614252,
+      "digest": "sha256:d0a78a73af98172b2ec29c1991bde2cb45ec30ca987ef38c221a813c20c4df73",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-ios-arm64-unsigned.ipa",
       "content_type": "application/octet-stream",
-      "updated_at": "2026-10-08T01:25:58Z"
+      "updated_at": "2026-10-08T06:03:02Z"
     },
     {
       "name": "p2wlan-linux-arm64-cli.tar.gz",
-      "size": 14284461,
-      "digest": "sha256:a6fa0cd34ba94ce6758a7c44c93aff8bc5fa090f0ab58569842d57fb8027c177",
-      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.169/p2wlan-linux-arm64-cli.tar.gz",
+      "size": 14295549,
+      "digest": "sha256:0eed036fa86169516ede2dc939dfa19e4f336eb2043398cdf9d60feeb7e37bd7",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-linux-arm64-cli.tar.gz",
       "content_type": "application/x-gtar",
-      "updated_at": "2026-10-08T01:25:58Z"
+      "updated_at": "2026-10-08T06:03:03Z"
     },
     {
       "name": "p2wlan-linux-arm64-cli.tar.gz.sha256",
       "size": 96,
-      "digest": "sha256:a40c520f91a32773bdc3616da33bfa5d50b578435c8e8738b632236c3143a5ec",
-      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.169/p2wlan-linux-arm64-cli.tar.gz.sha256",
+      "digest": "sha256:542dc346e8c31cc61e68d0246eba628a1bbda79f0dcce045668246eb5b6f5010",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-linux-arm64-cli.tar.gz.sha256",
       "content_type": "application/octet-stream",
-      "updated_at": "2026-10-08T01:25:57Z"
+      "updated_at": "2026-10-08T06:03:02Z"
     },
     {
       "name": "p2wlan-linux-x64-cli.tar.gz",
-      "size": 15211520,
-      "digest": "sha256:b9bb83bc9250dc5215cfb6b8763bf2d88ebd9a5dc7170b62722e551f4e96fbeb",
-      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.169/p2wlan-linux-x64-cli.tar.gz",
+      "size": 15225318,
+      "digest": "sha256:6cef779828ae5a3fc68256f3bbc11ab85e3ffe4e5851c23b209de00c8047423a",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-linux-x64-cli.tar.gz",
       "content_type": "application/x-gtar",
-      "updated_at": "2026-10-08T01:25:58Z"
+      "updated_at": "2026-10-08T06:03:03Z"
     },
     {
       "name": "p2wlan-linux-x64-cli.tar.gz.sha256",
       "size": 94,
-      "digest": "sha256:cc38c89e117f24480e5869f14f254e3385263fa08f0cb722be05fd683a76acf2",
-      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.169/p2wlan-linux-x64-cli.tar.gz.sha256",
+      "digest": "sha256:93f8a92833e45ddaef5c061866202fcb43a0f872b50058ed81fd1c200dff6189",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-linux-x64-cli.tar.gz.sha256",
       "content_type": "application/octet-stream",
-      "updated_at": "2026-10-08T01:25:58Z"
+      "updated_at": "2026-10-08T06:03:02Z"
     },
     {
       "name": "p2wlan-linux-x64.tar.gz",
-      "size": 16633060,
-      "digest": "sha256:a936122cbf7cf57e2d66d8c42ba902eecc5eb812727710684154ca289456d452",
-      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.169/p2wlan-linux-x64.tar.gz",
+      "size": 16634560,
+      "digest": "sha256:45357f25444e559ab94b8bec300ac27ffee9cda50f9afa1a9241e38517543b65",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-linux-x64.tar.gz",
       "content_type": "application/x-gtar",
-      "updated_at": "2026-10-08T01:25:59Z"
+      "updated_at": "2026-10-08T06:03:04Z"
     },
     {
       "name": "p2wlan-macos-arm64.dmg",
-      "size": 16680677,
-      "digest": "sha256:17d07e9ce8813a34b72df961ebe2e64eb98ca4230a09178a8fc9a3df2d03ed62",
-      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.169/p2wlan-macos-arm64.dmg",
+      "size": 16683274,
+      "digest": "sha256:0ff0995b7906c21cbb741b1d99cfb88da8ed9e9c717f98fc190064eb1ef1516e",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-macos-arm64.dmg",
       "content_type": "application/x-apple-diskimage",
-      "updated_at": "2026-10-08T01:25:59Z"
+      "updated_at": "2026-10-08T06:03:04Z"
     },
     {
       "name": "p2wlan-macos-x64.dmg",
-      "size": 18579271,
-      "digest": "sha256:f81a2148ed9024029f04025bf40372b2a1645e434c9772fcf86c18d26776c9a2",
-      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.169/p2wlan-macos-x64.dmg",
+      "size": 18586707,
+      "digest": "sha256:f6d37854a8e2f7cfe0aeb9a1e9568e0fbfd66d10a437443ae634a91b137d39bc",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-macos-x64.dmg",
       "content_type": "application/x-apple-diskimage",
-      "updated_at": "2026-10-08T01:26:00Z"
+      "updated_at": "2026-10-08T06:03:04Z"
+    },
+    {
+      "name": "p2wlan-openwrt-24.10-aarch64_cortex-a53.ipk",
+      "size": 6187449,
+      "digest": "sha256:0f26fd6396700b5115bf9a129ed7fc541697e6ed67949ba040ba1e4309222830",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-openwrt-24.10-aarch64_cortex-a53.ipk",
+      "content_type": "application/octet-stream",
+      "updated_at": "2026-10-08T06:03:04Z"
+    },
+    {
+      "name": "p2wlan-openwrt-24.10-aarch64_cortex-a72.ipk",
+      "size": 6187453,
+      "digest": "sha256:c6b42ba334c74ca1909a3bd2a655e40f6d9508c3b2bd2794186ec2147bff9ab6",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-openwrt-24.10-aarch64_cortex-a72.ipk",
+      "content_type": "application/octet-stream",
+      "updated_at": "2026-10-08T06:03:04Z"
+    },
+    {
+      "name": "p2wlan-openwrt-24.10-aarch64_cortex-a76.ipk",
+      "size": 6187453,
+      "digest": "sha256:dea9d032814cc07a24c5785620a6e48dc303a54683e3c59294d74428fd866c5d",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-openwrt-24.10-aarch64_cortex-a76.ipk",
+      "content_type": "application/octet-stream",
+      "updated_at": "2026-10-08T06:03:05Z"
+    },
+    {
+      "name": "p2wlan-openwrt-24.10-aarch64_generic.ipk",
+      "size": 6187447,
+      "digest": "sha256:c3d09e7c11bb59ad2180ffd4d7553a7d7822af9fbbceb8704a7cda97b419ba8a",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-openwrt-24.10-aarch64_generic.ipk",
+      "content_type": "application/octet-stream",
+      "updated_at": "2026-10-08T06:03:05Z"
+    },
+    {
+      "name": "p2wlan-openwrt-24.10-x86_64.ipk",
+      "size": 6697782,
+      "digest": "sha256:5091da6d4235992d7a397496c4ef06d5457b2f626b7302bd467ad7c60db8681b",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-openwrt-24.10-x86_64.ipk",
+      "content_type": "application/octet-stream",
+      "updated_at": "2026-10-08T06:03:05Z"
+    },
+    {
+      "name": "p2wlan-openwrt-25.12-aarch64_cortex-a53.apk",
+      "size": 6179199,
+      "digest": "sha256:e4eac7f50ba139ec37b1ddd2186317bf1d3321923b169d01a30530fa3636490c",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-openwrt-25.12-aarch64_cortex-a53.apk",
+      "content_type": "application/vnd.android.package-archive",
+      "updated_at": "2026-10-08T06:03:05Z"
+    },
+    {
+      "name": "p2wlan-openwrt-25.12-aarch64_cortex-a72.apk",
+      "size": 6179195,
+      "digest": "sha256:8a21397601730c8261648efd4db2a18001b9a422d8b2a258aceabd24019836fb",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-openwrt-25.12-aarch64_cortex-a72.apk",
+      "content_type": "application/vnd.android.package-archive",
+      "updated_at": "2026-10-08T06:03:05Z"
+    },
+    {
+      "name": "p2wlan-openwrt-25.12-aarch64_cortex-a76.apk",
+      "size": 6179198,
+      "digest": "sha256:0f74f23e4422490494088217173e24227c4a9aab57544a2a29c838f04fa76047",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-openwrt-25.12-aarch64_cortex-a76.apk",
+      "content_type": "application/vnd.android.package-archive",
+      "updated_at": "2026-10-08T06:03:05Z"
+    },
+    {
+      "name": "p2wlan-openwrt-25.12-aarch64_generic.apk",
+      "size": 6179195,
+      "digest": "sha256:5a534522e6873f268fa3817e0245b8b869a81f8ccd00855976322b18d2160d8f",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-openwrt-25.12-aarch64_generic.apk",
+      "content_type": "application/vnd.android.package-archive",
+      "updated_at": "2026-10-08T06:03:05Z"
+    },
+    {
+      "name": "p2wlan-openwrt-25.12-x86_64.apk",
+      "size": 6669523,
+      "digest": "sha256:caf102c079306363a6649464a8385fec62c3f78653b1237a2759716d77cb0ab0",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-openwrt-25.12-x86_64.apk",
+      "content_type": "application/vnd.android.package-archive",
+      "updated_at": "2026-10-08T06:03:06Z"
     },
     {
       "name": "p2wlan-windows-x64-setup.exe",
-      "size": 15724055,
-      "digest": "sha256:dc79589e0505677cc8173366cfe60c720b16bc22532f7fd9f12a674ab06f737c",
-      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.169/p2wlan-windows-x64-setup.exe",
+      "size": 15724362,
+      "digest": "sha256:9b3207518ab141487285c47e7f99d0e45807163b4e02660b40afc6419b6809e5",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/p2wlan-windows-x64-setup.exe",
       "content_type": "application/octet-stream",
-      "updated_at": "2026-10-08T01:26:00Z"
+      "updated_at": "2026-10-08T06:03:06Z"
     },
     {
       "name": "RELEASE-MANIFEST.json",
-      "size": 2401,
-      "digest": "sha256:fa24520f513ea0e5c6ce7d3462431c637e81f54a9fa9020b3db25477f0c273b5",
-      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.169/RELEASE-MANIFEST.json",
+      "size": 5181,
+      "digest": "sha256:83ff5d68202a9f6e2ce3bd6b52c684fdbf536c9f78ef020f290282385d60381d",
+      "browser_download_url": "https://github.com/yhan-sun/p2wlan/releases/download/v0.1.170/RELEASE-MANIFEST.json",
       "content_type": "application/json",
-      "updated_at": "2026-10-08T01:25:59Z"
+      "updated_at": "2026-10-08T06:03:02Z"
     }
   ]
 }

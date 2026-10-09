@@ -75,6 +75,31 @@ sudo sh /tmp/p2wlan-install.sh --version {{release.tag}}</code></pre>
 <p>当前提供 arm64 APK，需要启用允许该来源安装应用。首次启动虚拟网络时，Android 会显示 VPN 权限对话框。部分系统的省电策略会限制后台网络，请为 P2WLAN 关闭不必要的后台冻结，而不是关闭整个系统安全能力。</p>
 
 
+<h2 id="openwrt">OpenWrt 路由器</h2>
+
+<p>OpenWrt 24.10 使用 IPK，25.12 使用 APK。支持 x86_64 与 ARM64 的 generic、Cortex-A53、A72、A76 包架构；手动下载时以固件的 <code>DISTRIB_ARCH</code> 为准。这里的 APK 是 OpenWrt 原生包。</p>
+
+<p>在路由器上以 root 运行下面的固定版本安装器。脚本读取固件版本与包架构，核对同一 tag 的发布清单 SHA-256，再由原生包管理器安装：</p>
+
+<div class="code-frame" data-language="sh">
+<div class="code-frame__bar"><span>sh</span></div>
+<pre><code>VERSION={{release.tag}}
+wget -O /tmp/p2wlan-install.sh "https://raw.githubusercontent.com/yhan-sun/p2wlan/$VERSION/scripts/install-openwrt.sh"
+sh /tmp/p2wlan-install.sh --version "$VERSION"
+
+p2wlan config set control https://control.example.com
+p2wlan login -u user@example.com
+p2wlan up
+p2wlan status</code></pre>
+</div>
+
+<p>将示例 Control 地址与账号替换为自己的服务和账号。安装前检查闪存及 <code>/tmp</code> 内存余量；<code>kmod-tun</code> 必须来自匹配当前内核的固件软件源。32 位 ARM、MIPS、厂商私有固件与 snapshot 不在当前支持范围。</p>
+
+<p>当前支持路由器本机加入虚拟网络，不自动发布 LAN 子网，不提供 LuCI。默认网络由 procd 管理；独立房间实例重启后需重新连接。升级时先执行 <code>p2wlan down</code>，重新运行目标版本的原生安装器，再执行 <code>p2wlan up</code>；普通 Linux glibc tarball 与 <code>p2wlan update</code> 不适用于 OpenWrt。</p>
+
+<p>服务管理、配置备份与防火墙设置见 <a href="https://github.com/yhan-sun/p2wlan/blob/{{release.tag}}/docs/guides/openwrt.md">主仓库 OpenWrt 安装与服务指南</a>。</p>
+
+
 <h2 id="ios">iOS</h2>
 
 

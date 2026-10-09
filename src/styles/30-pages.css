@@ -40,6 +40,18 @@
   .package-unavailable { color: var(--faint); font-size: .8rem; }
   .platform-guide { display: inline-flex; min-height: 44px; align-items: center; gap: 7px; color: var(--muted); font-size: .68rem; white-space: nowrap; }
   .platform-guide:hover { color: var(--ink); }
+  .download-platform-row--openwrt { align-items: start; }
+  .openwrt-packages { min-width: 0; }
+  .openwrt-packages .openwrt-packages__note { margin: 0 0 14px; line-height: 1.8; }
+  .openwrt-package-group { border-bottom: 1px solid var(--line); }
+  .openwrt-package-group summary { display: flex; min-height: 60px; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; color: var(--ink); font-size: .8rem; list-style: none; }
+  .openwrt-package-group summary::-webkit-details-marker { display: none; }
+  .openwrt-package-group summary small { display: block; margin-top: 3px; color: var(--faint); font-size: .65rem; }
+  .openwrt-package-group summary .icon { flex: none; color: var(--faint); transition: transform var(--motion-component) var(--ease-out); }
+  .openwrt-package-group[open] summary .icon { transform: rotate(90deg); }
+  .openwrt-package-group .package-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 225px), 1fr)); padding-bottom: 18px; }
+  .openwrt-package-group .package-link { min-width: 0; gap: 12px; }
+  .openwrt-package-group .package-link strong { overflow-wrap: anywhere; font-family: var(--font-mono); font-size: .7rem; }
   .download-advanced { border-block: 1px solid var(--line); background: var(--surface); }
   .download-advanced .container { max-width: 1000px; }
   .download-advanced h2 { margin-top: 14px; font-size: 1.7rem; }

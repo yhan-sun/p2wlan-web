@@ -1,6 +1,6 @@
 # P2WLAN 全站 UI/UX 重构验收
 
-日期：2026-10-08。完成全站重构，保留 Node.js 静态生成架构。根据后续授权追加精细动效与生成素材；本地验收通过后提交推送。main 推送将触发仓库现有 GitHub Pages 工作流，提交与远端结果记录在任务最终回复。
+基线日期：2026-10-08。完成全站重构，保留 Node.js 静态生成架构。根据后续授权追加精细动效与生成素材；本地验收通过后提交推送。main 推送将触发仓库现有 GitHub Pages 工作流，提交与远端结果记录在任务最终回复。2026-10-09 的 v0.1.170 更新与新增验收记录见文末。
 
 ## 核心改造
 
@@ -35,7 +35,7 @@ Reduced Motion 关闭过渡、数据包和入场动画，默认展示静态完�
 
 ## Release 与真实内容
 
-最终再次核对 GitHub API：最新客户端正式发布仍为 [v0.1.169](https://github.com/yhan-sun/p2wlan/releases/tag/v0.1.169)，`prerelease=false`，发布时间为 2026-10-08 01:26:01 UTC。构建数据与 API 的 11 个资产文件名、URL、大小和 SHA-256 全部一致；11 个下载 URL 跟随重定向后的 HEAD 状态均为 200。
+全站重构的基线使用 [v0.1.169](https://github.com/yhan-sun/p2wlan/releases/tag/v0.1.169)，`prerelease=false`，发布时间为 2026-10-08 01:26:01 UTC。当时构建数据与 API 的 11 个资产文件名、URL、大小和 SHA-256 全部一致；11 个下载 URL 跟随重定向后的 HEAD 状态均为 200。此段保留历史验收数据，当前版本以文末的追加记录为准。
 
 - Linux GUI 同时支持 `p2wlan-linux-x64.tar.gz` 与旧 `p2wlan-flutter-linux-x64.tar.gz`，`.sha256` 辅助文件不会覆盖 CLI 包。
 - 同步仅选择正式客户端 `vX.Y.Z`，与 `server-vX.Y.Z` 分开。缓存缺失、损坏、过旧、草稿、预发布或没有资产时使用已验证 fallback；页面和 release-data.json 使用同一规则。
@@ -139,3 +139,26 @@ Reduced Motion 关闭过渡、数据包和入场动画，默认展示静态完�
 | `src/styles/50-docs.css` | 重写独立封闭的 CSS 层，支持明暗主题与响应式 |
 | `src/styles/60-responsive.css` | 重写独立封闭的 CSS 层，支持明暗主题与响应式 |
 | `src/ui.mjs` | 共享版本状态、图标及网络光路视觉 |
+
+## 2026-10-09：v0.1.170 与 OpenWrt 下载
+
+正式客户端更新为 [v0.1.170](https://github.com/yhan-sun/p2wlan/releases/tag/v0.1.170)，发布于 2026-10-08 06:03:07 UTC。线上定时同步已取得该版本；本次将仓库中的已验证 fallback、全部 21 个资产与三条历史发布同步到同一版本。
+
+| Before | After |
+| --- | --- |
+| OpenWrt 原生包归入其他辅助资产 | 10 个原生安装包按固件版本与精确包架构分类，24.10 对应 IPK，25.12 对应 APK |
+| 下载页没有路由器入口 | 沿用现有平台横向分组，两个原生 details 按需展开；保留七种桌面 / 移动端设备推荐，路由器包手动选择 |
+| 安装文档只覆盖桌面与移动端 | 新增固定 Release tag 的 OpenWrt 安装器、服务与升级说明，链接对应版本的上游指南；搜索和 SEO 加入 OpenWrt |
+
+| 新增检查 | 结果 |
+| --- | --- |
+| `npm run check` | 通过：15 篇文档、21 个 fallback 资产、发布分类回归、19 个生成页面与 20 个 HTML 产物校验 |
+| OpenWrt 分类边界 | 10 个精确架构包通过；错误固件 / 格式组合、MIPS 与摘要 sidecar 不作为原生安装包；OpenWrt APK 不混入 Android |
+| 浏览器功能 | 14 项通过：键盘展开 / 收起、独立设备推荐、10 个路由器链接、21 个完整资产、SHA-256 复制、安装锚点、版本化命令、历史日志和无脚本下载 |
+| 响应式布局 | 下载与安装页 × 六种宽度 × 明暗主题，共 24 组通过，无页面横向溢出或控制台错误 |
+| axe-core 4.10.3 | 两页 × 390 / 1440px × 明暗主题，共 8 组，无 WCAG 2 A/AA、2.1 AA 测试集违规；对比度仍有工具人工判断项，沿用已核对的 Token，并复核明暗平台截图 |
+| 官方数据与链接 | 21 个资产的名称、URL、大小和摘要与 GitHub API 一致；manifest 中的 20 个文件逐项匹配；21 个 HEAD 响应成功且 Content-Length 一致 |
+| 离线 / 过旧缓存 | 两组通过：缓存缺失及 v0.1.169 缓存均使用 v0.1.170 fallback；原始缓存逐字节恢复 |
+| CSS / JS 预算 | 81,503 / 100,000 bytes；33,681 / 40,000 bytes |
+
+证据：`output/playwright/release170-browser-check.json`、`release170-links-check.json` 与四张 `release170-openwrt-*.png`。本次只重新检查发布数据、下载页与新增安装内容；既有首页动效沿用前述验收。没有在实体路由器安装客户端，也没有下载全部二进制重新计算摘要；上游客户端验证结果仍来自对应 Release，不是本次网站验收。

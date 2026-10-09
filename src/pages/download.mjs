@@ -17,7 +17,9 @@ function assetRow(asset) {
 
 export function renderDownload({ release, assets }) {
   const get = (key) => assetByKey(assets, key);
-  const packages = assets.filter((asset) => !asset.supporting && !asset.experimental);
+  const packages = assets.filter((asset) => !asset.supporting && !asset.experimental && asset.family !== "openwrt");
+  const openwrt = assets.filter((asset) => asset.family === "openwrt");
+  const firmwareSeries = [...new Set(openwrt.map((asset) => asset.firmware))];
   const windows = get("windows-x64");
   const mac = get("macos-arm64");
   const powershell = windows ? `Get-FileHash .\\${windows.name} -Algorithm SHA256` : "Get-FileHash <下载的文件> -Algorithm SHA256";
@@ -41,6 +43,10 @@ export function renderDownload({ release, assets }) {
       <section class="download-platform-row" id="platform-macos"><div><h3>macOS</h3><p>macOS 12+ · DMG</p></div><div class="package-options">${packageLink(mac, "Apple Silicon")}${packageLink(get("macos-x64"), "Intel Mac")}</div><a class="platform-guide" href="/docs/install/#macos">安装指南 ${icon("arrow")}</a></section>
       <section class="download-platform-row" id="platform-linux"><div><h3>Linux</h3><p>图形客户端或 CLI + daemon</p></div><div class="package-options">${packageLink(get("linux-gui-x64"), "GUI x64")}${packageLink(get("linux-cli-x64"), "CLI x64")}${packageLink(get("linux-cli-arm64"), "CLI arm64")}</div><a class="platform-guide" href="/docs/install/#linux-gui">安装指南 ${icon("arrow")}</a></section>
       <section class="download-platform-row" id="platform-android"><div><h3>Android</h3><p>Android 7.0+ · arm64 · APK 侧载</p></div><div class="package-options">${packageLink(get("android-arm64"), "Android arm64")}</div><a class="platform-guide" href="/docs/install/#android">安装指南 ${icon("arrow")}</a></section>
+      ${openwrt.length ? `<section class="download-platform-row download-platform-row--openwrt" id="platform-openwrt"><div><h3>OpenWrt</h3><p>路由器本机节点 · ARM64 / x86_64</p></div><div class="openwrt-packages"><p class="openwrt-packages__note">推荐使用原生安装器自动选择。手动下载请核对固件版本与 DISTRIB_ARCH；APK 为 OpenWrt 包。</p>${firmwareSeries.map((firmware) => {
+        const group = openwrt.filter((asset) => asset.firmware === firmware);
+        return `<details class="openwrt-package-group"><summary><span>OpenWrt ${escapeHtml(firmware)}<small>${escapeHtml(group[0].extension.slice(1).toUpperCase())} · ${group.length} 种包架构</small></span>${icon("chevron")}</summary><div class="package-options">${group.map((asset) => packageLink(asset, asset.architecture)).join("")}</div></details>`;
+      }).join("")}</div><a class="platform-guide" href="/docs/install/#openwrt">安装指南 ${icon("arrow")}</a></section>` : ""}
     </div></section>
     <section class="section section--compact download-advanced"><div class="container">
       <header class="section-split"><div><p class="section-kicker">When you need the details</p><h2>高级下载与校验</h2><p>完整文件名、发布辅助文件与 SHA-256。</p></div><a class="text-action" href="${escapeHtml(release.url)}">GitHub Release ↗</a></header>

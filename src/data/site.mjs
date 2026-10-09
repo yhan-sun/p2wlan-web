@@ -27,6 +27,15 @@ export const ASSET_RULES = [
   { match: /^p2wlan-linux-arm64-cli\.tar\.gz$/, key: "linux-cli-arm64", platform: "Linux CLI", family: "linux", architecture: "arm64", detail: "arm64 · CLI 与 daemon", purpose: "服务器", extension: ".tar.gz" },
   { match: /^p2wlan-(?:flutter-)?android-arm64-release\.apk$/, key: "android-arm64", platform: "Android", family: "android", architecture: "arm64", detail: "arm64 · APK 侧载", purpose: "移动端", extension: ".apk" },
   { match: /^p2wlan-(?:flutter-)?ios-arm64-unsigned\.ipa$/, key: "ios-arm64", platform: "iOS", family: "ios", architecture: "arm64", detail: "未签名实验构建 · 需要自行签名", purpose: "实验性", extension: ".ipa", experimental: true },
+  ...[["24.10", ".ipk"], ["25.12", ".apk"]].flatMap(([firmware, extension]) =>
+    ["aarch64_generic", "aarch64_cortex-a53", "aarch64_cortex-a72", "aarch64_cortex-a76", "x86_64"].map((architecture) => ({
+      match: new RegExp(`^p2wlan-openwrt-${firmware.replaceAll(".", "\\.")}-${architecture}\\${extension}$`),
+      key: `openwrt-${firmware.replaceAll(".", "-")}-${architecture.replaceAll("_", "-")}`,
+      platform: "OpenWrt", family: "openwrt", firmware, architecture,
+      detail: `${firmware} · ${architecture} · ${extension.slice(1).toUpperCase()}`,
+      purpose: "路由器", extension,
+    }))
+  ),
 ];
 
 export function normalizeAssets(release) {

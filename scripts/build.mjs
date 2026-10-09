@@ -120,12 +120,12 @@ addPage({
 addPage({
   pathName: "/download/",
   title: "下载 P2WLAN",
-  description: "下载 Windows、macOS、Linux 与 Android 客户端，选择系统与架构，并核对文件大小与 SHA-256。",
+  description: "下载 Windows、macOS、Linux、Android 与 OpenWrt 客户端，选择系统与架构，并核对文件大小与 SHA-256。",
   kind: "download",
   content: renderDownload({ release, assets }),
   section: "下载",
   headings: ["按平台下载", "高级下载", "完整性校验"],
-  keywords: ["下载", "SHA-256", "Windows", "macOS", "Linux", "Android"],
+  keywords: ["下载", "SHA-256", "Windows", "macOS", "Linux", "Android", "OpenWrt", "路由器"],
 });
 
 addPage({

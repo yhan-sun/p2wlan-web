@@ -10,6 +10,7 @@ P2WLAN 的官方产品网站与文档站，部署于 `https://p2wlan.yhan.fun/`�
 - 生成的透明光纤材质与 SVG 动态光束组成品牌视觉，支持轻微透视响应和一次播放；素材来源、透明 WebP 与完整生成 Prompt 见 [IMAGE_ASSETS.md](IMAGE_ASSETS.md)。
 - 产品界面使用主仓库 `assets/readme/` 中的四张现有截图，保留原图，明确标注其中演示数据；素材存放在 `public/images/product/`。
 - 下载页优先识别当前设备，保留手动平台与架构选择，完整文件名、SHA-256、未签名 IPA 和辅助文件按需展开。
+- OpenWrt 原生包按固件版本与包架构单独展开，推荐使用原生安装器自动选择，避免与 Android APK 或普通 Linux 包混用。
 - 文档首页按任务导航；正文保留全文搜索、键盘操作、代码复制、章节目录、阅读进度及移动抽屉。
 - 更新日志显示实际客户端发布内容与历史版本；客户端与服务端 Release 分开处理。
 - 每个 CSS 文件独立封闭自己的层，合并时不跨文件开启或结束 `@layer`。
@@ -36,7 +37,7 @@ npm run check
 npm run preview
 ```
 
-构建读取 `.cache/release.json` 中的最新正式客户端版本；缓存不存在、无效或早于已验证备用版本时，使用 `src/data/release-fallback.json`。备用数据于 2026-10-08 核对为 v0.1.169，包含真实文件大小、SHA-256、发布说明和历史记录。联网环境可先同步最新版：
+构建读取 `.cache/release.json` 中的最新正式客户端版本；缓存不存在、无效或早于已验证备用版本时，使用 `src/data/release-fallback.json`。备用数据于 2026-10-09 核对为 v0.1.170，包含 21 个资产的真实文件大小、SHA-256、发布说明和历史记录，其中 10 个为 OpenWrt 原生包。联网环境可先同步最新版：
 
 ```bash
 npm run sync-release
