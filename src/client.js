@@ -194,8 +194,18 @@ if (productTour) {
   const screens = $(".product-stage__screens", productTour);
   let index = 0, revision = 0, playbackId = 0, timer = 0, deadline = 0, remaining = 1600;
   let mode = "idle", seen = false, started = false;
-  let layer = null, fade = null, pausedAnimations = [];
+  let layer = null, fade = null, pendingTimer = 0, pausedAnimations = [];
   function clearFade() { fade?.cancel(); fade = null; layer?.remove(); layer = null; }
+  function clearPending() {
+    clearTimeout(pendingTimer);
+    screens.setAttribute("aria-busy", "false");
+    tabs.forEach(tab => tab.classList.remove("is-loading"));
+    $("[data-tour-status]", productTour).textContent = "";
+  }
+  function showImageError() {
+    $("[data-tour-error]", productTour).hidden = false;
+    $("[data-tour-status]", productTour).textContent = "界面预览暂时无法加载，请查看主仓库。";
+  }
   function releaseAnimations() { pausedAnimations.forEach(animation => { if (reducedMotion.matches) animation.cancel(); else animation.play(); }); pausedAnimations = []; }
   function setMode(next) {
     mode = next;
@@ -204,14 +214,23 @@ if (productTour) {
     $("[data-tour-play-label]", playButton).textContent = next === "playing" ? "暂停" : next === "paused" ? "继续" : started ? "重播导览" : "播放导览";
     playButton.setAttribute("aria-label", next === "playing" ? "暂停客户端导览" : next === "paused" ? "继续客户端导览" : "播放客户端导览");
   }
-  function stop() { clearTimeout(timer); revision++; playbackId++; releaseAnimations(); setMode("idle"); }
+  function stop() { clearTimeout(timer); revision++; playbackId++; clearPending(); releaseAnimations(); setMode("idle"); }
   async function select(next, focus = false, announce = false) {
+    clearPending();
     const current = ++revision;
     const image = $("img", panels[next]);
+    if (focus) tabs[next].focus();
+    screens.setAttribute("aria-busy", "true");
+    pendingTimer = setTimeout(() => {
+      if (current !== revision) return;
+      tabs[next].classList.add("is-loading");
+      if (announce) $("[data-tour-status]", productTour).textContent = `正在载入${tabs[next].textContent.trim().replace(/^\d+\s*/, "")}界面。`;
+    }, 120);
     image.loading = "eager";
     try { await image.decode(); }
-    catch { if (current === revision) $("[data-tour-error]", productTour).hidden = false; return false; }
+    catch { if (current === revision) { clearPending(); showImageError(); } return false; }
     if (current !== revision) return false;
+    clearPending();
     $("[data-tour-error]", productTour).hidden = true;
     clearFade();
     if (next !== index && !reducedMotion.matches) {
@@ -249,12 +268,12 @@ if (productTour) {
   }
   function pause() {
     if (mode !== "playing") return;
-    remaining = Math.max(0, deadline - performance.now()); clearTimeout(timer); revision++; playbackId++; setMode("paused");
+    remaining = Math.max(0, deadline - performance.now()); clearTimeout(timer); revision++; playbackId++; clearPending(); setMode("paused");
     pausedAnimations = productTour.getAnimations({subtree: true}).filter(animation => animation.playState === "running" && !animation.effect?.target?.closest?.(".tour-play"));
     pausedAnimations.forEach(animation => { const time = animation.currentTime; animation.pause(); if (time !== null) animation.currentTime = time; });
   }
   function resume() { releaseAnimations(); setMode("playing"); schedule(remaining); }
-  $("img", panels[0]).decode().catch(() => { if (index === 0) $("[data-tour-error]", productTour).hidden = false; });
+  $("img", panels[0]).decode().catch(() => { if (index === 0) showImageError(); });
   tabs.forEach((tab, i) => {
     tab.addEventListener("click", () => { seen = true; stop(); select(i, false, true); });
     tab.addEventListener("keydown", event => {

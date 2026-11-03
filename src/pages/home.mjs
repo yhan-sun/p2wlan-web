@@ -3,19 +3,19 @@ import { escapeHtml, icon, releaseLabel } from "../ui.mjs";
 import { renderNetworkDemo } from "../components/network-demo.mjs";
 
 const tour = [
-  { key: "address", label: "虚拟地址", image: "home", title: "先有一个共同的地址。", copy: "登录并启动网络，在客户端查看自己的虚拟 IP。", value: "10.20.0.10", kind: "界面中的示例地址" },
-  { key: "devices", label: "远端设备", image: "devices", title: "找到另一端的设备。", copy: "设备的虚拟 IP、在线状态与连接路径，都在同一处。", value: "yhan-NAS · 10.20.0.20", kind: "界面中的示例设备" },
-  { key: "access", label: "访问服务", image: "devices", title: "回到你熟悉的使用方式。", copy: "通过虚拟 IP 访问 SSH、NAS 或其他已运行的服务。", value: "ssh user@10.20.0.20", kind: "SSH 访问示例，使用远端服务账号" },
+  { key: "address", label: "虚拟地址", image: "home", title: "先获得你的虚拟地址。", copy: "登录并启动网络，在客户端查看自己的虚拟 IP。", value: "10.20.0.10", kind: "虚拟 IP" },
+  { key: "devices", label: "远端设备", image: "devices", title: "找到另一端的设备。", copy: "设备的虚拟 IP、在线状态与连接路径，都在同一处。", value: "yhan-NAS · 10.20.0.20", kind: "示例设备" },
+  { key: "access", label: "访问服务", image: "devices", title: "用熟悉的工具，访问远端服务。", copy: "通过虚拟 IP 访问 SSH、NAS 或其他已运行的服务。", value: "ssh user@10.20.0.20", kind: "SSH 访问示例" },
 ];
 
 function renderProductTour() {
   return `<div class="product-stage" data-product-tour data-tour-step="0" data-tour-playback="idle" data-tour-started="false">
     <div class="product-stage__heading"><span>P2WLAN 客户端</span><span>界面导览</span></div>
-    <div class="product-stage__screens">${tour.map((item, index) => `<div id="tour-panel-${item.key}" class="product-stage__panel" role="tabpanel" aria-labelledby="tour-tab-${item.key}" tabindex="0"${index ? " hidden" : ""} data-tour-panel>
+    <div class="product-stage__screens" aria-busy="false">${tour.map((item, index) => `<div id="tour-panel-${item.key}" class="product-stage__panel" role="tabpanel" aria-labelledby="tour-tab-${item.key}" tabindex="0"${index ? " hidden" : ""} data-tour-panel>
       <figure><div class="product-stage__window"><img src="/images/product/screenshot-${item.image}.webp" width="1536" height="1024" alt="主仓库客户端${item.image === "home" ? "网络概览，显示虚拟地址" : "设备列表，显示设备名称、虚拟地址和连接方式"}；数据为示例" loading="${index ? "lazy" : "eager"}" ${index ? "" : 'fetchpriority="high"'} decoding="async"/></div><figcaption><strong>${item.title}</strong><p>${item.copy}</p><div class="product-stage__result"><code>${item.value}</code><span>${item.kind}</span></div></figcaption></figure>
     </div>`).join("")}</div>
     <div class="product-stage__journey"><div class="product-stage__tabs" role="tablist" aria-label="客户端使用导览">${tour.map((item, index) => `<button type="button" role="tab" id="tour-tab-${item.key}" aria-controls="tour-panel-${item.key}" aria-selected="${index === 0}" tabindex="${index === 0 ? "0" : "-1"}" data-tour-tab="${index}"><span aria-hidden="true">${index + 1}</span>${item.label}</button>`).join("")}</div><button type="button" class="tour-play" data-tour-play aria-label="播放客户端导览"><span class="tour-play__icons" aria-hidden="true">${["play", "pause", "replay"].map(name => `<span data-tour-icon="${name}">${icon(name)}</span>`).join("")}</span><span data-tour-play-label>播放导览</span></button></div>
-    <p class="product-stage__source">主仓库界面局部，设备与数据为示例。<a href="/images/product/screenshot-home.webp" target="_blank" rel="noopener" data-tour-original>查看完整界面 ↗</a></p>
+    <p class="product-stage__source"><span>主仓库界面局部 · 示例数据</span><a href="/images/product/screenshot-home.webp" target="_blank" rel="noopener" data-tour-original>查看完整界面 ↗</a></p>
     <noscript><p class="product-stage__source"><a href="/images/product/screenshot-devices.webp">查看设备界面 ↗</a></p></noscript>
     <p class="product-stage__error" data-tour-error hidden>界面预览暂时无法加载。<a href="${SITE.repository}#readme">查看主仓库中的界面 ↗</a></p>
     <span class="sr-only" role="status" aria-live="polite" data-tour-status></span>

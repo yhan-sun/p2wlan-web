@@ -9,8 +9,9 @@
   .room-preview { min-width: 0; }
   .room-preview__image { position: relative; display: block; overflow: hidden; aspect-ratio: 1.45; border-radius: 10px; background: var(--product-paper); outline: 1px solid rgb(255 255 255 / 10%); outline-offset: -1px; box-shadow: var(--shadow-window); }
   .room-preview__image img { position: absolute; top: -7%; left: -27%; width: 130%; max-width: none; height: auto; }
-  .room-preview figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; margin-top: 16px; color: var(--faint); font-size: .75rem; }
-  .room-preview figcaption a { color: var(--muted); text-decoration: underline; text-underline-offset: 4px; }
+  .room-preview figcaption { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; margin-top: 12px; color: var(--faint); font-size: .75rem; }
+  .room-preview figcaption a { display: inline-flex; min-height: 36px; align-items: center; color: var(--muted); text-decoration: underline; text-underline-offset: 4px; }
+  .room-preview figcaption a:hover { color: var(--ink); }
   .connection-section { border-block: 1px solid var(--line); }
   .connection-layout { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 100px; }
   .connection-layout > div > p { max-width: 38ch; margin-top: 24px; font-size: 1rem; line-height: 1.9; }

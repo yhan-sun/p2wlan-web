@@ -24,7 +24,7 @@
   .site-header { position: sticky; z-index: 200; top: 0; height: var(--header-height); border-bottom: 1px solid transparent; background: var(--bg); transition: border-color var(--motion-component) ease-out; }
   .site-header.is-scrolled { border-bottom-color: var(--line); }
   .site-header__inner { display: flex; height: 100%; align-items: center; gap: 40px; }
-  .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); font-size: .98rem; font-weight: 650; letter-spacing: -.025em; }
+  .brand { display: inline-flex; min-height: 44px; align-items: center; gap: 10px; color: var(--ink); font-size: .98rem; font-weight: 650; letter-spacing: -.025em; }
   .brand img { width: 31px; height: 31px; }
   .desktop-nav { display: flex; align-items: center; gap: 28px; margin-left: auto; }
   .desktop-nav a { display: inline-flex; min-height: 44px; align-items: center; color: var(--muted); font-size: .875rem; transition: color var(--motion-micro) ease-out; }
