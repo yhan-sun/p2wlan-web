@@ -113,7 +113,7 @@ addPage({
   kind: "home",
   content: renderHome({ release, assets }),
   section: "产品",
-  headings: ["不同网络，同一个局域网", "交互式 P2P 连接", "远在不同网络，近在一个地址", "你的网络，由你来运行", "下载"],
+  headings: ["不同网络，同一个局域网", "客户端使用导览", "一起联机，就进同一个房间", "能直达，就少绕一段路", "运行在自己的基础设施上"],
   keywords: ["P2P VPN", "虚拟局域网", "自托管", "NAT 穿透", "Relay"],
 });
 

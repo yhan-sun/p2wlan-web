@@ -1,68 +1,43 @@
 @layer home {
-  .connection-section { border-block: 1px solid var(--line); background: var(--surface); }
-  .connection-editorial { display: grid; grid-template-columns: .92fr 1.08fr; align-items: center; gap: 100px; }
-  .connection-editorial .text-action { margin-top: 24px; }
-  .optical-scene { --tilt-x: 0deg; --tilt-y: 0deg; transition: opacity var(--motion-entrance) var(--ease-out); }
-  .has-js .optical-scene:not(.is-ready) { opacity: 0; }
-  .optical-material { mask-type: alpha; }
-  .optical-scene__depth { position: relative; transform: perspective(1100px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)); transition: transform 600ms var(--ease-out); }
-  .optical-scene img { width: 100%; height: auto; aspect-ratio: 2; }
-  .optical-scene svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-  .optical-light { stroke-dasharray: 90 2200; stroke-dashoffset: 110; opacity: 0; }
-  .optical-light--near { stroke: #c4fff0; }
-  .optical-light--far { stroke: #cbd1ff; }
-  .optical-scene.is-lit .optical-light { animation: optical-flight 3400ms linear 200ms both; }
-  .optical-scene.is-lit .optical-light--far { animation-delay: 480ms; }
-  .connection-art { margin: 24px 0 0; }
-  .connection-art__scene { max-width: 600px; }
-  .connection-art figcaption { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-inline: 20px; }
-  .connection-art figcaption > span { color: var(--faint); font-family: var(--font-mono); font-size: .58rem; letter-spacing: .08em; }
-  .connection-art figcaption .text-action { min-height: 44px; margin: 0; border: 0; background: transparent; font-size: .68rem; }
-  [data-theme="light"] .home-hero__art { opacity: .2; }
-  [data-theme="light"] .connection-art__scene { opacity: .9; }
-  @keyframes optical-flight { 0% { stroke-dashoffset: 110; opacity: 0; } 8%, 65% { opacity: 1; } 85%, 100% { stroke-dashoffset: -1500; opacity: 0; } }
-  .path-comparison article { padding-block: 26px; border-top: 1px solid var(--line); }
-  .path-comparison article:last-child { border-bottom: 1px solid var(--line); }
-  .path-comparison__title { display: flex; align-items: center; gap: 10px; }
-  .path-comparison__title h3 { font-size: .93rem; font-weight: 500; }
-  .path-comparison__title > span:last-child { margin-left: auto; color: var(--faint); font-size: .65rem; }
-  .path-mini { display: flex; align-items: center; margin-block: 24px 20px; }
-  .path-mini > span { display: inline-flex; min-width: 65px; justify-content: center; border: 1px solid var(--line); border-radius: 7px; padding: 10px 7px; background: var(--bg); color: var(--muted); font-size: .68rem; }
-  .path-mini i { position: relative; flex: 1; height: 1px; margin-inline: 8px; background: var(--direct); }
-  .path-mini i::after { position: absolute; left: 50%; top: -2px; width: 5px; height: 5px; border-radius: 50%; background: var(--direct); content: ""; }
-  .path-mini--relay i, .path-mini--relay i::after { background: var(--relay); }
-  .path-mini--relay b { color: var(--relay); font-size: .65rem; font-weight: 400; }
-  .path-comparison p { max-width: 52ch; font-size: .78rem; }
-  .hosting-editorial { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: center; }
-  .hosting-blueprint { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 26px 28px; }
-  .hosting-blueprint > header { display: flex; justify-content: space-between; gap: 12px; color: var(--faint); font-size: .62rem; }
-  .hosting-blueprint > header span:first-child { letter-spacing: .08em; }
-  .blueprint-server { display: grid; width: 200px; margin: 35px auto 0; justify-items: center; gap: 8px; border: 1px solid color-mix(in srgb, var(--brand) 38%, var(--line)); border-radius: 9px; background: var(--brand-soft); padding: 20px 12px; }
-  .blueprint-server .icon { color: var(--brand-ink); font-size: 1.3rem; }
-  .blueprint-server strong { font-size: .82rem; font-weight: 500; }
-  .blueprint-server > span { color: var(--muted); font-size: .63rem; }
-  .blueprint-lines { display: flex; justify-content: center; gap: 20px; height: 50px; color: var(--faint); font-size: .57rem; }
-  .blueprint-lines i { width: 1px; background: var(--line-strong); }
-  .blueprint-lines > span { align-self: center; }
-  .blueprint-endpoints { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .blueprint-endpoints > span { display: flex; align-items: center; gap: 9px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-raised); padding: 12px 15px; color: var(--muted); font-size: .72rem; }
-  .blueprint-endpoints b { display: flex; flex: 1; align-items: center; justify-content: center; gap: 6px; color: var(--direct); font-size: .55rem; font-weight: 400; white-space: nowrap; }
-  .blueprint-endpoints b::before, .blueprint-endpoints b::after { height: 1px; flex: 1; background: var(--direct); content: ""; }
-  .blueprint-relay { display: flex; width: fit-content; max-width: 100%; align-items: center; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 30px auto 0; color: var(--relay); font-size: .7rem; }
-  .blueprint-relay > span { color: var(--faint); font-size: .6rem; }
-  .hosting-blueprint footer { margin-top: 30px; border-top: 1px solid var(--line); padding-top: 16px; color: var(--faint); font-size: .57rem; text-align: center; }
-  .hosting-blueprint footer > span { margin-inline: 7px; }
-  .hosting-facts { list-style: none; padding: 0; margin-top: 28px; border-top: 1px solid var(--line); }
-  .hosting-facts li { display: grid; grid-template-columns: 120px 1fr; gap: 22px; padding-block: 16px; border-bottom: 1px solid var(--line); }
-  .hosting-facts strong { font-size: .78rem; font-weight: 500; }
-  .hosting-facts li > span { color: var(--muted); font-size: .78rem; }
-  .closing-cta { border-top: 1px solid var(--line); padding: 86px 0 94px; text-align: center; }
-  .closing-cta img { margin-inline: auto; }
-  .closing-cta .section-kicker { margin-top: 22px; }
-  .closing-cta h2 { margin-top: 16px; font-size: clamp(1.8rem, 3.2vw, 2.8rem); }
-  .closing-cta h2 + p { margin-top: 16px; font-size: .9rem; }
-  .closing-cta .hero-actions { justify-content: center; }
-  .closing-cta small { display: block; margin-top: 26px; color: var(--faint); font-size: .65rem; }
-  .closing-cta small > span { margin-inline: 10px; }
-  .closing-cta small a:hover { color: var(--ink); }
+  .room-section { border-top: 1px solid var(--line); }
+  .room-layout { display: grid; grid-template-columns: .72fr 1.28fr; align-items: center; gap: 76px; }
+  .room-copy > p { max-width: 34ch; margin-top: 24px; font-size: 1rem; line-height: 1.9; }
+  .room-copy > .text-action { margin-top: 22px; }
+  .room-copy__note { max-width: 38ch; margin-top: 40px; border-top: 1px solid var(--line); padding-top: 22px; }
+  .room-copy__note strong { font-size: .875rem; font-weight: 500; }
+  .room-copy__note p { margin-top: 9px; font-size: .875rem; line-height: 1.8; }
+  .room-preview { min-width: 0; }
+  .room-preview__image { position: relative; display: block; overflow: hidden; aspect-ratio: 1.45; border-radius: 10px; background: var(--product-paper); outline: 1px solid rgb(255 255 255 / 10%); outline-offset: -1px; box-shadow: var(--shadow-window); }
+  .room-preview__image img { position: absolute; top: -7%; left: -27%; width: 130%; max-width: none; height: auto; }
+  .room-preview figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; margin-top: 16px; color: var(--faint); font-size: .75rem; }
+  .room-preview figcaption a { color: var(--muted); text-decoration: underline; text-underline-offset: 4px; }
+  .connection-section { border-block: 1px solid var(--line); }
+  .connection-layout { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 100px; }
+  .connection-layout > div > p { max-width: 38ch; margin-top: 24px; font-size: 1rem; line-height: 1.9; }
+  .connection-layout > div > .text-action { margin-top: 20px; }
+  .connection-facts > div { border-top: 1px solid var(--line); padding-block: 26px; }
+  .connection-facts > div:last-child { border-bottom: 1px solid var(--line); }
+  .connection-facts dt { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; color: var(--ink); font-size: 1rem; font-weight: 500; }
+  .connection-facts dt > span:last-child { margin-left: auto; color: var(--muted); font-size: .8125rem; font-weight: 400; }
+  .connection-facts dd { max-width: 50ch; margin-top: 14px; color: var(--muted); font-size: .9375rem; line-height: 1.85; }
+  .connection-explainer { margin-top: 48px; border-block: 1px solid var(--line); }
+  .connection-explainer > summary { display: flex; min-height: 72px; align-items: center; gap: 20px; padding-block: 18px; color: var(--ink); font-size: .9375rem; list-style: none; }
+  .connection-explainer > summary::-webkit-details-marker { display: none; }
+  .connection-explainer > summary small { margin-left: auto; color: var(--faint); font-size: .8125rem; }
+  .connection-explainer > summary .icon { flex: none; color: var(--muted); transition: transform var(--motion-component) var(--ease-out); }
+  .connection-explainer[open] > summary .icon { transform: rotate(90deg); }
+  .connection-explainer__body { padding: 8px 0 26px; }
+  .hosting-layout { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 100px; }
+  .hosting-layout > div > p { max-width: 40ch; margin-top: 24px; font-size: 1rem; line-height: 1.9; }
+  .hosting-reference { border-block: 1px solid var(--line); padding-block: 8px 24px; }
+  .hosting-reference > div { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; border-bottom: 1px solid var(--line); padding-block: 23px; }
+  .hosting-reference strong { font-size: 1rem; font-weight: 500; }
+  .hosting-reference span { color: var(--muted); font-size: .875rem; }
+  .hosting-reference > p { font-size: .875rem; }
+  .hosting-reference > a { display: inline-flex; min-height: 44px; align-items: center; margin-top: 14px; color: var(--ink); font-size: .875rem; text-decoration: underline; text-underline-offset: 4px; }
+  .closing-cta { border-top: 1px solid var(--line); padding-block: 58px; }
+  .closing-cta .container { display: flex; align-items: center; justify-content: space-between; gap: 28px; }
+  .closing-cta h2 { font-size: clamp(1.5rem, 2.6vw, 2.1rem); }
+  .closing-cta p { margin-top: 12px; color: var(--faint); font-size: .875rem; }
+  html[data-theme="light"] .room-preview__image { outline-color: rgb(0 0 0 / 10%); }
 }

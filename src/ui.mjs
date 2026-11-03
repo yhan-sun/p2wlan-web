@@ -38,10 +38,6 @@ export function releaseLabel(release) {
   return release.prerelease ? "预发布" : "正式发布";
 }
 
-export function lightPath(className = "") {
-  return `<svg class="light-path ${escapeHtml(className)}" viewBox="0 0 1440 680" fill="none" aria-hidden="true"><defs><linearGradient id="light-path-color"><stop stop-color="#6675ff" stop-opacity="0"/><stop offset=".45" stop-color="#6675ff"/><stop offset=".65" stop-color="#a2adff"/><stop offset="1" stop-color="#6675ff" stop-opacity="0"/></linearGradient></defs><g stroke="url(#light-path-color)"><path d="M-40 520H230Q310 520 370 460L670 160Q730 100 810 100H1500"/><path d="M-40 560H250Q330 560 390 500L680 210Q740 150 820 150H1500"/><path d="M-40 600H270Q350 600 410 540L690 260Q750 200 830 200H1500"/></g><g fill="#8492ff"><circle cx="370" cy="460" r="3"/><circle cx="820" cy="150" r="3"/><circle cx="1040" cy="200" r="3"/></g></svg>`;
-}
-
 export function assetLink(asset, label, className = "button button--primary") {
   if (!asset) return `<a class="${className}" href="/download/">${escapeHtml(label)}</a>`;
   return `<a class="${className}" href="${escapeHtml(asset.url)}" data-download-key="${escapeHtml(

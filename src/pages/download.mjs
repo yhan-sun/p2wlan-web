@@ -1,5 +1,5 @@
 import { SITE } from "../data/site.mjs";
-import { assetByKey, escapeHtml, formatBytes, formatDate, icon, lightPath, releaseLabel } from "../ui.mjs";
+import { assetByKey, escapeHtml, formatBytes, formatDate, icon, releaseLabel } from "../ui.mjs";
 
 function packageLink(asset, label) {
   if (!asset) return `<span class="package-unavailable">${escapeHtml(label)} · 此版本未提供</span>`;
@@ -26,11 +26,10 @@ export function renderDownload({ release, assets }) {
   const unix = mac ? `shasum -a 256 ./${mac.name}` : "shasum -a 256 <下载的文件>";
   return `<main id="main-content" class="page-main">
     <section class="download-hero">
-      ${lightPath("download-hero__light")}
       <div class="container">
-        <header class="section-intro section-intro--center"><p class="page-kicker">Made for your devices</p><h1>下载 P2WLAN</h1><p>选择你的平台，让设备跨越网络互联。</p><div class="page-meta"><span>${escapeHtml(release.tag)}</span><span>${releaseLabel(release)}</span><span>${formatDate(release.publishedAt)}</span></div></header>
+        <header class="section-intro"><h1>下载 P2WLAN</h1><p>适用于桌面、手机、服务器与 OpenWrt 路由器。</p><div class="page-meta"><span>${escapeHtml(release.tag)}</span><span>${releaseLabel(release)}</span><span>${formatDate(release.publishedAt)}</span></div></header>
         <article class="smart-recommendation" data-smart-panel>
-          <div class="smart-recommendation__main"><img src="/images/p2wlan-icon.svg" width="64" height="64" alt=""/><div><p class="section-kicker" data-smart-kicker>为这台设备选择</p><h2 data-smart-title>选择适合你的安装包</h2><p data-smart-description>按系统与处理器架构选择，也可浏览下方平台列表。</p></div></div>
+          <div class="smart-recommendation__main"><img src="/images/p2wlan-icon.svg" width="64" height="64" alt=""/><div><p class="device-label" data-smart-kicker>为这台设备选择</p><h2 data-smart-title>选择适合你的安装包</h2><p data-smart-description>按系统与处理器架构选择，也可浏览下方平台列表。</p></div></div>
           <div class="smart-recommendation__actions"><label for="download-package">平台与架构</label><select id="download-package" data-download-select><option value="">选择安装包</option>${packages.map((asset) => `<option value="${escapeHtml(asset.key)}">${escapeHtml(`${asset.platform} · ${asset.architecture}${asset.purpose === "服务器" ? " · CLI" : ""}`)}</option>`).join("")}</select><a class="button button--primary button--large" href="#platforms" data-smart-download>${icon("download")}<span>选择安装包</span></a></div>
           <div class="smart-recommendation__file"><span data-smart-file>安装包直接来自 GitHub Releases</span><span data-smart-meta>${escapeHtml(release.tag)} · 免费 · MIT</span></div>
         </article>
@@ -49,10 +48,10 @@ export function renderDownload({ release, assets }) {
       }).join("")}</div><a class="platform-guide" href="/docs/install/#openwrt">安装指南 ${icon("arrow")}</a></section>` : ""}
     </div></section>
     <section class="section section--compact download-advanced"><div class="container">
-      <header class="section-split"><div><p class="section-kicker">When you need the details</p><h2>高级下载与校验</h2><p>完整文件名、发布辅助文件与 SHA-256。</p></div><a class="text-action" href="${escapeHtml(release.url)}">GitHub Release ↗</a></header>
+      <header class="section-split"><div><h2>高级下载与校验</h2><p>完整文件名、发布辅助文件与 SHA-256。</p></div><a class="text-action" href="${escapeHtml(release.url)}">GitHub Release ↗</a></header>
       <details class="asset-disclosure"><summary><span>全部 ${assets.length} 个发布资产</span><small>含未签名实验构建及校验文件</small>${icon("chevron")}</summary><div class="asset-list"><p class="asset-list__note">SHA-256 是 GitHub 为该文件记录的摘要。iOS IPA 为未签名实验构建，需要自行签名，未作为主要客户端推荐。</p>${assets.map(assetRow).join("")}</div></details>
       <details class="verification-disclosure"><summary><span>如何核对 SHA-256</span>${icon("chevron")}</summary><div class="verification-content"><p>摘要一致可以发现下载损坏或文件变化。它不等同于代码签名、可复现构建证明或安全审计。</p><div class="verification-commands">${[["Windows PowerShell", powershell], ["macOS", unix]].map(([label, command]) => `<article><header><span>${label}</span><button class="copy-button" type="button" data-copy-text="${escapeHtml(command)}" aria-label="复制${label}校验命令">${icon("copy")}<span>复制</span></button></header><pre role="region" tabindex="0" aria-label="${escapeHtml(label)} 校验命令"><code>${escapeHtml(command)}</code></pre></article>`).join("")}</div><a class="text-action" href="/docs/release-verification/">完整校验指南 ${icon("arrow")}</a></div></details>
     </div></section>
-    <section class="page-next"><div class="container"><div><p class="section-kicker">Next step</p><h2>安装完成，连通第一对设备。</h2></div><a class="button button--secondary" href="/docs/getting-started/">打开快速开始 ${icon("arrow")}</a></div></section>
+    <section class="page-next"><div class="container"><div><h2>安装完成，连通第一对设备。</h2></div><a class="button button--secondary" href="/docs/getting-started/">打开快速开始 ${icon("arrow")}</a></div></section>
   </main>`;
 }

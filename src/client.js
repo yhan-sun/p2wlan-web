@@ -186,63 +186,91 @@ if ("IntersectionObserver" in window && !reducedMotion.matches) {
   revealElements.forEach((element) => { element.classList.add("reveal-pending"); revealObserver.observe(element); });
 }
 
-const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
-$$("[data-optical-scene]").forEach((scene) => {
-  const depth = $(".optical-scene__depth", scene);
-  const section = scene.closest("section");
-  const image = $("img", scene);
-  image.decode().catch(() => {}).then(() => scene.classList.add("is-ready"));
-  let visible = false;
-  let seen = false;
-  let revision = 0;
-  let lightFrame = 0;
-  let pointerFrame = 0;
-  function reset() {
-    revision++;
-    cancelAnimationFrame(lightFrame);
-    cancelAnimationFrame(pointerFrame);
-    scene.classList.remove("is-lit");
-    scene.style.setProperty("--tilt-x", "0deg");
-    scene.style.setProperty("--tilt-y", "0deg");
+const productTour = $("[data-product-tour]");
+if (productTour) {
+  const tabs = $$("[data-tour-tab]", productTour);
+  const panels = $$("[data-tour-panel]", productTour);
+  const playButton = $("[data-tour-play]", productTour);
+  const screens = $(".product-stage__screens", productTour);
+  let index = 0, revision = 0, playbackId = 0, timer = 0, deadline = 0, remaining = 1600;
+  let mode = "idle", seen = false, started = false;
+  let layer = null, fade = null, pausedAnimations = [];
+  function clearFade() { fade?.cancel(); fade = null; layer?.remove(); layer = null; }
+  function releaseAnimations() { pausedAnimations.forEach(animation => { if (reducedMotion.matches) animation.cancel(); else animation.play(); }); pausedAnimations = []; }
+  function setMode(next) {
+    mode = next;
+    productTour.dataset.tourPlayback = next;
+    productTour.dataset.tourStarted = String(started);
+    $("[data-tour-play-label]", playButton).textContent = next === "playing" ? "暂停" : next === "paused" ? "继续" : started ? "重播导览" : "播放导览";
+    playButton.setAttribute("aria-label", next === "playing" ? "暂停客户端导览" : next === "paused" ? "继续客户端导览" : "播放客户端导览");
   }
-  function illuminate() {
-    if (!visible || reducedMotion.matches || document.hidden) return;
+  function stop() { clearTimeout(timer); revision++; playbackId++; releaseAnimations(); setMode("idle"); }
+  async function select(next, focus = false, announce = false) {
     const current = ++revision;
-    image.decode().catch(() => {}).then(() => {
-      if (current !== revision || !visible || reducedMotion.matches) return;
-      cancelAnimationFrame(lightFrame);
-      scene.classList.remove("is-lit");
-      depth.getAnimations({ subtree: true });
-      lightFrame = requestAnimationFrame(() => scene.classList.add("is-lit"));
-    });
+    const image = $("img", panels[next]);
+    image.loading = "eager";
+    try { await image.decode(); }
+    catch { if (current === revision) $("[data-tour-error]", productTour).hidden = false; return false; }
+    if (current !== revision) return false;
+    $("[data-tour-error]", productTour).hidden = true;
+    clearFade();
+    if (next !== index && !reducedMotion.matches) {
+      layer = panels[index].cloneNode(true);
+      ["id", "role", "aria-labelledby", "tabindex"].forEach(attribute => layer.removeAttribute(attribute));
+      layer.removeAttribute("data-tour-panel");
+      layer.setAttribute("aria-hidden", "true");
+      layer.classList.add("product-stage__transition");
+      screens.append(layer);
+    }
+    index = next;
+    productTour.dataset.tourStep = String(index);
+    productTour.style.setProperty("--tour-progress", String(index / (tabs.length - 1)));
+    tabs.forEach((tab, i) => { tab.setAttribute("aria-selected", String(i === index)); tab.tabIndex = i === index ? 0 : -1; panels[i].hidden = i !== index; });
+    $("[data-tour-original]", productTour).href = image.getAttribute("src");
+    if (focus) tabs[index].focus();
+    if (announce) $("[data-tour-status]", productTour).textContent = $("figcaption > strong", panels[index]).textContent;
+    if (layer) { const animation = layer.animate([{opacity: 1}, {opacity: 0}], {duration: 320, easing: "cubic-bezier(.22,1,.36,1)", fill: "forwards"}); fade = animation; animation.onfinish = () => { if (fade === animation) clearFade(); }; }
+    return true;
   }
-  if ("IntersectionObserver" in window) {
-    new IntersectionObserver((entries) => entries.forEach((entry) => {
-      visible = entry.isIntersecting;
-      if (!visible) { reset(); return; }
-      if (!seen) { seen = true; illuminate(); }
-    }), { threshold: .3 }).observe(scene);
+  function schedule(delay) { clearTimeout(timer); deadline = performance.now() + delay; timer = setTimeout(advance, delay); }
+  async function advance() {
+    if (mode !== "playing") return;
+    if (index >= tabs.length - 1) { setMode("idle"); return; }
+    const currentPlayback = playbackId;
+    const ok = await select(index + 1);
+    if (mode !== "playing" || currentPlayback !== playbackId) return;
+    if (ok && index < tabs.length - 1) schedule(1800); else setMode("idle");
   }
-  section?.addEventListener("pointermove", (event) => {
-    if (!visible || !finePointer.matches || reducedMotion.matches) return;
-    cancelAnimationFrame(pointerFrame);
-    pointerFrame = requestAnimationFrame(() => {
-      const rect = scene.getBoundingClientRect();
-      const x = Math.max(-1, Math.min(1, (event.clientX - rect.left) / rect.width * 2 - 1));
-      const y = Math.max(-1, Math.min(1, (event.clientY - rect.top) / rect.height * 2 - 1));
-      scene.style.setProperty("--tilt-x", `${-y * .8}deg`);
-      scene.style.setProperty("--tilt-y", `${x * 1.2}deg`);
+  async function play() {
+    stop(); const currentPlayback = playbackId; started = true; setMode("playing");
+    const ok = await select(0);
+    if (mode !== "playing" || currentPlayback !== playbackId) return;
+    if (ok && !reducedMotion.matches) schedule(1600); else { if (ok) await select(2, false, true); if (currentPlayback === playbackId && mode === "playing") setMode("idle"); }
+  }
+  function pause() {
+    if (mode !== "playing") return;
+    remaining = Math.max(0, deadline - performance.now()); clearTimeout(timer); revision++; playbackId++; setMode("paused");
+    pausedAnimations = productTour.getAnimations({subtree: true}).filter(animation => animation.playState === "running" && !animation.effect?.target?.closest?.(".tour-play"));
+    pausedAnimations.forEach(animation => { const time = animation.currentTime; animation.pause(); if (time !== null) animation.currentTime = time; });
+  }
+  function resume() { releaseAnimations(); setMode("playing"); schedule(remaining); }
+  $("img", panels[0]).decode().catch(() => { if (index === 0) $("[data-tour-error]", productTour).hidden = false; });
+  tabs.forEach((tab, i) => {
+    tab.addEventListener("click", () => { seen = true; stop(); select(i, false, true); });
+    tab.addEventListener("keydown", event => {
+      const next = event.key === "ArrowRight" ? (i + 1) % tabs.length : event.key === "ArrowLeft" ? (i - 1 + tabs.length) % tabs.length : event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : null;
+      if (next !== null) { event.preventDefault(); seen = true; stop(); select(next, true, true); }
     });
-  }, { passive: true });
-  section?.addEventListener("pointerleave", () => {
-    cancelAnimationFrame(pointerFrame);
-    scene.style.setProperty("--tilt-x", "0deg");
-    scene.style.setProperty("--tilt-y", "0deg");
+    tab.addEventListener("focus", () => { if (mode === "playing") pause(); });
   });
-  scene.closest("figure")?.querySelector("[data-optical-replay]")?.addEventListener("click", illuminate);
-  reducedMotion.addEventListener("change", () => { if (reducedMotion.matches) reset(); });
-  document.addEventListener("visibilitychange", () => { if (document.hidden) reset(); });
-});
+  playButton.addEventListener("click", () => { seen = true; if (mode === "playing") pause(); else if (mode === "paused") resume(); else play(); });
+  if ("IntersectionObserver" in window) new IntersectionObserver(entries => entries.forEach(entry => {
+    if (!entry.isIntersecting) { pause(); return; }
+    if (!seen && !reducedMotion.matches && !document.hidden) { seen = true; if (!productTour.contains(document.activeElement)) play(); }
+  }), {threshold: .25}).observe(productTour);
+  reducedMotion.addEventListener("change", () => { if (reducedMotion.matches) { stop(); clearFade(); } });
+  document.addEventListener("visibilitychange", () => { if (document.hidden) pause(); });
+}
 
 const network = $("[data-network-demo]");
 if (network) {
@@ -388,65 +416,6 @@ if (network) {
   document.addEventListener("visibilitychange", () => { if (document.hidden && playing) pause(); });
   reducedMotion.addEventListener("change", () => { stop(); network.classList.remove("is-flowing"); draw(3); });
 }
-
-$$("[data-product-gallery]").forEach((gallery) => {
-  const tabs = $$("[data-screenshot-tab]", gallery);
-  const viewport = $(".product-gallery__viewport", gallery);
-  let activeIndex = 0;
-  let revision = 0;
-  let layer = null;
-  let fade = null;
-  function clearFade() {
-    fade?.cancel();
-    fade = null;
-    layer?.remove();
-    layer = null;
-  }
-  function selectTab(index, focus = false) {
-    if (index === activeIndex) { if (focus) tabs[index].focus(); return; }
-    const previous = document.getElementById(tabs[activeIndex].getAttribute("aria-controls"));
-    const source = $("img", previous);
-    const current = ++revision;
-    fade?.cancel();
-    fade = null;
-    if (reducedMotion.matches) clearFade();
-    else if (!layer && source.complete && source.naturalWidth) {
-      layer = source.cloneNode();
-      layer.alt = "";
-      layer.setAttribute("aria-hidden", "true");
-      layer.className = "product-gallery__crossfade";
-      layer.loading = "eager";
-      viewport.append(layer);
-    }
-    activeIndex = index;
-    tabs.forEach((tab, current) => {
-      const active = current === index;
-      tab.setAttribute("aria-selected", String(active));
-      tab.tabIndex = active ? 0 : -1;
-      document.getElementById(tab.getAttribute("aria-controls")).hidden = !active;
-    });
-    if (focus) tabs[index].focus();
-    const image = $("img", document.getElementById(tabs[index].getAttribute("aria-controls")));
-    image.decode().catch(() => {}).then(() => {
-      if (current !== revision || !layer) return;
-      if (reducedMotion.matches) { clearFade(); return; }
-      fade = layer.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 240, easing: "cubic-bezier(.22, 1, .36, 1)", fill: "forwards" });
-      fade.onfinish = clearFade;
-    });
-  }
-  reducedMotion.addEventListener("change", () => { if (reducedMotion.matches) clearFade(); });
-  tabs.forEach((tab, index) => {
-    tab.addEventListener("click", () => selectTab(index));
-    tab.addEventListener("keydown", (event) => {
-      let next;
-      if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
-      if (event.key === "ArrowLeft") next = (index - 1 + tabs.length) % tabs.length;
-      if (event.key === "Home") next = 0;
-      if (event.key === "End") next = tabs.length - 1;
-      if (next !== undefined) { event.preventDefault(); selectTab(next, true); }
-    });
-  });
-});
 
 const downloads = JSON.parse($("[data-download-assets]")?.textContent || "[]");
 const downloadSelect = $("[data-download-select]");

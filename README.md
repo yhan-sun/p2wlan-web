@@ -2,13 +2,13 @@
 
 P2WLAN 的官方产品网站与文档站，部署于 `https://p2wlan.yhan.fun/`。
 
-## Network Light Path / 网络光路
+## Product-first / 客户端优先
 
 本地静态站点，默认深色，并提供独立设计的亮色主题。
 
-- 首页使用 SVG + 原生 JavaScript 演示候选交换、NAT 探测与 Direct / Relay 路径，支持阶段选择、精确暂停、原位继续、重播及 Reduced Motion。
-- 生成的透明光纤材质与 SVG 动态光束组成品牌视觉，支持轻微透视响应和一次播放；素材来源、透明 WebP 与完整生成 Prompt 见 [IMAGE_ASSETS.md](IMAGE_ASSETS.md)。
-- 产品界面使用主仓库 `assets/readme/` 中的四张现有截图，保留原图，明确标注其中演示数据；素材存放在 `public/images/product/`。
+- 首屏使用主仓库客户端界面，按「虚拟地址 → 远端设备 → 访问服务」组织三步导览；支持暂停、继续、重播与键盘切换，访问命令明确标为示例。
+- 桌面与手机分别取景，放大地址和设备信息；四张 WebP 保留原始字节与完整界面入口。来源与退役素材记录见 [IMAGE_ASSETS.md](IMAGE_ASSETS.md)。
+- 网络原理放在按需展开的交互示意中，保留 Direct / Relay、阶段选择及精确暂停；减少动态效果和无脚本场景仍可访问内容。
 - 下载页优先识别当前设备，保留手动平台与架构选择，完整文件名、SHA-256、未签名 IPA 和辅助文件按需展开。
 - OpenWrt 原生包按固件版本与包架构单独展开，推荐使用原生安装器自动选择，避免与 Android APK 或普通 Linux 包混用。
 - 文档首页按任务导航；正文保留全文搜索、键盘操作、代码复制、章节目录、阅读进度及移动抽屉。
@@ -26,7 +26,7 @@ P2WLAN 的官方产品网站与文档站，部署于 `https://p2wlan.yhan.fun/`�
 - `src/pages/*.mjs`：首页、下载、文档入口和更新页。
 - `src/layout.mjs` 与 `src/ui.mjs`：全站 Shell 与共享组件。
 - `src/styles/*.css`：按 foundation、components、home、pages、docs 与 responsive 分层的设计系统；构建时合并为单个 CSS。
-- `src/client.js`：主题、全文搜索、智能下载、网络演示、截图标签、目录、阅读进度和复制交互。
+- `src/client.js`：主题、全文搜索、智能下载、网络演示、客户端导览、目录、阅读进度和复制交互。
 - `scripts/build.mjs`：生成独立 HTML、搜索索引、sitemap 和构建元数据。
 
 ## 本地验证
@@ -37,7 +37,7 @@ npm run check
 npm run preview
 ```
 
-构建读取 `.cache/release.json` 中的最新正式客户端版本；缓存不存在、无效或早于已验证备用版本时，使用 `src/data/release-fallback.json`。备用数据于 2026-10-09 核对为 v0.1.170，包含 21 个资产的真实文件大小、SHA-256、发布说明和历史记录，其中 10 个为 OpenWrt 原生包。联网环境可先同步最新版：
+构建读取 `.cache/release.json` 中的最新正式客户端版本；缓存不存在、无效或早于已验证备用版本时，使用 `src/data/release-fallback.json`。备用数据于 2026-11-03 核对为 v0.1.171，包含 21 个资产的真实文件大小、SHA-256、发布说明和历史记录，其中 10 个为 OpenWrt 原生包。联网环境可先同步最新版：
 
 ```bash
 npm run sync-release

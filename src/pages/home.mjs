@@ -1,50 +1,50 @@
 import { SITE } from "../data/site.mjs";
 import { escapeHtml, icon, releaseLabel } from "../ui.mjs";
 import { renderNetworkDemo } from "../components/network-demo.mjs";
-import { renderOpticalScene } from "../components/optical-scene.mjs";
 
-const screenshots = [
-  ["home", "网络概览", "首页：虚拟 IP、网络状态与在线设备"],
-  ["devices", "设备", "设备列表：名称、虚拟 IP 与连接路径"],
-  ["rooms", "房间", "互联页面：多房间管理"],
-  ["room", "房间详情", "房间详情：成员、虚拟 IP 与连接状态"],
+const tour = [
+  { key: "address", label: "虚拟地址", image: "home", title: "先有一个共同的地址。", copy: "登录并启动网络，在客户端查看自己的虚拟 IP。", value: "10.20.0.10", kind: "界面中的示例地址" },
+  { key: "devices", label: "远端设备", image: "devices", title: "找到另一端的设备。", copy: "设备的虚拟 IP、在线状态与连接路径，都在同一处。", value: "yhan-NAS · 10.20.0.20", kind: "界面中的示例设备" },
+  { key: "access", label: "访问服务", image: "devices", title: "回到你熟悉的使用方式。", copy: "通过虚拟 IP 访问 SSH、NAS 或其他已运行的服务。", value: "ssh user@10.20.0.20", kind: "SSH 访问示例，使用远端服务账号" },
 ];
+
+function renderProductTour() {
+  return `<div class="product-stage" data-product-tour data-tour-step="0" data-tour-playback="idle" data-tour-started="false">
+    <div class="product-stage__heading"><span>P2WLAN 客户端</span><span>界面导览</span></div>
+    <div class="product-stage__screens">${tour.map((item, index) => `<div id="tour-panel-${item.key}" class="product-stage__panel" role="tabpanel" aria-labelledby="tour-tab-${item.key}" tabindex="0"${index ? " hidden" : ""} data-tour-panel>
+      <figure><div class="product-stage__window"><img src="/images/product/screenshot-${item.image}.webp" width="1536" height="1024" alt="主仓库客户端${item.image === "home" ? "网络概览，显示虚拟地址" : "设备列表，显示设备名称、虚拟地址和连接方式"}；数据为示例" loading="${index ? "lazy" : "eager"}" ${index ? "" : 'fetchpriority="high"'} decoding="async"/></div><figcaption><strong>${item.title}</strong><p>${item.copy}</p><div class="product-stage__result"><code>${item.value}</code><span>${item.kind}</span></div></figcaption></figure>
+    </div>`).join("")}</div>
+    <div class="product-stage__journey"><div class="product-stage__tabs" role="tablist" aria-label="客户端使用导览">${tour.map((item, index) => `<button type="button" role="tab" id="tour-tab-${item.key}" aria-controls="tour-panel-${item.key}" aria-selected="${index === 0}" tabindex="${index === 0 ? "0" : "-1"}" data-tour-tab="${index}"><span aria-hidden="true">${index + 1}</span>${item.label}</button>`).join("")}</div><button type="button" class="tour-play" data-tour-play aria-label="播放客户端导览"><span class="tour-play__icons" aria-hidden="true">${["play", "pause", "replay"].map(name => `<span data-tour-icon="${name}">${icon(name)}</span>`).join("")}</span><span data-tour-play-label>播放导览</span></button></div>
+    <p class="product-stage__source">主仓库界面局部，设备与数据为示例。<a href="/images/product/screenshot-home.webp" target="_blank" rel="noopener" data-tour-original>查看完整界面 ↗</a></p>
+    <noscript><p class="product-stage__source"><a href="/images/product/screenshot-devices.webp">查看设备界面 ↗</a></p></noscript>
+    <p class="product-stage__error" data-tour-error hidden>界面预览暂时无法加载。<a href="${SITE.repository}#readme">查看主仓库中的界面 ↗</a></p>
+    <span class="sr-only" role="status" aria-live="polite" data-tour-status></span>
+  </div>`;
+}
 
 export function renderHome({ release }) {
   return `<main id="main-content">
-    <section class="home-hero" aria-labelledby="home-title">
-      ${renderOpticalScene("home-hero__art", true)}
-      <div class="container">
-        <div class="home-hero__copy">
-          <a class="release-eyebrow" href="/changelog/"><span>${escapeHtml(release.tag)}</span><span>${releaseLabel(release)} · 免费开源</span>${icon("chevron")}</a>
-          <h1 id="home-title"><span>不同网络，</span><span>同一个局域网。</span></h1>
-          <p class="home-hero__lead">让远方的设备，像在身边一样互联。<br/>P2P 直连优先，加密通信，必要时回退中继。</p>
-          <div class="hero-actions"><a class="button button--primary button--large" href="/download/" data-smart-download>${icon("download")}<span>下载 P2WLAN</span></a><a class="button button--secondary button--large" href="/docs/getting-started/">快速开始 ${icon("arrow")}</a></div>
-          <p class="platform-proof">Windows <span>·</span> macOS <span>·</span> Linux <span>·</span> Android</p>
-        </div>
-        <div class="home-hero__demo" data-reveal>${renderNetworkDemo()}<p class="demo-caption">连接过程与地址均为示意。NAT 与防火墙可能阻止直连；Relay 也需要配置且可达。<a href="/docs/networking/">了解连接模型 ${icon("arrow")}</a></p></div>
+    <section class="home-hero" aria-labelledby="home-title"><div class="container hero-layout">
+      <div class="home-hero__copy">
+        <a class="release-eyebrow" href="/changelog/"><span class="status-dot" aria-hidden="true"></span><span>${escapeHtml(release.tag)}</span><span>${releaseLabel(release)}</span>${icon("chevron")}</a>
+        <h1 id="home-title">不同网络，<br/>同一个局域网。</h1>
+        <p class="home-hero__lead">用虚拟 IP 访问远方的设备。<br/>NAS、开发机和游戏，继续熟悉的连接。</p>
+        <div class="hero-actions"><a class="button button--primary button--large" href="/download/" data-smart-download>${icon("download")}<span>下载 P2WLAN</span></a><a class="text-action" href="/docs/getting-started/">快速开始 ${icon("arrow")}</a></div>
+        <p class="platform-proof">Windows · macOS · Linux · Android<br/><a href="/download/#platform-openwrt">也为 OpenWrt 路由器提供原生包 ${icon("arrow")}</a></p>
+        <div class="hero-principles"><span>端到端加密</span><span>直连优先</span><a href="${SITE.repository}">开源 · 可自托管 ↗</a></div>
       </div>
-    </section>
-    <section class="use-cases" aria-label="适用场景"><div class="container"><p>熟悉的应用，<strong>更近的连接。</strong></p><ul><li>NAS / HomeLab</li><li>朋友联机</li><li>SSH / 远程开发</li><li>跨地域组网</li></ul></div></section>
-    <section class="section product-section" id="product" aria-labelledby="product-title">
-      <div class="container">
-        <header class="section-intro section-intro--center"><p class="section-kicker">Closer, by design</p><h2 id="product-title">远在不同网络，<br/>近在一个地址。</h2><p>连接 NAS、开发机或游戏服务器，继续用你熟悉的虚拟 IP。<br class="desktop-break"/>设备、房间与连接路径，都在客户端里清楚呈现。</p></header>
-        <div class="product-gallery" data-product-gallery data-reveal>
-          <div class="product-gallery__tabs" role="tablist" aria-label="客户端界面">${screenshots.map(([key, label], index) => `<button id="screenshot-tab-${key}" type="button" role="tab" aria-selected="${index === 0}" aria-controls="screenshot-${key}" tabindex="${index === 0 ? "0" : "-1"}" data-screenshot-tab="${key}">${label}</button>`).join("")}</div>
-          <div class="product-gallery__viewport">${screenshots.map(([key, , alt], index) => `<figure id="screenshot-${key}" role="tabpanel" aria-labelledby="screenshot-tab-${key}" tabindex="0"${index ? " hidden" : ""}><img src="/images/product/screenshot-${key}.webp" width="1536" height="1024" alt="P2WLAN 客户端${alt}，截图中的设备与数据为演示数据" loading="lazy" decoding="async"/><figcaption>${alt}<a href="/images/product/screenshot-${key}.webp" target="_blank" rel="noopener" aria-label="新标签页放大查看${alt}">查看原图 ↗</a></figcaption></figure>`).join("")}</div>
-          <p class="product-gallery__source">来自 P2WLAN 主仓库的客户端截图 · 设备名称、速率与延迟为演示数据</p>
-        </div>
-        <div class="product-notes"><article><span>01 / 设备</span><h3>一个虚拟 IP，连接熟悉的服务。</h3><p>SSH、远程桌面、NAS 与内部 Web 服务，按应用原有的认证方式访问。</p></article><article><span>02 / 房间</span><h3>把这次互联，组织在一起。</h3><p>通过房间管理一组设备，查看成员和路径，适合朋友联机与协作。</p></article></div>
-      </div>
-    </section>
-    <section class="section connection-section" aria-labelledby="connection-title"><div class="container connection-editorial">
-      <div><header class="section-intro"><p class="section-kicker">A shorter path</p><h2 id="connection-title">能直达，就不绕路。</h2><p>优先尝试局域网与公网 UDP 直连。复杂网络中使用加密 Relay，并继续寻找可用直连路径。</p><a class="text-action" href="/docs/nat-traversal/">了解 NAT 穿透 ${icon("arrow")}</a></header><figure class="connection-art">${renderOpticalScene("connection-art__scene")}<figcaption><span>NETWORK LIGHT PATH</span><button class="text-action" type="button" data-optical-replay aria-label="重新播放光路视觉">${icon("replay")}重播光路</button></figcaption></figure></div>
-      <div class="path-comparison" data-reveal><article><div class="path-comparison__title"><span class="status-dot status-dot--direct"></span><h3>Direct</h3><span>优先路径</span></div><div class="path-mini path-mini--direct" aria-hidden="true"><span>设备 A</span><i></i><span>设备 B</span></div><p>端点之间直接传输加密数据，能否建立取决于真实网络条件。</p></article><article><div class="path-comparison__title"><span class="status-dot status-dot--relay"></span><h3>Relay</h3><span>回退路径</span></div><div class="path-mini path-mini--relay" aria-hidden="true"><span>设备 A</span><i></i><b>中继</b><i></i><span>设备 B</span></div><p>Relay 转发密文。应用仍使用同一个虚拟 IP，无需手动更换地址。</p></article></div>
+      ${renderProductTour()}
     </div></section>
-    <section class="section hosting-section" id="self-hosted" aria-labelledby="hosting-title"><div class="container hosting-editorial">
-      <div class="hosting-blueprint" data-reveal><header><span>YOUR INFRASTRUCTURE</span><span>架构示意</span></header><div class="blueprint-server">${icon("server")}<strong>Control Plane</strong><span>身份 / 设备 / 候选协调</span></div><div class="blueprint-lines" aria-hidden="true"><i></i><span>信令</span><i></i></div><div class="blueprint-endpoints"><span>${icon("monitor")}设备 A</span><b>加密数据</b><span>${icon("server")}设备 B</span></div><div class="blueprint-relay">${icon("shield")}Relay <span>直连不可用时转发密文</span></div><footer>Go + SQLite <span>·</span> Rust 数据面 <span>·</span> Flutter 客户端</footer></div>
-      <div><header class="section-intro"><p class="section-kicker">Your network. Your rules.</p><h2 id="hosting-title">你的网络，<br/>由你来运行。</h2><p>把 Control Plane 与 Relay 部署在自己的 Linux 服务器。基础设施、配置与升级节奏，都掌握在自己手中。</p></header><ul class="hosting-facts"><li><strong>控制与数据分离</strong><span>控制面负责协调，业务数据优先在端点之间传输。</span></li><li><strong>加密边界透明</strong><span>Relay 按设计转发密文，不持有业务会话私钥。</span></li></ul><div class="inline-actions"><a class="button button--secondary" href="/docs/self-hosting/">自托管指南 ${icon("arrow")}</a><a class="text-action" href="/docs/security/">安全边界 ${icon("arrow")}</a></div></div>
+    <section class="use-cases" aria-label="常用场景"><div class="container"><article><h2>访问家里的设备</h2><p>NAS、HomeLab 和自己的内部服务。</p></article><article><h2>继续手边的工作</h2><p>SSH、远程桌面，沿用原有账号与工具。</p></article><article><h2>和朋友加入同一张网</h2><p>把一起联机的设备，组织进一个房间。</p></article></div></section>
+    <section class="section room-section" id="product" aria-labelledby="product-title"><div class="container room-layout">
+      <div class="room-copy"><h2 id="product-title">一起联机，<br/>就进同一个房间。</h2><p>把这一组设备放在一起。成员、虚拟 IP 与连接路径，在房间里清楚呈现。</p><a class="text-action" href="/docs/getting-started/">连接你的第一对设备 ${icon("arrow")}</a><div class="room-copy__note"><strong>应用怎么用，仍由你决定。</strong><p>P2WLAN 负责设备之间的虚拟网络。游戏、文件和远程服务继续使用各自的访问方式与权限。</p></div></div>
+      <figure class="room-preview" data-reveal><a class="room-preview__image" href="/images/product/screenshot-room.webp" target="_blank" rel="noopener" aria-label="查看完整的房间详情界面"><img src="/images/product/screenshot-room.webp" width="1536" height="1024" alt="主仓库房间详情界面，展示成员、虚拟地址与连接路径；数据为示例" loading="lazy" decoding="async"/></a><figcaption><span>房间详情 · 主仓库界面预览</span><a href="/images/product/screenshot-rooms.webp" target="_blank" rel="noopener">查看房间列表 ↗</a></figcaption></figure>
     </div></section>
-    <section class="closing-cta"><div class="container"><img src="/images/p2wlan-icon.svg" width="48" height="48" alt=""/><p class="section-kicker">Start with two devices</p><h2>把距离，留给现实世界。</h2><p>免费开源，可自托管。从连通两台设备开始。</p><div class="hero-actions"><a class="button button--primary button--large" href="/download/" data-smart-download>${icon("download")}<span>下载 P2WLAN</span></a><a class="text-action" href="/docs/getting-started/">阅读快速开始 ${icon("arrow")}</a></div><small>${escapeHtml(release.tag)} <span>·</span> MIT License <span>·</span> <a href="${SITE.repository}">查看源码 ↗</a></small></div></section>
+    <section class="section connection-section" aria-labelledby="connection-title"><div class="container">
+      <div class="connection-layout"><div><h2 id="connection-title">能直达，<br/>就少绕一段路。</h2><p>优先尝试局域网与公网 UDP 直连。网络受限时，通过可达的加密 Relay 继续连接。</p><a class="text-action" href="/docs/networking/">了解连接模型 ${icon("arrow")}</a></div><dl class="connection-facts"><div><dt><span class="status-dot status-dot--direct" aria-hidden="true"></span>Direct <span>点对点直连</span></dt><dd>加密数据在两端之间传输。能否建立直连，取决于 NAT、防火墙与实际网络条件。</dd></div><div><dt><span class="status-dot status-dot--relay" aria-hidden="true"></span>Relay <span>中继回退</span></dt><dd>直连不可用时转发密文。中继需要配置且可达，应用继续使用相同的虚拟 IP。</dd></div></dl></div>
+      <details class="connection-explainer"><summary><span>看看连接是怎样建立的</span><small>交互原理示意</small>${icon("chevron")}</summary><div class="connection-explainer__body">${renderNetworkDemo()}<p class="demo-caption">连接过程与地址均为示意，不代表任意网络都能直连。<a href="/docs/nat-traversal/">NAT 穿透与限制 ${icon("arrow")}</a></p></div></details>
+    </div></section>
+    <section class="section hosting-section" id="self-hosted" aria-labelledby="hosting-title"><div class="container hosting-layout"><div><h2 id="hosting-title">运行在你<br/>自己的基础设施上。</h2><p>在 Linux 服务器部署 Control Plane 与 Relay，自己管理域名、配置和升级节奏。</p><div class="inline-actions"><a class="button button--secondary" href="/docs/self-hosting/">自托管指南 ${icon("arrow")}</a><a class="text-action" href="/docs/security/">安全边界 ${icon("arrow")}</a></div></div><div class="hosting-reference"><div><strong>Control Plane</strong><span>身份、设备与候选协调</span></div><div><strong>Relay</strong><span>直连不可用时转发加密数据</span></div><p>控制与数据分离。业务数据优先在端点间传输；服务部署与终端安全各有边界。</p><a href="${SITE.repository}">阅读源码与部署说明 ↗</a></div></div></section>
+    <section class="closing-cta"><div class="container"><div><h2>从连通两台设备开始。</h2><p>免费开源 · MIT · ${escapeHtml(release.tag)}</p></div><a class="button button--primary button--large" href="/download/" data-smart-download>${icon("download")}<span>下载 P2WLAN</span></a></div></section>
   </main>`;
 }

@@ -52,7 +52,7 @@ export function renderFooter(release, buildId, buildDate) {
         <div class="footer-brand"><a class="brand" href="/"><img src="/images/p2wlan-icon.svg" width="34" height="34" alt="" /><span>P2WLAN</span></a><p>开源、可自托管的 P2P 虚拟局域网。</p></div>
         <nav aria-label="页脚产品导航"><strong>产品</strong><a href="/download/">下载</a><a href="/changelog/">版本</a><a href="${SITE.repository}">GitHub ↗</a></nav>
         <nav aria-label="页脚文档导航"><strong>文档</strong><a href="/docs/getting-started/">快速开始</a><a href="/docs/self-hosting/">自托管</a><a href="/docs/security/">安全</a></nav>
-        <div class="footer-release"><strong>Current release</strong><a href="/changelog/"><span class="release-mark" aria-hidden="true"></span>${escapeHtml(
+        <div class="footer-release"><strong>当前版本</strong><a href="/changelog/"><span class="release-mark" aria-hidden="true"></span>${escapeHtml(
           release.tag
         )}</a><small>免费开源 · MIT</small></div>
       </div>
