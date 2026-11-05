@@ -29,15 +29,15 @@ export function renderDownload({ release, assets }) {
       <div class="container">
         <header class="section-intro"><h1>下载 P2WLAN</h1><p>适用于桌面、手机、服务器与 OpenWrt 路由器。</p><div class="page-meta"><span>${escapeHtml(release.tag)}</span><span>${releaseLabel(release)}</span><span>${formatDate(release.publishedAt)}</span></div></header>
         <article class="smart-recommendation" data-smart-panel>
-          <div class="smart-recommendation__main"><img src="/images/p2wlan-icon.svg" width="64" height="64" alt=""/><div><p class="device-label" data-smart-kicker>为这台设备选择</p><h2 data-smart-title>选择适合你的安装包</h2><p data-smart-description>按系统与处理器架构选择，也可浏览下方平台列表。</p></div></div>
+          <div class="smart-recommendation__main"><img src="/images/p2wlan-icon.svg" width="64" height="64" alt=""/><div><p class="device-label" data-smart-kicker>当前设备</p><h2 data-smart-title>选择系统与架构</h2><p data-smart-description>按系统和处理器架构选择安装包。</p></div></div>
           <div class="smart-recommendation__actions"><label for="download-package">平台与架构</label><select id="download-package" data-download-select><option value="">选择安装包</option>${packages.map((asset) => `<option value="${escapeHtml(asset.key)}">${escapeHtml(`${asset.platform} · ${asset.architecture}${asset.purpose === "服务器" ? " · CLI" : ""}`)}</option>`).join("")}</select><a class="button button--primary button--large" href="#platforms" data-smart-download>${icon("download")}<span>选择安装包</span></a></div>
           <div class="smart-recommendation__file"><span data-smart-file>安装包直接来自 GitHub Releases</span><span data-smart-meta>${escapeHtml(release.tag)} · 免费 · MIT</span></div>
         </article>
-        <p class="download-help">若未能识别 macOS 芯片，可在「关于本机」核对并手动选择。<a href="/docs/install/">安装与权限说明 ${icon("arrow")}</a></p>
+        <p class="download-help">macOS 芯片型号见「关于本机」。<a href="/docs/install/">安装与权限说明 ${icon("arrow")}</a></p>
       </div>
     </section>
     <section class="section section--compact" id="platforms" aria-labelledby="platforms-title"><div class="container download-catalog">
-      <header class="download-catalog__header"><h2 id="platforms-title">每一种平台，同一张网络。</h2><span>${escapeHtml(release.tag)}</span></header>
+      <header class="download-catalog__header"><h2 id="platforms-title">全部平台</h2><span>${escapeHtml(release.tag)}</span></header>
       <section class="download-platform-row" id="platform-windows"><div><h3>Windows</h3><p>x64 · 桌面安装程序</p></div><div class="package-options">${packageLink(windows, "Windows x64")}</div><a class="platform-guide" href="/docs/install/#windows">安装指南 ${icon("arrow")}</a></section>
       <section class="download-platform-row" id="platform-macos"><div><h3>macOS</h3><p>macOS 12+ · DMG</p></div><div class="package-options">${packageLink(mac, "Apple Silicon")}${packageLink(get("macos-x64"), "Intel Mac")}</div><a class="platform-guide" href="/docs/install/#macos">安装指南 ${icon("arrow")}</a></section>
       <section class="download-platform-row" id="platform-linux"><div><h3>Linux</h3><p>图形客户端或 CLI + daemon</p></div><div class="package-options">${packageLink(get("linux-gui-x64"), "GUI x64")}${packageLink(get("linux-cli-x64"), "CLI x64")}${packageLink(get("linux-cli-arm64"), "CLI arm64")}</div><a class="platform-guide" href="/docs/install/#linux-gui">安装指南 ${icon("arrow")}</a></section>
@@ -49,9 +49,9 @@ export function renderDownload({ release, assets }) {
     </div></section>
     <section class="section section--compact download-advanced"><div class="container">
       <header class="section-split"><div><h2>高级下载与校验</h2><p>完整文件名、发布辅助文件与 SHA-256。</p></div><a class="text-action" href="${escapeHtml(release.url)}">GitHub Release ↗</a></header>
-      <details class="asset-disclosure"><summary><span>全部 ${assets.length} 个发布资产</span><small>含未签名实验构建及校验文件</small>${icon("chevron")}</summary><div class="asset-list"><p class="asset-list__note">SHA-256 是 GitHub 为该文件记录的摘要。iOS IPA 为未签名实验构建，需要自行签名，未作为主要客户端推荐。</p>${assets.map(assetRow).join("")}</div></details>
-      <details class="verification-disclosure"><summary><span>如何核对 SHA-256</span>${icon("chevron")}</summary><div class="verification-content"><p>摘要一致可以发现下载损坏或文件变化。它不等同于代码签名、可复现构建证明或安全审计。</p><div class="verification-commands">${[["Windows PowerShell", powershell], ["macOS", unix]].map(([label, command]) => `<article><header><span>${label}</span><button class="copy-button" type="button" data-copy-text="${escapeHtml(command)}" aria-label="复制${label}校验命令">${icon("copy")}<span>复制</span></button></header><pre role="region" tabindex="0" aria-label="${escapeHtml(label)} 校验命令"><code>${escapeHtml(command)}</code></pre></article>`).join("")}</div><a class="text-action" href="/docs/release-verification/">完整校验指南 ${icon("arrow")}</a></div></details>
+      <details class="asset-disclosure"><summary><span>全部 ${assets.length} 个文件</span><small>含未签名实验构建及校验文件</small>${icon("chevron")}</summary><div class="asset-list"><p class="asset-list__note">SHA-256 为 GitHub 记录的文件摘要。iOS IPA 是未签名实验构建，需要自行签名。</p>${assets.map(assetRow).join("")}</div></details>
+      <details class="verification-disclosure"><summary><span>如何核对 SHA-256</span>${icon("chevron")}</summary><div class="verification-content"><p>比较 SHA-256 可检查文件是否一致。代码签名、可复现构建和安全审计需分别验证。</p><div class="verification-commands">${[["Windows PowerShell", powershell], ["macOS", unix]].map(([label, command]) => `<article><header><span>${label}</span><button class="copy-button" type="button" data-copy-text="${escapeHtml(command)}" aria-label="复制${label}校验命令">${icon("copy")}<span>复制</span></button></header><pre role="region" tabindex="0" aria-label="${escapeHtml(label)} 校验命令"><code>${escapeHtml(command)}</code></pre></article>`).join("")}</div><a class="text-action" href="/docs/release-verification/">完整校验指南 ${icon("arrow")}</a></div></details>
     </div></section>
-    <section class="page-next"><div class="container"><div><h2>安装完成，连通第一对设备。</h2></div><a class="button button--secondary" href="/docs/getting-started/">打开快速开始 ${icon("arrow")}</a></div></section>
+    <section class="page-next"><div class="container"><div><h2>安装后，连接两台设备。</h2></div><a class="button button--secondary" href="/docs/getting-started/">快速开始 ${icon("arrow")}</a></div></section>
   </main>`;
 }

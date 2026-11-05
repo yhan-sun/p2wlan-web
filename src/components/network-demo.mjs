@@ -2,7 +2,7 @@ import { icon } from "../ui.mjs";
 
 export function renderNetworkDemo() {
   return `<div class="network-demo" data-network-demo data-stage="connected" data-route="direct" data-playback="idle" role="group" aria-label="P2P 连接交互示意">
-    <header class="network-demo__header"><div><span class="demo-dot"></span><strong>两端之间，找到一条光路。</strong></div><span class="demo-label">交互示意</span></header>
+    <header class="network-demo__header"><div><span class="demo-dot"></span><strong>设备连接过程</strong></div><span class="demo-label">交互示意</span></header>
     <div class="network-topology">
       <svg class="network-topology__paths" viewBox="0 0 900 340" preserveAspectRatio="none" fill="none" role="img" aria-labelledby="topology-title topology-description">
         <title id="topology-title">两台不同网络中的设备通过 P2WLAN 连接</title>
@@ -24,7 +24,7 @@ export function renderNetworkDemo() {
       <span class="topology-path-label" data-network-path>端点间加密直连</span>
       <div class="topology-service topology-service--relay">${icon("shield")}<div><strong>Encrypted Relay</strong><small data-relay-state>回退路径待命</small></div></div>
     </div>
-    <div class="network-demo__status" role="status" aria-live="polite" aria-atomic="true"><span class="network-state" data-network-state>Direct</span><div><strong data-network-title>直连建立，数据在两端之间传输。</strong><p data-network-copy>应用继续使用虚拟 IP，Control Plane 负责协调。</p></div></div>
+    <div class="network-demo__status" role="status" aria-live="polite" aria-atomic="true"><span class="network-state" data-network-state>Direct</span><div><strong data-network-title>已建立加密直连</strong><p data-network-copy>数据在设备之间传输，应用通过虚拟 IP 访问。</p></div></div>
     <div class="network-demo__controls">
       <ol class="network-steps" aria-label="选择连接阶段"><li><button type="button" data-network-step="0" aria-pressed="false"><span>01</span>设备就绪</button></li><li><button type="button" data-network-step="1" aria-pressed="false"><span>02</span>交换候选</button></li><li><button type="button" data-network-step="2" aria-pressed="false"><span>03</span>NAT 探测</button></li><li><button type="button" data-network-step="3" aria-pressed="true"><span>04</span>建立连接</button></li></ol>
       <button class="demo-replay" type="button" data-network-replay aria-label="重新播放连接过程"><span class="demo-replay__icons" aria-hidden="true">${["replay", "pause", "play"].map((name) => `<span data-replay-icon="${name}">${icon(name)}</span>`).join("")}</span><span data-replay-label>重播</span></button>

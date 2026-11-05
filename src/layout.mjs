@@ -50,7 +50,7 @@ export function renderFooter(release, buildId, buildDate) {
     <footer class="site-footer">
       <div class="container site-footer__top">
         <div class="footer-brand"><a class="brand" href="/"><img src="/images/p2wlan-icon.svg" width="34" height="34" alt="" /><span>P2WLAN</span></a><p>开源、可自托管的 P2P 虚拟局域网。</p></div>
-        <nav aria-label="页脚产品导航"><strong>产品</strong><a href="/download/">下载</a><a href="/changelog/">版本</a><a href="${SITE.repository}">GitHub ↗</a></nav>
+        <nav aria-label="页脚产品导航"><strong>产品</strong><a href="/download/">下载</a><a href="/changelog/">更新记录</a><a href="${SITE.repository}">GitHub ↗</a></nav>
         <nav aria-label="页脚文档导航"><strong>文档</strong><a href="/docs/getting-started/">快速开始</a><a href="/docs/self-hosting/">自托管</a><a href="/docs/security/">安全</a></nav>
         <div class="footer-release"><strong>当前版本</strong><a href="/changelog/"><span class="release-mark" aria-hidden="true"></span>${escapeHtml(
           release.tag
@@ -64,13 +64,14 @@ export function renderSearchDialog() {
   return `
     <dialog class="search-dialog" data-search-dialog aria-label="站内搜索">
       <div class="search-dialog__panel">
-        <header><span>${icon("search")}</span><input id="site-search-input" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="site-search-results" autocomplete="off" placeholder="搜索命令、配置、错误或概念…" data-search-input aria-label="搜索内容" /><button type="button" data-close-search aria-label="关闭搜索">${icon(
+        <header><span>${icon("search")}</span><input id="site-search-input" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="site-search-results" autocomplete="off" placeholder="搜索文档…" data-search-input aria-label="搜索文档" /><button type="button" data-close-search aria-label="关闭搜索">${icon(
           "close"
         )}</button></header>
-        <p class="search-dialog__hint" data-search-hint>例如：Relay、对称 NAT、status --json、TLS。</p>
+        <p class="search-dialog__hint" data-search-hint>试试：Relay、NAT、status --json。</p>
+        <a class="search-dialog__browse text-action" href="/docs/" data-search-browse hidden>浏览文档 ${icon("arrow")}</a>
         <div class="search-results" id="site-search-results" data-search-results role="listbox" aria-label="搜索结果" hidden></div>
         <span class="sr-only" data-search-status role="status" aria-live="polite"></span>
-        <footer><span>↑↓ 选择</span><span>Enter 打开</span><span>Esc 关闭</span></footer>
+        <footer><span data-search-navigation hidden>↑↓ 选择</span><span data-search-navigation hidden>Enter 打开</span><span>Esc 关闭</span></footer>
       </div>
     </dialog>`;
 }
@@ -212,7 +213,7 @@ export function renderDocArticle({ doc, body, docs, release, buildTime }) {
           )}</p></header>
           <details class="doc-mobile-toc"><summary>本页内容 ${icon("chevron")}</summary><nav aria-label="本页章节">${headings.map((heading) => `<a data-toc-link href="#${escapeHtml(heading.id)}">${escapeHtml(heading.title)}</a>`).join("")}</nav></details>
           <div class="doc-content">${body}</div>
-          <footer class="doc-footer"><div class="doc-feedback"><div><strong>发现文档问题？</strong><p>请附上页面 URL、对应 Release 和可验证依据。</p></div><a class="text-action" href="${SITE.repository}/issues/new">提交 Issue ${icon(
+          <footer class="doc-footer"><div class="doc-feedback"><div><strong>报告文档问题</strong><p>附上页面地址、客户端版本和问题描述。</p></div><a class="text-action" href="${SITE.repository}/issues/new">提交 Issue ${icon(
             "arrow"
           )}</a></div><nav class="doc-pagination" aria-label="文档翻页">${
             previous
@@ -237,5 +238,5 @@ export function renderDocArticle({ doc, body, docs, release, buildTime }) {
 }
 
 export function renderNotFound() {
-  return `<main id="main-content" class="not-found"><div><span>404</span><h1>这个地址不在虚拟网络中。</h1><p>返回首页，或从文档入口继续查找。</p><div class="hero-actions"><a class="button button--primary" href="/">返回首页</a><a class="button button--secondary" href="/docs/">打开文档</a></div></div></main>`;
+  return `<main id="main-content" class="not-found"><div><span>404</span><h1>页面不存在</h1><p>返回首页，或在文档中查找。</p><div class="hero-actions"><a class="button button--primary" href="/">返回首页</a><a class="button button--secondary" href="/docs/">浏览文档</a></div></div></main>`;
 }

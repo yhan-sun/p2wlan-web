@@ -294,12 +294,12 @@ if (productTour) {
 const network = $("[data-network-demo]");
 if (network) {
   const steps = [
-    { stage: "ready", state: "Ready", title: "两台设备，位于不同的网络。", copy: "为示意设备分配虚拟地址，等待连接协调。", path: "准备建立连接" },
-    { stage: "exchange", state: "Signal", title: "控制面协调身份，交换可用候选。", copy: "协调信息经过 Control Plane，业务数据不在此转发。", path: "交换网络候选" },
-    { stage: "probe", state: "Probe", title: "尝试 NAT 穿透，确认可达路径。", copy: "UDP 探测可能受 NAT、过滤规则或防火墙限制。", path: "尝试 UDP 直连" },
-    { stage: "connected", state: "Direct", title: "直连建立，数据在两端之间传输。", copy: "应用继续使用虚拟 IP，Control Plane 负责协调。", path: "端点间加密直连" },
+    { stage: "ready", state: "Ready", title: "设备就绪", copy: "两台设备位于不同网络，已分配示例虚拟 IP。", path: "准备建立连接" },
+    { stage: "exchange", state: "Signal", title: "交换连接候选", copy: "Control Plane 协调身份和候选地址，不转发业务数据。", path: "交换网络候选" },
+    { stage: "probe", state: "Probe", title: "探测 UDP 直连路径", copy: "探测结果取决于 NAT、过滤规则和防火墙。", path: "尝试 UDP 直连" },
+    { stage: "connected", state: "Direct", title: "已建立加密直连", copy: "数据在设备之间传输，应用通过虚拟 IP 访问。", path: "端点间加密直连" },
   ];
-  const relayResult = { stage: "connected", state: "Relay", title: "直连受限，切换至加密 Relay。", copy: "中继配置且可达时转发密文，应用仍使用同一个虚拟 IP。", path: "直连不可用" };
+  const relayResult = { stage: "connected", state: "Relay", title: "通过加密中继连接", copy: "直连不可用时，由已配置且可达的 Relay 转发密文，虚拟 IP 保持不变。", path: "直连不可用" };
   let step = 3;
   let route = "direct";
   let timer = 0;
@@ -344,7 +344,7 @@ if (network) {
     $("[data-network-copy]", network).textContent = state.copy;
     $("[data-network-path]", network).textContent = state.path;
     $("[data-relay-state]", network).textContent = route === "relay" && step === 3 ? "正在转发密文" : "回退路径待命";
-    $("[data-network-description]", network).textContent = `${state.title}${state.copy}连接过程与地址为示意。`;
+    $("[data-network-description]", network).textContent = `${state.title}。${state.copy}连接过程与地址为示意。`;
     $$("[data-network-step]", network).forEach((button) => button.setAttribute("aria-pressed", String(Number(button.dataset.networkStep) === step)));
     $$("[data-network-route]", network).forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.networkRoute === route)));
     network.classList.remove("is-flowing");
@@ -450,8 +450,14 @@ function recommend(key, detected = null) {
   body.dataset.platform = asset?.key || "";
   const title = $("[data-smart-title]");
   const description = $("[data-smart-description]");
-  if (title) title.textContent = asset ? `${asset.platform} · ${asset.architecture}` : detected?.title || "选择适合你的安装包";
-  if (description) description.textContent = asset ? `${asset.detail}。${asset.platform === "Android" ? "请确认设备支持 arm64，并授予系统 VPN 权限。" : asset.platform === "Linux GUI" ? "桌面使用图形客户端；无桌面环境请选择 CLI。" : "请根据安装指南完成系统权限配置。"}` : detected?.description || "按系统与处理器架构选择。";
+  if (title) title.textContent = asset ? `${asset.platform} · ${asset.architecture}` : detected?.title || "选择系统与架构";
+  if (description) description.textContent = asset ? ({
+    Windows: "运行安装程序，按系统提示授权。",
+    macOS: "打开 DMG，将应用拖入 Applications。",
+    "Linux GUI": "解压后启动图形客户端；服务器可选择 CLI。",
+    "Linux CLI": "适用于服务器和无桌面环境。",
+    Android: "仅支持 arm64，启动网络时需授予 VPN 权限。",
+  }[asset.platform] || "按安装指南完成系统权限配置。") : detected?.description || "按系统和处理器架构选择安装包。";
   if (downloadSelect) downloadSelect.value = asset?.key || "";
   $$("[data-smart-download]").forEach((link) => {
     link.href = asset?.url || (body.dataset.pageKind === "download" ? `#platform-${detected?.family || ""}` : `/download/${detected?.family ? `#platform-${detected.family}` : ""}`);
@@ -475,20 +481,21 @@ async function detectPlatform() {
     architecture = hints?.architecture || "";
     bitness = hints?.bitness || "";
   } catch {}
-  if (/iphone|ipad|ipod/.test(ua) || (platform.includes("mac") && navigator.maxTouchPoints > 1)) return { key: "", title: "这台设备使用 iOS / iPadOS", description: "当前主要客户端面向 Windows、macOS、Linux 与 Android。未签名 IPA 可在高级资产中查看。" };
-  if (ua.includes("android")) return architecture === "x86" || bitness === "32" || /i[3-6]86|x86_64|armv7/.test(ua) ? { key: "", family: "android", title: "Android，确认你的架构", description: "当前 APK 仅支持 arm64。请确认设备架构后选择。" } : { key: "android-arm64", family: "android" };
-  if (platform.includes("win")) return architecture === "arm" || /arm64/.test(ua) ? { key: "", family: "windows", title: "Windows ARM 设备", description: "当前发布的是 x64 安装包。请先确认系统的 x64 应用兼容性。" } : /win64|wow64|x64/.test(ua) || (architecture === "x86" && bitness === "64") ? { key: "windows-x64", family: "windows" } : { key: "", family: "windows", title: "Windows，确认你的架构", description: "当前安装包为 x64。请确认系统架构后选择。" };
-  if (platform.includes("mac")) return architecture === "arm" ? { key: "macos-arm64", family: "macos" } : architecture === "x86" ? { key: "macos-x64", family: "macos" } : { key: "", family: "macos", title: "macOS，选择你的处理器", description: "在「关于本机」查看芯片。Apple Silicon 使用 arm64，Intel 使用 x64。" };
-  if (platform.includes("linux") || ua.includes("linux")) return /aarch64|arm64/.test(ua) || (architecture === "arm" && bitness === "64") ? { key: "linux-cli-arm64", family: "linux" } : /x86_64|x64/.test(ua) || (architecture === "x86" && bitness === "64") ? { key: "linux-gui-x64", family: "linux" } : { key: "", family: "linux", title: "Linux，选择你的架构", description: "桌面 GUI 支持 x64；CLI 支持 x64 与 arm64。" };
-  return { key: "", title: "选择适合你的安装包", description: "未能可靠识别当前系统，请按平台与架构手动选择。" };
+  if (/iphone|ipad|ipod/.test(ua) || (platform.includes("mac") && navigator.maxTouchPoints > 1)) return { key: "", title: "iOS / iPadOS", description: "仅提供未签名实验 IPA，在下方「全部文件」中下载，需自行签名。" };
+  if (ua.includes("android")) return architecture === "x86" || bitness === "32" || /i[3-6]86|x86_64|armv7/.test(ua) ? { key: "", family: "android", title: "确认 Android 架构", description: "当前 APK 仅支持 arm64。核对设备架构后下载。" } : { key: "android-arm64", family: "android" };
+  if (platform.includes("win")) return architecture === "arm" || /arm64/.test(ua) ? { key: "", family: "windows", title: "Windows ARM", description: "当前仅提供 x64 安装包。下载前确认系统支持运行 x64 应用。" } : /win64|wow64|x64/.test(ua) || (architecture === "x86" && bitness === "64") ? { key: "windows-x64", family: "windows" } : { key: "", family: "windows", title: "确认 Windows 架构", description: "当前仅提供 x64 安装包。核对系统架构后下载。" };
+  if (platform.includes("mac")) return architecture === "arm" ? { key: "macos-arm64", family: "macos" } : architecture === "x86" ? { key: "macos-x64", family: "macos" } : { key: "", family: "macos", title: "选择 Mac 芯片", description: "在「关于本机」查看芯片：Apple Silicon 选 arm64，Intel 选 x64。" };
+  if (platform.includes("linux") || ua.includes("linux")) return /aarch64|arm64/.test(ua) || (architecture === "arm" && bitness === "64") ? { key: "linux-cli-arm64", family: "linux" } : /x86_64|x64/.test(ua) || (architecture === "x86" && bitness === "64") ? { key: "linux-gui-x64", family: "linux" } : { key: "", family: "linux", title: "选择 Linux 架构", description: "桌面 GUI 支持 x64；CLI 支持 x64 和 arm64。" };
+  return { key: "", title: "选择系统与架构", description: "未识别到系统，请手动选择安装包。" };
 }
-downloadSelect?.addEventListener("change", () => { manualDownload = true; recommend(downloadSelect.value); $("[data-smart-kicker]").textContent = "你选择的安装包"; });
+downloadSelect?.addEventListener("change", () => { manualDownload = true; recommend(downloadSelect.value); $("[data-smart-kicker]").textContent = downloadSelect.value ? "已选安装包" : "选择安装包"; });
 detectPlatform().then((detected) => { if (!manualDownload) recommend(detected.key, detected); });
 
 const searchDialog = $("[data-search-dialog]");
 const searchInput = $("[data-search-input]");
 const searchResults = $("[data-search-results]");
 const searchHint = $("[data-search-hint]");
+const searchBrowse = $("[data-search-browse]");
 const searchStatus = $("[data-search-status]");
 let searchIndex = null;
 let searchPromise = null;
@@ -535,28 +542,33 @@ function renderSearch(query) {
   if (!searchResults || !searchIndex) return;
   const trimmed = query.trim();
   activeResult = -1;
+  $$("[data-search-navigation]").forEach(hint => { hint.hidden = true; });
   searchInput.removeAttribute("aria-activedescendant");
   if (!trimmed) {
     searchResults.innerHTML = "";
     searchResults.hidden = true;
     searchHint.hidden = false;
-    searchHint.textContent = "例如：Relay、对称 NAT、status --json、TLS。";
+    searchHint.textContent = "试试：Relay、NAT、status --json。";
+    searchBrowse.hidden = true;
     searchInput.setAttribute("aria-expanded", "false");
     searchStatus.textContent = "输入关键词搜索站内内容";
     return;
   }
   const ranked = searchIndex.pages.map((page) => ({ page, score: scorePage(page, trimmed) })).filter((entry) => entry.score > 0).sort((a, b) => b.score - a.score).slice(0, 10);
   searchHint.hidden = true;
+  searchBrowse.hidden = true;
   searchInput.setAttribute("aria-expanded", String(ranked.length > 0));
-  searchStatus.textContent = ranked.length ? `找到 ${ranked.length} 条结果` : "没有找到匹配内容";
+  searchStatus.textContent = ranked.length ? `找到 ${ranked.length} 条结果` : "没有匹配结果";
   if (!ranked.length) {
     searchResults.innerHTML = "";
     searchResults.hidden = true;
     searchHint.hidden = false;
-    searchHint.textContent = "没有找到匹配内容。尝试更短的关键词，或从文档首页按任务浏览。";
+    searchHint.textContent = "没有匹配结果。换个关键词试试。";
+    searchBrowse.hidden = false;
     return;
   }
   searchResults.hidden = false;
+  $$("[data-search-navigation]").forEach(hint => { hint.hidden = false; });
   searchResults.innerHTML = ranked.map(({ page }, index) => `<a class="search-result" id="search-result-${index}" role="option" tabindex="-1" aria-selected="false" href="${escapeSearchHtml(page.url)}"><span>${escapeSearchHtml(page.section)}</span><strong>${escapeSearchHtml(page.title)}</strong><p>${escapeSearchHtml(excerpt(page.text, trimmed))}</p></a>`).join("");
   updateActiveResult(0);
 }
@@ -579,12 +591,15 @@ async function openSearch() {
   body.classList.add("search-open");
   searchInput.focus();
   searchHint.hidden = false;
-  searchHint.textContent = searchIndex ? "例如：Relay、对称 NAT、status --json、TLS。" : "正在加载搜索索引…";
+  searchBrowse.hidden = true;
+  $$("[data-search-navigation]").forEach(hint => { hint.hidden = true; });
+  searchHint.textContent = searchIndex ? "试试：Relay、NAT、status --json。" : "正在加载搜索…";
   searchStatus.textContent = searchHint.textContent;
   try { await ensureSearchIndex(); renderSearch(searchInput.value); }
   catch {
     searchHint.hidden = false;
-    searchHint.textContent = "搜索索引加载失败。重新打开可重试，也可从文档首页浏览。";
+    searchHint.textContent = "搜索加载失败。重新打开可重试。";
+    searchBrowse.hidden = false;
     searchStatus.textContent = searchHint.textContent;
   }
 }

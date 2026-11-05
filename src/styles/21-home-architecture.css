@@ -34,7 +34,6 @@
   .hosting-reference > div { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; border-bottom: 1px solid var(--line); padding-block: 23px; }
   .hosting-reference strong { font-size: 1rem; font-weight: 500; }
   .hosting-reference span { color: var(--muted); font-size: .875rem; }
-  .hosting-reference > p { font-size: .875rem; }
   .hosting-reference > a { display: inline-flex; min-height: 44px; align-items: center; margin-top: 14px; color: var(--ink); font-size: .875rem; text-decoration: underline; text-underline-offset: 4px; }
   .closing-cta { border-top: 1px solid var(--line); padding-block: 58px; }
   .closing-cta .container { display: flex; align-items: center; justify-content: space-between; gap: 28px; }
